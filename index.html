@@ -151,9 +151,9 @@ input,select,textarea{font-family:inherit;outline:none}
 @media(max-width:1000px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 /* 추가 색상 */
-.c-blue2::before{background:#6366F1}
-.c-yellow2::before{background:#D97706}
-.c-pink::before{background:#EC4899}
+.c-blue2::before{background:var(--blue)}
+.c-yellow2::before{background:var(--green)}
+.c-pink::before{background:var(--orange)}
 .kpi-card{padding:14px 14px 11px;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);position:relative;transition:background .15s}
 .kpi-card:hover{background:var(--sf2)}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
@@ -1404,15 +1404,15 @@ function closeAlertCfg(){document.getElementById('alertCfgMov').classList.remove
 const sparks={};
 const KPI_DEFS=[
   {id:'impressions', label:'노출수',           fmt:'num', cls:'c-blue',   inv:false},
-  {id:'clicks',      label:'클릭수',           fmt:'num', cls:'c-green',  inv:false},
-  {id:'ctr',         label:'클릭률',           fmt:'pct2',cls:'c-teal',   inv:false},
+  {id:'clicks',      label:'클릭수',           fmt:'num', cls:'c-blue',   inv:false},
+  {id:'ctr',         label:'클릭률',           fmt:'pct2',cls:'c-blue',   inv:false},
   {id:'adSpend',     label:'총비용(광고비)',   fmt:'cur', cls:'c-orange', inv:true },
-  {id:'cpc',         label:'평균클릭비용(CPC)',fmt:'cur', cls:'c-yellow', inv:true },
-  {id:'conversions', label:'총 전환수',        fmt:'num', cls:'c-purple', inv:false},
-  {id:'crto',        label:'총 전환율',        fmt:'pct2',cls:'c-blue2',  inv:false},
-  {id:'convRevenue', label:'총 전환매출액',    fmt:'cur', cls:'c-teal',   inv:false},
-  {id:'roas',        label:'광고수익률(ROAS)', fmt:'pct', cls:'c-yellow2',inv:false},
-  {id:'cpConv',      label:'총 전환당비용',    fmt:'cur', cls:'c-pink',   inv:true },
+  {id:'cpc',         label:'평균클릭비용(CPC)',fmt:'cur', cls:'c-orange', inv:true },
+  {id:'conversions', label:'총 전환수',        fmt:'num', cls:'c-green',  inv:false},
+  {id:'crto',        label:'총 전환율',        fmt:'pct2',cls:'c-green',  inv:false},
+  {id:'convRevenue', label:'총 전환매출액',    fmt:'cur', cls:'c-green',  inv:false},
+  {id:'roas',        label:'광고수익률(ROAS)', fmt:'pct', cls:'c-green',  inv:false},
+  {id:'cpConv',      label:'총 전환당비용',    fmt:'cur', cls:'c-orange', inv:true },
 ];
 const GM=[
   {id:'impressions',n:'노출수',u:'회',c:'#2E86DE'},
@@ -1458,8 +1458,8 @@ function renderKpi(){
 function initSparks(){
   const CC={
     'c-blue':'#2E86DE','c-green':'#00A07A','c-orange':'#FF7043',
-    'c-purple':'#7C3AED','c-teal':'#0891B2','c-yellow':'#D97706',
-    'c-blue2':'#6366F1','c-yellow2':'#D97706','c-pink':'#EC4899'
+    'c-purple':'#00A07A','c-teal':'#00A07A','c-yellow':'#FF7043',
+    'c-blue2':'#2E86DE','c-yellow2':'#00A07A','c-pink':'#FF7043'
   };
   const dd=getDailyData(ST.kpiType);
   KPI_DEFS.forEach(def=>{
