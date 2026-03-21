@@ -865,7 +865,7 @@ function applyDp(){
   let f=DP.selFrom,t=DP.selTo;
   if(f>t){const tmp=f;f=t;t=tmp}
   DS={from:f,to:t,days:Math.round((t-f)/(864e5))+1,preset:''};
-  closeDp();updateHeaderDate();reloadAll();
+  closeDp();updateHeaderDate();fetchDashboardData().then(()=>reloadAll());
 }
 function renderDpPresets(){
   document.getElementById('dpPresets').innerHTML=PRESETS.map(p=>`<button class="dp-preset${p.l===DS.preset?' active':''}" onclick="applyPreset('${p.l}')">${p.l}</button>`).join('');
@@ -930,6 +930,27 @@ function updateHeaderDate(){
   document.getElementById('updTxt').textContent=`${fmtDK(DS.to)} 기준 · 샘플 데이터`;
 }
 
+/* ================================================================ API 연동 */
+let LIVE_DATA = null;
+const WORKER_URL = 'https://naver-ad-proxy.pokool-ad.workers.dev';
+
+async function fetchDashboardData() {
+  const from = DS.from.toISOString().slice(0,10);
+  const to = DS.to.toISOString().slice(0,10);
+  try {
+    document.getElementById('updTxt').textContent = '데이터 로딩 중...';
+    const res = await fetch(`${WORKER_URL}/api/dashboard?from=${from}&to=${to}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    LIVE_DATA = await res.json();
+    if (LIVE_DATA.error) throw new Error(LIVE_DATA.error);
+    document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · 실시간 데이터`;
+  } catch(e) {
+    console.warn('API 연결 실패, 샘플 데이터 사용:', e.message);
+    LIVE_DATA = null;
+    document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · 샘플 데이터`;
+  }
+}
+
 /* ================================================================ DATA */
 function seed(d,i){const s=(d.getFullYear()*1000+d.getMonth()*30+d.getDate())*13+i;return(Math.sin(s*7.3)*43758.5453%1+1)%1*0.5+0.75}
 function periodMult(){const d=DS.days;return d<=1?0.16:d<=3?0.45:d<=7?1.0:d<=14?1.92:d<=30?4.0:d<=90?11.5:d<=180?22:45}
@@ -957,6 +978,7 @@ function getPeriodLabel(){return getPeriodDesc().label;}
 function getPeriodStr(){const p=getPeriodDesc();return`${p.label} (${p.range})`;}
 
 function getKpiData(type){
+  if(LIVE_DATA&&LIVE_DATA.kpi&&LIVE_DATA.kpi[type]) return LIVE_DATA.kpi[type];
   const base=B7[type]||B7['전체'],m=periodMult();
   const r={};
   ['impressions','clicks','adSpend','conversions','convRevenue'].forEach((k,i)=>{
@@ -965,7 +987,6 @@ function getKpiData(type){
   });
   r.roas=r.adSpend>0?Math.round(r.convRevenue/r.adSpend*100):0;
   r.p_roas=r.p_adSpend>0?Math.round(r.p_convRevenue/r.p_adSpend*100):0;
-  // 파생 지표
   r.ctr=r.impressions>0?parseFloat((r.clicks/r.impressions*100).toFixed(2)):0;
   r.p_ctr=r.p_impressions>0?parseFloat((r.p_clicks/r.p_impressions*100).toFixed(2)):0;
   r.cpc=r.clicks>0?Math.round(r.adSpend/r.clicks):0;
@@ -977,6 +998,7 @@ function getKpiData(type){
   return r;
 }
 function getDailyData(type){
+  if(LIVE_DATA&&LIVE_DATA.daily&&LIVE_DATA.daily[type]) return LIVE_DATA.daily[type];
   const base=B7[type]||B7['전체'],d=Math.min(DS.days,30);
   const labels=[],cur={impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]};
   const prv={impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]};
@@ -992,6 +1014,13 @@ function getDailyData(type){
   return{labels,cur,prv};
 }
 function getCampData(){
+  if(LIVE_DATA&&LIVE_DATA.campaigns&&LIVE_DATA.campaigns.length>0){
+    return LIVE_DATA.campaigns.map(c=>({
+      ...c,
+      get roas(){return this.adSpend>0?Math.round(this.convRevenue/this.adSpend*100):0},
+      get cpConv(){return this.conversions>0?Math.round(this.adSpend/this.conversions):0},
+    }));
+  }
   const m=periodMult();
   return CAMPS_BASE.map((c,i)=>({
     ...c,
@@ -1008,6 +1037,14 @@ function getCampData(){
   }));
 }
 function getKwData(){
+  if(LIVE_DATA&&LIVE_DATA.keywords&&LIVE_DATA.keywords.length>0){
+    return LIVE_DATA.keywords.map(k=>({
+      ...k,
+      get cpc(){return this.clicks>0?Math.round(this.adSpend/this.clicks):0},
+      get roas(){return this.adSpend>0?Math.round(this.convRevenue/this.adSpend*100):0},
+      get cpConv(){return this.conversions>0?Math.round(this.adSpend/this.conversions):0},
+    }));
+  }
   const m=periodMult();
   return KW_BASE.map((k,i)=>({
     ...k,
@@ -1614,7 +1651,8 @@ function setHmInterval(iv){
 }
 
 function renderHm(){
-  const rawData=HM_DATA[ST.hmType]||HM_DATA['전체']; // [24][7]
+  const hmSource=(LIVE_DATA&&LIVE_DATA.heatmap)?LIVE_DATA.heatmap:HM_DATA;
+  const rawData=hmSource[ST.hmType]||hmSource['전체']; // [24][7]
   const m=ST.hmMetric, sch=HM_SCH[m];
   const iv=ST.hmInterval||2; // 1 or 2 hours
   const fmt=v=>m==='roas'||m==='cvr'?v+'%':m==='spend'?fC(v):fN(v);
@@ -1901,9 +1939,10 @@ function toggleSec(bodyId, togId){
 }
 
 /* ================================================================ INIT */
-function init(){
+async function init(){
   loadLog();injectSampleLog();
   updateHeaderDate();
+  await fetchDashboardData();
   renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();renderQl();
 }
 init();
