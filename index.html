@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포쿨 네이버 광고 대시보드</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#F2F1EC;--sf:#FFF;--sf2:#FAFAF7;
+  --navy:#0B1D34;--navy2:#162B4A;
+  --green:#00C896;--g2:#00A07A;--gbg:#E6FAF4;
+  --red:#E53935;--rbg:#FEECEC;
+  --orange:#FF7043;--obg:#FFF3EE;
+  --blue:#2E86DE;--bbg:#EBF4FF;
+  --yellow:#D97706;--ybg:#FFFBEB;
+  --purple:#7C3AED;--pbg:#F3F0FF;
+  --teal:#0891B2;--tbg:#E0F5FA;
+  --t1:#0B1D34;--t2:#1A202C;--t3:#2D3748;
+  --bd:#E4E0D6;--bd2:#C9C4B4;
+  --r:10px;--rsm:7px;--rlg:16px;
+  --s1:0 1px 3px rgba(11,29,52,.06);--s2:0 4px 14px rgba(11,29,52,.09);--s3:0 8px 28px rgba(11,29,52,.14);
+  --tr:all .15s ease;--hh:64px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--t1);font-size:15px;line-height:1.65;min-height:100vh}
+button{cursor:pointer;font-family:inherit;border:none;outline:none}
+input,select,textarea{font-family:inherit;outline:none}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+
+/* ─── HEADER ─── */
+.hdr{position:sticky;top:0;z-index:200;background:var(--navy);height:var(--hh);display:flex;align-items:center;padding:0 24px;gap:14px;box-shadow:0 2px 12px rgba(11,29,52,.45)}
+.logo-ico{width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;letter-spacing:-1px;flex-shrink:0}
+/* ③ 제목 변경 + ④ 텍스트 크게 */
+.logo-name{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.02em}
+.hdiv{width:1px;height:26px;background:rgba(255,255,255,.14);flex-shrink:0}
+.date-btn{display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:var(--tr);flex-shrink:0}
+.date-btn:hover{background:rgba(255,255,255,.14)}
+.date-btn .arr{font-size:13.5px;color:rgba(255,255,255,.55)}
+.date-range-txt{font-variant-numeric:tabular-nums;font-size:14px}
+.hdr-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.clock-wrap{display:flex;align-items:center;gap:6px;padding:5px 13px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:7px}
+.clock-ampm{font-size:12.5px;font-weight:800;color:rgba(255,255,255,.6);letter-spacing:.04em;line-height:1}
+.clock-time{font-size:17px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.04em;line-height:1.15}
+.clock-date{font-size:12px;color:rgba(255,255,255,.45);line-height:1.3}
+.upd{display:flex;align-items:center;gap:5px;font-size:13.5px;color:rgba(255,255,255,.42)}
+.upd-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ─── DATE PICKER ─── */
+.dp-overlay{position:fixed;inset:0;z-index:300;display:none}
+.dp-overlay.show{display:block}
+.dp-panel{position:fixed;top:var(--hh);left:50%;transform:translateX(-50%);background:var(--sf);border-radius:var(--r);box-shadow:var(--s3);border:1px solid var(--bd);width:700px;max-width:96vw;animation:dpIn .18s ease;overflow:hidden}
+@keyframes dpIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.dp-presets{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:14px 16px 10px;border-bottom:1px solid var(--bd);background:var(--sf2)}
+.dp-preset{padding:7px 4px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;font-size:14px;font-weight:600;color:var(--t2);transition:var(--tr);text-align:center}
+.dp-preset:hover{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
+.dp-preset.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.dp-cals{display:grid;grid-template-columns:1fr 1fr}
+.dp-cal{padding:14px 16px;border-right:1px solid var(--bd)}.dp-cal:last-child{border-right:none}
+.dp-cal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.dp-cal-title{font-size:14px;font-weight:800;color:var(--t1)}
+.dp-nav{display:flex;gap:3px}
+.dp-nb{width:27px;height:27px;background:var(--sf2);border:1px solid var(--bd);border-radius:5px;font-size:14px;color:var(--t2);display:flex;align-items:center;justify-content:center;transition:var(--tr)}.dp-nb:hover{background:var(--bd)}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.dp-dhd{font-size:12.5px;font-weight:700;color:var(--t3);padding:3px 0 6px}
+.dp-dhd.sun{color:#E53935}.dp-dhd.sat{color:#2E86DE}
+.dp-day{height:28px;border-radius:5px;font-size:14.5px;font-weight:500;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .1s,color .1s;color:var(--t2)}
+.dp-day:hover{background:var(--bbg);color:var(--blue)}.dp-day.other{color:var(--bd2)}.dp-day.today{font-weight:800;color:var(--navy)}
+.dp-day.sel{background:var(--navy);color:#fff;font-weight:700}.dp-day.inrange{background:var(--bbg);color:var(--blue)}
+.dp-day.rs{background:var(--navy);color:#fff;border-radius:5px 0 0 5px}.dp-day.re{background:var(--navy);color:#fff;border-radius:0 5px 5px 0}
+.dp-day.sun{color:#f88}.dp-day.sat{color:#88c}.dp-day.sel.sun,.dp-day.sel.sat,.dp-day.rs.sun,.dp-day.rs.sat,.dp-day.re.sun,.dp-day.re.sat{color:#fff}
+.dp-foot{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--bd);background:var(--sf2)}
+.dp-period{font-size:14.5px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums}
+.dp-btns{display:flex;gap:8px}
+.btn-cancel{padding:7px 16px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;font-size:14.5px;font-weight:600;color:var(--t2);transition:var(--tr)}.btn-cancel:hover{background:var(--bd)}
+.btn-apply{padding:7px 20px;background:var(--navy);color:#fff;border-radius:6px;font-size:14.5px;font-weight:700;transition:var(--tr)}.btn-apply:hover{background:var(--g2)}
+
+/* ─── CUSTOM TOOLTIP ─── */
+/* ① ⑤ 마우스오버 툴팁 */
+.tip-wrap{position:relative;display:inline-flex}
+.tip-box{
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:rgba(11,29,52,.95);color:#fff;
+  padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.55;
+  white-space:nowrap;pointer-events:none;z-index:800;
+  opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s;
+  box-shadow:var(--s3);min-width:200px;text-align:left;
+}
+.tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:rgba(11,29,52,.95)}
+.tip-wrap:hover .tip-box{opacity:1;visibility:visible}
+.tip-box b{color:var(--green);display:block;margin-bottom:3px;font-size:13.5px}
+.tip-box .tip-line{color:rgba(255,255,255,.7);font-size:12.5px}
+
+/* ─── MAIN ─── */
+.main{max-width:1400px;margin:0 auto;padding:0 22px 60px}
+
+/* ─── PHASE ─── */
+.phase{display:flex;align-items:center;gap:14px;padding:26px 0 13px}
+.phase::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--bd),transparent)}
+.p-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:900;color:#fff;flex-shrink:0}
+.pn1{background:var(--red)}.pn2{background:var(--blue)}.pn3{background:var(--purple)}.pn4{background:var(--g2)}
+.p-title{font-size:15px;font-weight:900;color:var(--t1)}
+.p-sub{font-size:13.5px;color:var(--t3);margin-left:6px}
+
+/* ─── CARD ─── */
+.card{background:var(--sf);border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--s1);overflow:hidden;margin-bottom:14px}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-title{font-size:14.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
+.card-ico{width:22px;height:22px;background:var(--navy);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12.5px}
+.card-sub{font-size:12.5px;color:var(--t3)}
+
+/* ─── PILL TABS ─── */
+.pill-grp{display:flex;gap:5px;flex-wrap:wrap}
+.pill{padding:5px 14px;border-radius:20px;font-size:14px;font-weight:700;background:var(--sf2);border:1.5px solid var(--bd);color:var(--t2);transition:var(--tr)}
+.pill:hover{border-color:var(--t2);color:var(--t1)}.pill.active{background:var(--navy);border-color:var(--navy);color:#fff}
+
+/* ─── ALERTS (⑥ 가로 3개) ─── */
+.alert-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:var(--red);border-radius:var(--r) var(--r) 0 0;cursor:pointer;user-select:none}
+.alert-hd.coll{border-radius:var(--r)}.alert-hd:hover{filter:brightness(1.07)}
+.ah-l{display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;font-size:14.5px}
+.acnt{background:rgba(255,255,255,.22);color:#fff;padding:1px 7px;border-radius:10px;font-size:12.5px;font-weight:700}
+.ah-r{display:flex;align-items:center;gap:8px}
+.ah-tog{color:rgba(255,255,255,.7);font-size:14.5px;transition:transform .2s}.ah-tog.r{transform:rotate(180deg)}
+/* ⑦ 경고 설정 버튼 */
+.alert-cfg-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:13px;font-weight:700;transition:var(--tr)}
+.alert-cfg-btn:hover{background:rgba(255,255,255,.28)}
+.alert-body{background:var(--sf);border:1px solid rgba(229,57,53,.25);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden;transition:max-height .3s ease,opacity .2s;max-height:400px;opacity:1}
+.alert-body.coll{max-height:0;opacity:0}
+/* ⑥ 가로 3열 레이아웃 */
+.alert-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+@media(max-width:800px){.alert-cards{grid-template-columns:1fr}}
+.alert-card{padding:14px 16px;border-right:1px solid var(--bd);transition:background .1s}
+.alert-card:last-child{border-right:none}
+.alert-card:hover{background:var(--sf2)}
+.ac-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ac-icon{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.ac-icon.danger{background:var(--rbg)}.ac-icon.warning{background:var(--obg)}.ac-icon.info{background:var(--bbg)}
+.ac-title{font-size:14.5px;font-weight:800}
+.ac-title.danger{color:var(--red)}.ac-title.warning{color:var(--orange)}.ac-title.info{color:var(--blue)}
+.ac-msg{font-size:14.5px;color:var(--t2);margin-bottom:4px;line-height:1.5}
+.ac-detail{font-size:12.5px;color:var(--t3)}
+.ac-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:12.5px;font-weight:700;margin-bottom:6px}
+.ac-badge.danger{background:var(--rbg);color:var(--red)}.ac-badge.warning{background:var(--obg);color:var(--orange)}.ac-badge.info{background:var(--bbg);color:var(--blue)}
+
+/* ─── KPI ─── */
+.kpi-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--sf2);border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:7px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+@media(max-width:1000px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+/* 추가 색상 */
+.c-blue2::before{background:#6366F1}
+.c-yellow2::before{background:#D97706}
+.c-pink::before{background:#EC4899}
+.kpi-card{padding:14px 14px 11px;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);position:relative;transition:background .15s}
+.kpi-card:hover{background:var(--sf2)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
+.c-blue::before{background:var(--blue)}.c-green::before{background:var(--green)}.c-orange::before{background:var(--orange)}.c-purple::before{background:var(--purple)}.c-teal::before{background:var(--teal)}.c-yellow::before{background:var(--yellow)}
+.kpi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.kpi-lbl{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.04em}
+/* ① ⑤ 변화율 배지에 툴팁 */
+.cb{display:inline-flex;align-items:center;padding:2px 7px;border-radius:10px;font-size:13px;font-weight:700}
+.ug,.dg{background:var(--gbg);color:var(--g2)}.ub,.db{background:var(--rbg);color:var(--red)}.neu{background:#EEEBE3;color:var(--t3)}
+.kpi-val{font-size:22px;font-weight:900;color:var(--t1);line-height:1.15;margin-bottom:7px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum";letter-spacing:-.01em}
+.kpi-val .csym{font-size:14.5px;font-weight:600;color:var(--t3);vertical-align:middle;margin-right:1px}.kpi-val .pct{font-size:14.5px;font-weight:600;color:var(--t3)}
+.spark{height:30px;margin-bottom:7px}
+.goal-area{border-top:1px solid var(--bd);padding-top:7px}
+.goal-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.goal-lbl{font-size:12px;color:var(--t3)}.goal-chip{font-size:11px;color:var(--t3);background:var(--sf2);border:1px solid var(--bd);padding:0 5px;border-radius:7px;font-variant-numeric:tabular-nums}
+.goal-pct{font-size:12.5px;font-weight:800;color:var(--t2)}
+.goal-track{height:4px;background:var(--bd);border-radius:2px;overflow:hidden}
+.goal-fill{height:100%;border-radius:2px;transition:width .8s ease}
+.btn-goal{display:flex;align-items:center;gap:4px;padding:5px 11px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;font-size:13px;font-weight:700;color:var(--t2);transition:var(--tr)}.btn-goal:hover{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
+
+/* ─── 2-COL ─── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* ─── TREND (전체 폭, 큰 차트) ─── */
+.trend-type-tabs{display:flex;gap:0;border-bottom:2px solid var(--bd);padding:0 18px;background:var(--sf2)}
+.trend-type-tab{padding:11px 16px;font-size:14.5px;font-weight:700;color:var(--t3);background:transparent;border:none;border-bottom:2.5px solid transparent;margin-bottom:-2px;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap}
+.trend-type-tab:hover{color:var(--t1)}
+.trend-type-tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+/* 지표 선택 행 */
+.metric-row{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:8px;background:var(--sf)}
+.metric-chk-grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+/* 체크박스 칩 */
+.mchk{display:flex;align-items:center;gap:7px;padding:7px 14px 7px 10px;font-size:14.5px;font-weight:700;border-radius:7px;cursor:pointer;transition:var(--tr);background:var(--sf2);border:1.5px solid var(--bd);color:var(--t3);user-select:none;position:relative}
+.mchk:hover{border-color:var(--bd2);color:var(--t2);background:#fff;box-shadow:var(--s1)}
+.mchk .mchk-box{width:15px;height:15px;border-radius:3px;border:2px solid var(--bd2);background:#fff;flex-shrink:0;transition:var(--tr);display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent}
+.mchk.on{border-width:2px;color:var(--mc,#2E86DE);border-color:var(--mc,#2E86DE);background:#fff}
+.mchk.on .mchk-box{border-color:var(--mc,#2E86DE);background:var(--mc,#2E86DE);color:#fff}
+.mchk[data-m="impressions"]{--mc:#2E86DE}.mchk[data-m="clicks"]{--mc:#00A07A}.mchk[data-m="adSpend"]{--mc:#FF7043}.mchk[data-m="conversions"]{--mc:#7C3AED}.mchk[data-m="convRevenue"]{--mc:#0891B2}
+.mchk .mchk-axis{font-size:12px;font-weight:800;padding:1px 5px;border-radius:3px;margin-left:1px;display:none}
+.mchk.on .mchk-axis{display:inline}
+.mchk.axis-L .mchk-axis{background:rgba(46,134,222,.12);color:var(--blue)}
+.mchk.axis-R .mchk-axis{background:rgba(255,112,67,.12);color:var(--orange)}
+/* 이전기간 비교 */
+.cmp-tog{display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:14.5px;font-weight:700;border-radius:7px;cursor:pointer;transition:var(--tr);background:var(--sf2);border:1.5px dashed var(--bd2);color:var(--t3)}
+.cmp-tog:hover{border-color:var(--t2);color:var(--t2)}.cmp-tog.on{background:var(--bbg);border-color:var(--blue);border-style:solid;color:var(--blue)}
+.cmp-tog .cmp-line{width:18px;height:0;border-top:2px dashed currentColor}
+/* 차트 영역 */
+.trend-chart-wrap{padding:14px 18px 18px}
+.trend-axis-bar{display:flex;justify-content:space-between;margin-bottom:6px;min-height:20px}
+.tab-axis{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700}
+.tab-axis .ax-dot{width:9px;height:9px;border-radius:50%}
+/* 차트 높이 380px */
+.trend-body{height:380px;position:relative}
+/* 범례 */
+.trend-leg-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.tl-item{display:flex;align-items:center;gap:5px;font-size:13.5px;font-weight:600;color:var(--t2)}
+.tl-dot{width:10px;height:10px;border-radius:50%}
+.tl-dash{width:18px;height:0;border-top:2px dashed var(--bd2)}
+
+/* ─── HEATMAP ─── */
+.hm-tip{position:fixed;background:rgba(11,29,52,.93);color:#fff;padding:9px 13px;border-radius:8px;font-size:13.5px;pointer-events:none;z-index:500;display:none;line-height:1.6;min-width:155px;box-shadow:var(--s3)}
+.hm-info{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 8px;flex-wrap:wrap;gap:6px}
+.hm-leg{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--t2)}.hm-grad{width:100px;height:8px;border-radius:4px;border:1px solid var(--bd)}
+.hm-badges{display:flex;gap:6px;flex-wrap:wrap}
+.hm-best{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;background:var(--gbg);border:1px solid rgba(0,200,150,.22);border-radius:11px;font-size:12.5px;font-weight:700;color:var(--g2)}
+.hm-worst{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;background:var(--rbg);border:1px solid rgba(229,57,53,.18);border-radius:11px;font-size:12.5px;font-weight:700;color:var(--red)}
+.hm-wrap{padding:4px 16px 14px;overflow-x:auto}
+.hm-tbl{border-collapse:separate;border-spacing:2px;font-size:12.5px;width:100%}
+.hm-tbl .hm-th-day{padding:4px 6px;text-align:center;font-weight:800;font-size:12.5px;color:var(--t2);white-space:nowrap}
+.hm-tbl .hm-th-hour{padding:3px 6px 3px 2px;font-weight:700;font-size:12px;color:var(--t3);white-space:nowrap;text-align:right;min-width:38px}
+.hm-cell{height:28px;border-radius:4px;text-align:center;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;transition:transform .1s;vertical-align:middle}
+.hm-cell:hover{transform:scale(1.12);box-shadow:var(--s2);z-index:2;position:relative}
+/* 그라데이션 띠 */
+.hm-grad-bar{
+  display:flex;align-items:stretch;
+  height:22px;border-radius:6px;overflow:hidden;
+  position:relative;
+}
+.hm-grad-fill{flex:1;border-radius:6px}
+.hm-grad-labels{display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-size:12px;color:var(--t3)}
+.hm-grad-marker{
+  position:absolute;top:0;height:100%;width:3px;background:rgba(11,29,52,.5);
+  border-radius:2px;pointer-events:none;
+}
+.hm-grad-label{font-size:12px;font-weight:700;padding:0 6px}
+
+/* ─── TABLE ─── */
+.tbl-bar{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.sw{position:relative;min-width:150px;flex:1}.sw input{width:100%;padding:6px 9px 6px 27px;border:1px solid var(--bd);border-radius:var(--rsm);background:var(--sf2);color:var(--t1);font-size:14px;transition:var(--tr)}.sw input:focus{border-color:var(--blue);background:#fff}
+.si{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:12.5px;pointer-events:none}
+.fsel{padding:6px 9px;border:1px solid var(--bd);border-radius:var(--rsm);background:var(--sf2);color:var(--t1);font-size:14px;cursor:pointer;transition:var(--tr)}.fsel:focus{border-color:var(--blue)}
+.onoff-grp{display:flex;border:1px solid var(--bd);border-radius:var(--rsm);overflow:hidden;flex-shrink:0}
+.onoff-btn{padding:5px 11px;background:var(--sf2);border:none;font-size:13px;font-weight:700;color:var(--t2);transition:var(--tr);border-right:1px solid var(--bd);display:flex;align-items:center;gap:4px}.onoff-btn:last-child{border-right:none}.onoff-btn:hover{background:var(--bd)}
+.onoff-btn.on.active{background:#E8FAF4;color:var(--g2)}.onoff-btn.off.active{background:#FFF0EE;color:var(--orange)}
+.od{width:6px;height:6px;border-radius:50%}.onoff-btn.on .od{background:var(--green)}.onoff-btn.off .od{background:var(--orange)}
+.alo-btn{display:flex;align-items:center;gap:4px;padding:5px 10px;border:1px solid var(--bd);background:var(--sf2);border-radius:var(--rsm);font-size:13px;color:var(--t2);transition:var(--tr)}
+.alo-btn .dot{width:6px;height:6px;border-radius:50%;background:var(--t3);transition:var(--tr)}.alo-btn.active{border-color:var(--red);background:var(--rbg);color:var(--red)}.alo-btn.active .dot{background:var(--red)}
+.tcnt{font-size:13px;color:var(--t3);white-space:nowrap;margin-left:auto}
+.bsm{display:flex;align-items:center;gap:4px;padding:5px 11px;border-radius:var(--rsm);font-size:13px;font-weight:700;transition:var(--tr);flex-shrink:0}
+.bnavy{background:var(--navy);color:#fff}.bnavy:hover{background:var(--navy2)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead tr{background:var(--sf2);border-bottom:2px solid var(--bd)}
+th{padding:8px 11px;text-align:left;font-weight:700;color:var(--t2);white-space:nowrap;user-select:none;font-size:13px}
+th.sort{cursor:pointer}th.sort:hover{color:var(--t1)}
+.si2::after{content:'⇅';margin-left:3px;font-size:10px;color:var(--t3)}
+th.sasc .si2::after{content:'▲';color:var(--blue)}th.sdesc .si2::after{content:'▼';color:var(--blue)}
+tbody tr{border-bottom:1px solid var(--bd);transition:background .1s}tbody tr:last-child{border-bottom:none}tbody tr:hover{background:var(--sf2)}
+tbody tr.alr-r{background:rgba(229,57,53,.025)}tbody tr.alr-r:hover{background:rgba(229,57,53,.06)}
+td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.tdn{display:flex;align-items:center;gap:6px;min-width:150px}
+.adot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;animation:blink 1.5s ease-in-out infinite}
+.tdnt{font-weight:700;font-size:14px;white-space:normal;word-break:break-all}
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:10px;font-size:12px;font-weight:700}
+.bsh{background:var(--bbg);color:var(--blue)}.bpl{background:var(--obg);color:var(--orange)}.bct{background:var(--ybg);color:var(--yellow)}.bbr{background:var(--gbg);color:var(--g2)}
+.bson{background:var(--gbg);color:var(--g2)}.bsoff{background:#EEEBE3;color:var(--t3)}
+.chg{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:10px;font-size:12px;font-weight:700}
+.chg.ub{background:var(--rbg);color:var(--red)}.chg.ug,.chg.dg{background:var(--gbg);color:var(--g2)}.chg.db{background:var(--rbg);color:var(--red)}.chg.ne{background:#EEEBE3;color:var(--t3)}
+.rv{font-weight:800}.rvh{color:var(--g2)}.rvm{color:var(--orange)}.rvl{color:var(--red)}
+.tbl-foot{padding:9px 14px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.pgn{display:flex;gap:2px}.pg{width:28px;height:28px;border:1px solid var(--bd);background:var(--sf);border-radius:5px;font-size:13.5px;color:var(--t2);display:flex;align-items:center;justify-content:center;transition:var(--tr)}
+.pg:hover{border-color:var(--blue);color:var(--blue)}.pg.active{background:var(--navy);border-color:var(--navy);color:#fff}.pg:disabled{opacity:.35;cursor:not-allowed}
+.pgi{font-size:12.5px;color:var(--t3)}
+.kwbar-cell{display:flex;align-items:center;gap:5px}.kwbar{height:5px;border-radius:2px}
+.wchip{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:10px;font-size:12px;font-weight:700}
+.wh{background:var(--rbg);color:var(--red)}.wm{background:var(--obg);color:var(--orange)}.wl{background:var(--gbg);color:var(--g2)}
+
+/* ─── ⑧ 전략 수립 레이아웃 ─── */
+/* AI 분석: 전체 폭 */
+.strat-ai{margin-bottom:14px}
+/* 변경이력 + 채팅: 2열 */
+.strat-bottom{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.strat-bottom{grid-template-columns:1fr}}
+
+/* ─── AI ─── */
+.ai-body{padding:16px}
+.ai-trig{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;text-align:center}
+.ai-desc{color:var(--t2);font-size:14.5px;max-width:380px;line-height:1.6}
+.btn-ai{display:flex;align-items:center;gap:8px;padding:11px 24px;background:var(--navy);color:#fff;border-radius:9px;font-size:15px;font-weight:800;transition:transform .18s,box-shadow .18s}
+.btn-ai:hover{transform:translateY(-1px);box-shadow:var(--s2)}.btn-ai .ai-ico{width:20px;height:20px;background:var(--green);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12.5px}
+.ai-ld{display:none;flex-direction:column;align-items:center;gap:12px;padding:28px}.ai-ld.show{display:flex}
+.spinner{width:32px;height:32px;border:3px solid var(--bd);border-top-color:var(--green);border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-res{display:none;gap:12px}.ai-res.show{display:grid;grid-template-columns:repeat(3,1fr)}
+@media(max-width:860px){.ai-res.show{grid-template-columns:1fr}}
+.ai-card{border-radius:var(--rsm);padding:14px;border:1px solid}
+.ai-card.sum{border-color:rgba(46,134,222,.25);background:var(--bbg)}.ai-card.risk{border-color:rgba(229,57,53,.25);background:var(--rbg)}.ai-card.strat{border-color:rgba(0,160,122,.25);background:var(--gbg)}
+.ai-ct{display:flex;align-items:center;gap:6px;font-size:14.5px;font-weight:800;margin-bottom:9px}
+.sum .ai-ct{color:var(--blue)}.risk .ai-ct{color:var(--red)}.strat .ai-ct{color:var(--g2)}
+.ai-card ul{list-style:none;padding:0}.ai-card ul li{font-size:14px;color:var(--t1);line-height:1.6;padding:5px 0 5px 14px;position:relative;border-bottom:1px solid rgba(0,0,0,.05)}.ai-card ul li:last-child{border-bottom:none}.ai-card ul li::before{content:'→';position:absolute;left:0;color:var(--t3);font-size:12px;top:6px}
+
+/* ─── 접기/펴기 공통 ─── */
+.sec-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 18px;background:var(--sf2);
+  border-bottom:1px solid var(--bd);cursor:pointer;user-select:none;
+  transition:background .13s;
+}
+.sec-hd:hover{background:#F0EFE9}
+.sec-hd-left{display:flex;align-items:center;gap:9px}
+.sec-hd-right{display:flex;align-items:center;gap:8px}
+.sec-tog{
+  width:22px;height:22px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bd);color:var(--t2);font-size:12.5px;
+  transition:transform .22s,background .15s;flex-shrink:0;
+}
+.sec-tog.open{transform:rotate(180deg)}
+.sec-tog:hover{background:var(--bd2)}
+.sec-body{overflow:hidden;transition:max-height .32s ease,opacity .22s;opacity:1}
+.sec-body.coll{max-height:0!important;opacity:0}
+/* 카드 접기 */
+.card-body{overflow:hidden;transition:max-height .32s ease,opacity .22s;opacity:1}
+.card-body.coll{max-height:0!important;opacity:0}
+.card-head{cursor:pointer;user-select:none;transition:background .13s}
+.card-head:hover{background:var(--sf2)}
+.card-head .ctog{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bd);color:var(--t2);font-size:12px;transition:transform .22s;flex-shrink:0}
+.card-head .ctog.open{transform:rotate(180deg)}
+/* 페이지당 표시 옵션 */
+.ps-sel{padding:4px 8px;border:1px solid var(--bd);border-radius:5px;background:var(--sf2);font-size:13.5px;color:var(--t2);cursor:pointer}
+.ps-sel:focus{border-color:var(--blue)}
+/* ─── LOG ─── */
+.log-filter-btn{padding:3px 9px;border:1px solid var(--bd);border-radius:5px;background:var(--sf2);font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;transition:var(--tr)}.log-filter-btn:hover{background:var(--bd)}.log-filter-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
+/* 비교 기간 / 히트맵 옵션 버튼 */
+.cmp-opt{padding:5px 11px;border-radius:5px;font-size:14px;font-weight:700;color:var(--t2);background:transparent;border:none;cursor:pointer;transition:var(--tr);white-space:nowrap}
+.cmp-opt:hover{background:var(--bd);color:var(--t1)}
+.cmp-opt.active{background:var(--navy);color:#fff}
+.log-body{padding:14px 16px}
+.log-add{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+.linp{padding:6px 9px;border:1px solid var(--bd);border-radius:var(--rsm);background:var(--sf2);font-size:14px;color:var(--t1);transition:var(--tr)}.linp:focus{border-color:var(--blue);background:#fff}
+.lnote{flex:1;min-width:160px}
+.log-tl{}
+.log-item{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--bd);position:relative}.log-item:last-child{border-bottom:none}
+.log-line{position:absolute;left:16px;top:34px;bottom:-1px;width:2px;background:var(--bd)}.log-item:last-child .log-line{display:none}
+.ldot{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;margin-top:2px;z-index:1}
+.ldot.budget{background:var(--obg);border:2px solid var(--orange)}.ldot.bid{background:var(--bbg);border:2px solid var(--blue)}.ldot.creative{background:var(--pbg);border:2px solid var(--purple)}.ldot.pause{background:#EEEBE3;border:2px solid var(--t3)}.ldot.start{background:var(--gbg);border:2px solid var(--green)}.ldot.other{background:var(--ybg);border:2px solid var(--yellow)}
+.log-cont{flex:1}
+.log-hd{display:flex;align-items:center;gap:7px;margin-bottom:2px;flex-wrap:wrap}
+.log-dt{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums}
+.ltb{font-size:12px;font-weight:700;padding:1px 6px;border-radius:9px}
+.ltb.budget{background:var(--obg);color:var(--orange)}.ltb.bid{background:var(--bbg);color:var(--blue)}.ltb.creative{background:var(--pbg);color:var(--purple)}.ltb.pause{background:#EEEBE3;color:var(--t3)}.ltb.start{background:var(--gbg);color:var(--g2)}.ltb.other{background:var(--ybg);color:var(--yellow)}
+.log-note{font-size:14px;color:var(--t1);line-height:1.5}
+.ldel{margin-left:auto;width:20px;height:20px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;color:var(--t3);font-size:13.5px;border-radius:4px;transition:var(--tr);flex-shrink:0}.ldel:hover{background:var(--rbg);color:var(--red)}
+.log-empty{text-align:center;padding:26px;color:var(--t3);font-size:14.5px}
+
+/* ─── CHAT ─── */
+.chat-inner{display:flex;height:320px}
+.chat-left{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--bd)}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;background:var(--sf2)}
+.msg{display:flex;flex-direction:column;gap:2px;max-width:86%}
+.msg.user{align-self:flex-end;align-items:flex-end}.msg.bot{align-self:flex-start;align-items:flex-start}
+.mb{padding:8px 12px;border-radius:11px;font-size:14px;line-height:1.55}
+.msg.user .mb{background:var(--navy);color:#fff;border-radius:11px 11px 3px 11px}
+.msg.bot .mb{background:#fff;color:var(--t1);border:1px solid var(--bd);border-radius:11px 11px 11px 3px;font-variant-numeric:tabular-nums}
+.mt{font-size:11px;color:var(--t3)}
+.chat-inp-row{display:flex;gap:6px;padding:9px 12px;border-top:1px solid var(--bd);background:var(--sf)}
+.ci{flex:1;padding:7px 10px;border:1px solid var(--bd);border-radius:18px;background:var(--sf2);font-size:14px;color:var(--t1);transition:var(--tr)}.ci:focus{border-color:var(--blue);background:#fff}
+.cs{padding:7px 16px;background:var(--navy);border-radius:18px;border:none;color:#fff;font-size:14px;font-weight:700;transition:var(--tr);flex-shrink:0}.cs:hover{background:var(--g2)}
+.chat-right{width:180px;flex-shrink:0;display:flex;flex-direction:column;background:var(--sf2)}
+.cr-title{padding:10px 12px 7px;font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.04em;border-bottom:1px solid var(--bd)}
+.ql-list{flex:1;overflow-y:auto;padding:6px}
+.ql-item{display:block;width:100%;text-align:left;padding:5px 8px;background:#fff;border:1px solid var(--bd);border-radius:var(--rsm);font-size:12.5px;color:var(--t1);margin-bottom:4px;transition:var(--tr);cursor:pointer}.ql-item:hover{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
+.ql-tag{font-size:11px;font-weight:700;color:var(--t3);display:block;margin-bottom:1px}
+@media(max-width:680px){.chat-right{display:none}.chat-inner{height:280px}}
+
+/* ─── MODALS ─── */
+.mov{position:fixed;inset:0;background:rgba(11,29,52,.5);z-index:400;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mov.show{display:flex}
+.mbox{background:var(--sf);border-radius:var(--rlg);padding:22px;width:520px;max-width:94vw;box-shadow:var(--s3);animation:mIn .2s ease;max-height:90vh;overflow-y:auto}
+@keyframes mIn{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.mtitle{font-size:15px;font-weight:900;color:var(--t1);display:flex;align-items:center;gap:7px}
+.mclose{width:28px;height:28px;border:1px solid var(--bd);background:var(--sf2);border-radius:6px;font-size:14px;color:var(--t2);display:flex;align-items:center;justify-content:center;transition:var(--tr)}.mclose:hover{background:var(--bd)}
+.frow{margin-bottom:12px}.flbl{display:block;font-size:12.5px;font-weight:700;color:var(--t2);margin-bottom:3px;letter-spacing:.04em}
+.finp{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:var(--rsm);background:var(--sf2);color:var(--t1);font-size:15px;transition:var(--tr);font-variant-numeric:tabular-nums}.finp:focus{border-color:var(--blue);background:#fff}
+.roi-res{background:var(--navy);border-radius:var(--rsm);padding:14px;margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.rl{font-size:11px;color:rgba(255,255,255,.42);margin-bottom:2px}
+.rv2{font-size:20px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.rv2.good{color:var(--green)}.rv2.bad{color:#FF7676}
+.gm-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:4px}
+.gf{background:var(--sf2);border-radius:var(--rsm);padding:10px;border:1px solid var(--bd)}
+.gf-hd{display:flex;align-items:center;gap:5px;margin-bottom:6px}.gf-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}.gf-name{font-size:13px;font-weight:700;color:var(--t1)}.gf-unit{font-size:12px;color:var(--t3)}
+.gf-inp{width:100%;padding:6px 9px;border:1px solid var(--bd);border-radius:var(--rsm);background:#fff;color:var(--t1);font-size:14px;font-weight:700;transition:var(--tr);font-variant-numeric:tabular-nums}.gf-inp:focus{border-color:var(--blue)}
+.gm-sel{display:flex;align-items:center;gap:7px;margin-bottom:13px;padding:8px 11px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rsm)}.gm-sel label{font-size:13px;font-weight:700;color:var(--t2)}.gm-sel select{flex:1;padding:4px 7px;border:1px solid var(--bd);border-radius:5px;background:#fff;font-size:14px;cursor:pointer}
+.mfoot{display:flex;justify-content:flex-end;gap:7px;margin-top:18px;padding-top:14px;border-top:1px solid var(--bd)}
+.bcancl{padding:7px 16px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rsm);font-size:14px;font-weight:600;color:var(--t2);transition:var(--tr)}.bcancl:hover{background:var(--bd)}
+.bsave{padding:7px 20px;background:var(--navy);color:#fff;border-radius:var(--rsm);font-size:14px;font-weight:700;transition:var(--tr)}.bsave:hover{background:var(--g2)}
+.gnotice{font-size:12px;color:var(--t3);margin-top:10px;padding:7px 9px;background:var(--bbg);border-radius:5px;border:1px solid rgba(46,134,222,.13)}
+
+/* ─── ⑦ 경고 설정 모달 ─── */
+.alert-rule{background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rsm);padding:12px;margin-bottom:10px}
+.ar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ar-name{font-size:14.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
+.ar-toggle{display:flex;align-items:center;gap:6px;cursor:pointer}
+.ar-toggle input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--navy)}
+.ar-toggle-lbl{font-size:13.5px;font-weight:700;color:var(--t2)}
+.ar-body{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ar-field label{display:block;font-size:12px;font-weight:700;color:var(--t3);margin-bottom:3px;letter-spacing:.04em}
+.ar-inp-wrap{display:flex;align-items:center;gap:5px}
+.ar-inp{padding:6px 9px;border:1px solid var(--bd);border-radius:var(--rsm);background:#fff;color:var(--t1);font-size:14.5px;font-weight:700;width:80px;font-variant-numeric:tabular-nums}.ar-inp:focus{border-color:var(--blue)}
+.ar-unit{font-size:13.5px;font-weight:700;color:var(--t2)}
+.ar-desc{font-size:12.5px;color:var(--t3);margin-top:5px}
+.alert-rule-disabled{opacity:.5;pointer-events:none}
+.alert-preview{padding:10px 12px;background:var(--rbg);border:1px solid rgba(229,57,53,.2);border-radius:var(--rsm);margin-top:10px;font-size:13.5px;color:var(--red);font-weight:600}
+</style>
+</head>
+<body>
+<div class="hm-tip" id="hmTip"></div>
+
+<header class="hdr">
+  <div class="logo-ico">FC</div>
+  <!-- ③ 제목 변경 -->
+  <span class="logo-name">포쿨 네이버 광고 대시보드</span>
+  <div class="hdiv"></div>
+  <button class="date-btn" id="dateBtnMain" onclick="toggleDp()">
+    <span class="arr">◀</span>
+    <span class="date-range-txt" id="dateRangeTxt">최근 7일(오늘 포함) : 2026.03.15. ~ 2026.03.21.</span>
+    <span class="arr">▶</span>
+  </button>
+  <div class="hdr-right">
+    <div class="clock-wrap">
+      <div class="clock-ampm" id="clockAmpm">오전</div>
+      <div>
+        <div class="clock-time" id="clockTime">--:--:--</div>
+        <div class="clock-date" id="clockDate">--</div>
+      </div>
+    </div>
+    <div class="upd"><div class="upd-dot"></div><span id="updTxt">샘플 데이터</span></div>
+  </div>
+</header>
+
+<!-- DATE PICKER -->
+<div class="dp-overlay" id="dpOv" onclick="closeDpOv(event)">
+  <div class="dp-panel" id="dpPanel">
+    <div class="dp-presets" id="dpPresets"></div>
+    <div class="dp-cals">
+      <div class="dp-cal"><div class="dp-cal-hd"><span class="dp-cal-title" id="dpTitleS"></span><div class="dp-nav"><button class="dp-nb" onclick="dpNav('s',-1)">‹</button><button class="dp-nb" onclick="dpNav('s',1)">›</button></div></div><div class="dp-grid" id="dpGS"></div></div>
+      <div class="dp-cal"><div class="dp-cal-hd"><span class="dp-cal-title" id="dpTitleE"></span><div class="dp-nav"><button class="dp-nb" onclick="dpNav('e',-1)">‹</button><button class="dp-nb" onclick="dpNav('e',1)">›</button></div></div><div class="dp-grid" id="dpGE"></div></div>
+    </div>
+    <div class="dp-foot">
+      <div class="dp-period" id="dpPeriodTxt"></div>
+      <div class="dp-btns"><button class="btn-cancel" onclick="closeDp()">취소</button><button class="btn-apply" onclick="applyDp()">적용</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- 起 현황 파악 -->
+<div class="phase"><div style="display:flex;align-items:center;gap:9px"><div class="p-num pn1">起</div><span class="p-title">현황 파악</span><span class="p-sub">지금 무슨 일이 벌어지고 있나?</span></div></div>
+
+<!-- ⑥ 가로 3개 경고 -->
+<div style="margin-bottom:14px">
+  <div class="alert-hd" id="alertHd" onclick="toggleAlert()">
+    <div class="ah-l">🚨 <span>즉시 확인 필요한 경고</span><span class="acnt" id="alertCnt">0건</span></div>
+    <div class="ah-r">
+      <!-- ⑦ 설정 버튼 -->
+      <button class="alert-cfg-btn" onclick="event.stopPropagation();openAlertCfg()">⚙ 경고 설정</button>
+      <span class="ah-tog r" id="ahTog">▲</span>
+    </div>
+  </div>
+  <div class="alert-body" id="alertBody">
+    <div class="alert-cards" id="alertCards"></div>
+  </div>
+</div>
+
+<!-- KPI -->
+<div class="card" style="margin-bottom:0">
+  <!-- 소제목 행 -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 16px 8px;background:var(--sf);border-bottom:1px solid var(--bd)">
+    <div style="display:flex;align-items:center;gap:7px">
+      <span style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.06em;text-transform:uppercase">핵심 성과 지표 (KPI)</span>
+      <span style="font-size:11px;color:var(--t3)">· 기간 내 광고 전체 성과 요약</span>
+    </div>
+    <span style="font-size:11px;color:var(--t3)">전기간 대비 ▲▼ · 월 목표 달성률</span>
+  </div>
+  <div class="kpi-bar" onclick="toggleCard('kpiGrid','kpiCardTog')" style="cursor:pointer">
+    <div class="pill-grp" id="kpiTypePills" onclick="event.stopPropagation()">
+      <button class="pill active" data-type="전체">전체</button>
+      <button class="pill" data-type="쇼핑검색">쇼핑검색</button>
+      <button class="pill" data-type="파워링크">파워링크</button>
+      <button class="pill" data-type="콘텐츠">콘텐츠</button>
+      <button class="pill" data-type="브랜드">브랜드</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn-goal" onclick="event.stopPropagation();openGoalModal()">🎯 월별 목표 설정</button>
+      <div class="sec-tog open" id="kpiCardTog">▼</div>
+    </div>
+  </div>
+  <div class="card-body" id="kpiGrid" style="max-height:1600px"><div class="kpi-grid" id="kpiGridInner"></div></div>
+</div>
+
+<!-- 承 트렌드 -->
+<div class="phase"><div style="display:flex;align-items:center;gap:9px"><div class="p-num pn2">承</div><span class="p-title">트렌드 분석</span><span class="p-sub">왜 이렇게 됐나? 언제·어디서 성과가 나오나?</span></div></div>
+
+<div class="card-body" id="secTrend" style="max-height:3000px">
+<div class="two-col">
+  <!-- 트렌드: 전체 폭 카드 (two-col의 첫 컬럼 차지) -->
+  <div class="card" style="margin-bottom:0">
+    <!-- 유형 탭 -->
+    <div class="trend-type-tabs" id="trendTypeTabs">
+      <button class="trend-type-tab active" data-type="전체">전체</button>
+      <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
+      <button class="trend-type-tab" data-type="파워링크">파워링크</button>
+      <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
+      <button class="trend-type-tab" data-type="브랜드">브랜드</button>
+    </div>
+    <!-- 지표 선택 (체크박스 멀티셀렉트, 최대 2개) -->
+    <div class="metric-row">
+      <div class="metric-chk-grp" id="metricChkGrp">
+        <button class="mchk on axis-L" data-m="impressions" onclick="toggleMetricSel('impressions')">
+          <div class="mchk-box">✓</div>노출수<span class="mchk-axis">좌</span>
+        </button>
+        <button class="mchk" data-m="clicks" onclick="toggleMetricSel('clicks')">
+          <div class="mchk-box"></div>클릭수<span class="mchk-axis">좌</span>
+        </button>
+        <button class="mchk" data-m="adSpend" onclick="toggleMetricSel('adSpend')">
+          <div class="mchk-box"></div>광고비<span class="mchk-axis">우</span>
+        </button>
+        <button class="mchk" data-m="conversions" onclick="toggleMetricSel('conversions')">
+          <div class="mchk-box"></div>전환수<span class="mchk-axis">좌</span>
+        </button>
+        <button class="mchk" data-m="convRevenue" onclick="toggleMetricSel('convRevenue')">
+          <div class="mchk-box"></div>전환매출<span class="mchk-axis">우</span>
+        </button>
+      </div>
+      <!-- 비교기간 4개 옵션 버튼 그룹 (시간순: 어제 → 저번 주 → 저번 달 → 작년) -->
+      <div style="display:flex;align-items:center;gap:5px">
+        <span style="font-size:12px;font-weight:700;color:var(--t3);margin-right:2px">비교</span>
+        <div id="cmpOptGrp" style="display:flex;gap:3px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:7px;padding:3px">
+          <button class="cmp-opt" data-cmp="off"   onclick="setCmpOpt('off')"  >비교 안 함</button>
+          <button class="cmp-opt" data-cmp="yesterday" onclick="setCmpOpt('yesterday')">어제</button>
+          <button class="cmp-opt active" data-cmp="week" onclick="setCmpOpt('week')">저번 주</button>
+          <button class="cmp-opt" data-cmp="month"  onclick="setCmpOpt('month')" >저번 달</button>
+          <button class="cmp-opt" data-cmp="year"   onclick="setCmpOpt('year')"  >작년</button>
+        </div>
+      </div>
+    </div>
+    <!-- 차트 -->
+    <div class="trend-chart-wrap">
+      <div class="trend-axis-bar" id="trendAxisBar"></div>
+      <div class="trend-body"><canvas id="trendChart"></canvas></div>
+      <div class="trend-leg-row" id="trendLeg"></div>
+    </div>
+  </div>
+
+  <!-- 히트맵 -->
+  <div class="card" style="margin-bottom:0">
+    <!-- 히트맵 유형 탭 (트렌드와 동일 스타일) -->
+    <div class="trend-type-tabs" id="hmTypeTabs">
+      <button class="trend-type-tab active" data-type="전체">전체</button>
+      <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
+      <button class="trend-type-tab" data-type="파워링크">파워링크</button>
+      <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
+      <button class="trend-type-tab" data-type="브랜드">브랜드</button>
+    </div>
+    <!-- 컨트롤 행 -->
+    <div class="metric-row" style="justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:700;color:var(--t3)">🕐 요일·시간대 히트맵</span>
+        <!-- 시간 단위 토글 -->
+        <div style="display:flex;gap:2px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:6px;padding:2px">
+          <button class="cmp-opt" data-iv="1" onclick="setHmInterval(1)">1시간</button>
+          <button class="cmp-opt active" data-iv="2" onclick="setHmInterval(2)">2시간</button>
+        </div>
+      </div>
+      <div id="hmMetricBtns" style="display:flex;gap:3px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:7px;padding:3px">
+        <button class="cmp-opt active" data-hm="roas" onclick="setHmMetric('roas')">ROAS</button>
+        <button class="cmp-opt" data-hm="cvr" onclick="setHmMetric('cvr')">전환율</button>
+        <button class="cmp-opt" data-hm="spend" onclick="setHmMetric('spend')">광고비</button>
+        <button class="cmp-opt" data-hm="clicks" onclick="setHmMetric('clicks')">클릭</button>
+      </div>
+    </div>
+    <!-- 그라데이션 띠 (최저~최고 색상 범례 + 정보) -->
+    <div id="hmGradBar" style="padding:6px 16px 4px"></div>
+    <div class="hm-wrap"><table class="hm-tbl" id="hmTbl"></table></div>
+  </div>
+</div><!-- /two-col -->
+</div><!-- /secTrend -->
+
+<!-- 轉 세부 분석 -->
+<div class="phase" onclick="toggleSec('secDetail','secDetailTog')" style="cursor:pointer">
+  <div style="display:flex;align-items:center;gap:9px">
+    <div class="p-num pn3">轉</div>
+    <span class="p-title">세부 분석</span>
+    <span class="p-sub">어디서 예산이 새고, 어디가 효율적인가?</span>
+  </div>
+  <div class="sec-tog open" id="secDetailTog" style="margin-left:auto;flex-shrink:0">▼</div>
+</div>
+
+<div class="card-body" id="secDetail" style="max-height:4000px">
+
+<!-- 키워드 -->
+<div class="card">
+  <div class="card-head" onclick="toggleCard('kwCardBody','kwCardTog')">
+    <div class="card-title"><div class="card-ico">🔑</div> 키워드별 성과 분석</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="card-sub">낭비 키워드 발견 시 하단 변경 이력에 기록</span>
+      <div class="ctog open" id="kwCardTog">▼</div>
+    </div>
+  </div>
+  <div class="card-body" id="kwCardBody" style="max-height:2000px">
+  <div class="tbl-bar">
+    <div class="sw"><span class="si">🔍</span><input type="text" id="kwSearch" placeholder="키워드 검색…" oninput="renderKw()"></div>
+    <select class="fsel" id="kwTypeF" onchange="renderKw()"><option value="all">전체 유형</option><option value="쇼핑검색">쇼핑검색</option><option value="파워링크">파워링크</option><option value="브랜드">브랜드</option></select>
+    <select class="fsel" id="kwCampF" onchange="renderKw()"><option value="all">전체 캠페인</option><option value="스타리온 업소용냉장고">스타리온 업소용냉장고</option><option value="라셀르 카페냉장고">라셀르 카페냉장고</option><option value="업소용냉장고 파워링크">업소용냉장고 파워링크</option><option value="포쿨 브랜드검색">포쿨 브랜드검색</option></select>
+    <select class="fsel" id="kwWasteF" onchange="renderKw()"><option value="all">전체 낭비지수</option><option value="high">🔴 낭비높음</option><option value="mid">🟡 낭비중간</option><option value="low">🟢 효율좋음</option></select>
+    <span class="tcnt" id="kwCnt"></span>
+    <select class="ps-sel" id="kwPsSel" onchange="ST.kwPS=parseInt(this.value);ST.kwPage=1;renderKw()">
+      <option value="10">10개씩</option><option value="20">20개씩</option>
+    </select>
+  </div>
+  <div class="tw"><table><thead><tr>
+    <th style="min-width:140px">키워드</th><th>광고유형</th><th>캠페인</th>
+    <th class="sort" data-kw="impressions">노출 <span class="si2"></span></th>
+    <th class="sort" data-kw="clicks">클릭 <span class="si2"></span></th>
+    <th class="sort" data-kw="adSpend">광고비 <span class="si2"></span></th>
+    <th class="sort" data-kw="cpc">CPC <span class="si2"></span></th>
+    <th class="sort" data-kw="conversions">전환 <span class="si2"></span></th>
+    <th class="sort" data-kw="roas">
+      <div class="tip-wrap">ROAS <span class="si2"></span>
+        <div class="tip-box"><b>ROAS 계산 기준</b><span class="tip-line">전환매출 ÷ 광고비 × 100</span><br><span class="tip-line">예) 매출 ₩500,000 / 광고비 ₩100,000 = 500%</span><br><span class="tip-line">300% 이상 = 정상 / 200% 미만 = 위험</span></div>
+      </div>
+    </th>
+    <th class="sort" data-kw="cpConv">전환당비용 <span class="si2"></span></th>
+    <th>낭비지수</th>
+  </tr></thead><tbody id="kwBody"></tbody></table></div>
+  <div class="tbl-foot"><div class="pgi" id="kwPgi"></div><div class="pgn" id="kwPgn"></div></div>
+  </div><!-- /kwCardBody -->
+</div>
+
+<!-- 캠페인 -->
+<div class="card">
+  <div class="card-head" onclick="toggleCard('cmpCardBody','cmpCardTog')">
+    <div class="card-title"><div class="card-ico">📋</div> 캠페인별 상세 성과</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="card-sub">컬럼 클릭으로 정렬</span>
+      <div class="ctog open" id="cmpCardTog">▼</div>
+    </div>
+  </div>
+  <div class="card-body" id="cmpCardBody" style="max-height:2000px">
+  <div class="tbl-bar">
+    <div class="sw"><span class="si">🔍</span><input type="text" id="cmpSearch" placeholder="캠페인명 검색…" oninput="onSearch()"></div>
+    <select class="fsel" id="cmpTypeF" onchange="onFilter()"><option value="all">전체 유형</option><option value="쇼핑검색">쇼핑검색</option><option value="파워링크">파워링크</option><option value="콘텐츠">콘텐츠</option><option value="브랜드">브랜드</option></select>
+    <div class="onoff-grp"><button class="onoff-btn on" id="btnOn" onclick="toggleOnOff('on')"><div class="od"></div>ON</button><button class="onoff-btn off" id="btnOff" onclick="toggleOnOff('off')"><div class="od"></div>OFF</button></div>
+    <button class="alo-btn" id="aloBtn" onclick="toggleAlo()"><div class="dot"></div>경고만</button>
+    <span class="tcnt" id="cmpCnt"></span>
+    <select class="ps-sel" id="cmpPsSel" onchange="ST.cmpPS=parseInt(this.value);ST.cmpPage=1;renderCmp()">
+      <option value="10">10개씩</option><option value="20">20개씩</option>
+    </select>
+    <button class="bsm bnavy" onclick="openRoi()">📐 ROI 계산기</button>
+  </div>
+  <div class="tw"><table><thead><tr>
+    <th style="min-width:160px">캠페인명</th><th>유형</th><th>상태</th>
+    <th class="sort" data-col="adSpend">광고비 <span class="si2"></span></th><th>변화</th>
+    <th class="sort" data-col="impressions">노출 <span class="si2"></span></th>
+    <th class="sort" data-col="clicks">클릭 <span class="si2"></span></th>
+    <th class="sort" data-col="conversions">전환 <span class="si2"></span></th>
+    <th class="sort" data-col="convRevenue">전환매출 <span class="si2"></span></th>
+    <th class="sort" data-col="roas">
+      <div class="tip-wrap">ROAS <span class="si2"></span>
+        <div class="tip-box"><b>ROAS 계산 기준</b><span class="tip-line">전환매출 ÷ 광고비 × 100</span><br><span class="tip-line">500% 이상 ● / 300~499% ● / 300% 미만 ●</span></div>
+      </div>
+    </th>
+    <th class="sort" data-col="ctr">CTR <span class="si2"></span></th>
+    <th class="sort" data-col="crto">전환율 <span class="si2"></span></th>
+    <th class="sort" data-col="cpConv">전환당비용 <span class="si2"></span></th>
+  </tr></thead><tbody id="cmpBody"></tbody></table></div>
+  <div class="tbl-foot"><div class="pgi" id="cmpPgi"></div><div class="pgn" id="cmpPgn"></div></div>
+  </div><!-- /cmpCardBody -->
+</div>
+
+</div><!-- /secDetail -->
+
+<!-- 結 전략 수립 -->
+<div class="phase" onclick="toggleSec('secStrat','secStratTog')" style="cursor:pointer">
+  <div style="display:flex;align-items:center;gap:9px">
+    <div class="p-num pn4">結</div>
+    <span class="p-title">전략 수립</span>
+    <span class="p-sub">분석을 바탕으로 무엇을 어떻게 바꿀 것인가?</span>
+  </div>
+  <div class="sec-tog open" id="secStratTog" style="margin-left:auto;flex-shrink:0">▼</div>
+</div>
+
+<div class="card-body" id="secStrat" style="max-height:3000px">
+
+<!-- ⑧ AI 분석: 전체 폭 (큰 영역) -->
+<div class="card strat-ai">
+  <div class="card-head" onclick="toggleCard('aiBody','aiCardTog')">
+    <div class="card-title"><div class="card-ico">🤖</div> AI 광고 전략 분석</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="card-sub">Claude Sonnet 기반 · 데이터 기반 위험 진단 + 전략 자동 생성</span>
+      <div class="ctog open" id="aiCardTog">▼</div>
+    </div>
+  </div>
+  <div class="card-body" id="aiBody" style="max-height:600px">
+    <div style="padding:16px">
+    <div class="ai-trig" id="aiTrig"><div class="ai-desc">현재 광고 데이터를 분석하여 위험 요인 진단 및 다음 주 실행 전략을 자동으로 생성합니다</div><button class="btn-ai" onclick="runAi()"><div class="ai-ico">✨</div>AI 분석 실행</button></div>
+    <div class="ai-ld" id="aiLd"><div class="spinner"></div><div style="color:var(--t2);font-size:13px">캠페인 데이터 분석 중…</div></div>
+    <div class="ai-res" id="aiRes">
+      <div class="ai-card sum"><div class="ai-ct">📊 현황 요약</div><ul><li>광고비 ₩8,500,000, 전기간 대비 +12%</li><li>ROAS 529% — 목표(600%) 대비 71%p 미달</li><li>전환수 320건, 전환매출 ₩45,000,000 (+8%)</li><li>CTR 3.0%, CPC ₩557, 활성 캠페인 8개</li></ul></div>
+      <div class="ai-card risk"><div class="ai-ct">⚠️ 위험 요인</div><ul><li>업소용냉동고 ROAS 180% — 손익분기점 미달</li><li>3일 연속 전환 0건, CPA ₩63,571 급등</li><li>스타리온냉장고 일 예산 167% 초과 집행</li><li>전체 예산 소진율 85% — 초과 예상</li></ul></div>
+      <div class="ai-card strat"><div class="ai-ct">🎯 추천 전략</div><ul><li>[업소용냉동고] 입찰가 50% 즉시 하향 또는 일시중지</li><li>[스타리온냉장고] 일 예산 ₩700,000으로 상향</li><li>[포쿨 브랜드] ROAS 891% — 예산 2배 증액 권장</li><li>CTR 하위 캠페인 A/B 소재 2개 이상 등록</li></ul></div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑧ 변경이력 + 채팅: 1행 2열 -->
+<div class="strat-bottom">
+  <div class="card" style="margin-bottom:0">
+    <div class="card-head" onclick="toggleCard('logCardBody','logCardTog')">
+      <div class="card-title"><div class="card-ico">📝</div> 캠페인 변경 이력</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;gap:3px" onclick="event.stopPropagation()">
+          <button class="log-filter-btn active" data-lf="all" onclick="setLogFilter('all')">전체</button>
+          <button class="log-filter-btn" data-lf="budget" onclick="setLogFilter('budget')">💰예산</button>
+          <button class="log-filter-btn" data-lf="bid" onclick="setLogFilter('bid')">🎯입찰가</button>
+          <button class="log-filter-btn" data-lf="creative" onclick="setLogFilter('creative')">🎨소재</button>
+          <button class="log-filter-btn" data-lf="pause" onclick="setLogFilter('pause')">⏸중지</button>
+        </div>
+        <span class="card-sub" id="logCnt">0건</span>
+        <div class="ctog open" id="logCardTog">▼</div>
+      </div>
+    </div>
+    <div class="card-body" id="logCardBody" style="max-height:800px">
+    <div class="log-body">
+      <div class="log-add">
+        <input type="date" class="linp" id="logDate" value="2026-03-21">
+        <select class="linp" id="logType"><option value="budget">예산 변경</option><option value="bid">입찰가 조정</option><option value="creative">소재 교체</option><option value="pause">일시중지</option><option value="start">재개</option><option value="other">기타</option></select>
+        <input type="text" class="linp lnote" id="logNote" placeholder="내용 입력 후 Enter…" onkeydown="if(event.key==='Enter')addLog()">
+        <button class="bsm bnavy" onclick="addLog()">+ 기록</button>
+      </div>
+      <div id="logTl"></div>
+    </div>
+    </div><!-- /logCardBody -->
+  </div>
+
+  <div class="card" style="margin-bottom:0">
+    <div class="card-head" onclick="toggleCard('chatCardBody','chatCardTog')">
+      <!-- 텍스트 변경: 데이터 즉시 문의 → 광고 데이터 확인하기 -->
+      <div class="card-title"><div class="card-ico">💬</div> 광고 데이터 확인하기</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="card-sub">자연어로 질문 → 수치 즉시 답변</span>
+        <div class="ctog open" id="chatCardTog">▼</div>
+      </div>
+    </div>
+    <div class="card-body" id="chatCardBody" style="max-height:500px">
+    <div class="chat-inner">
+      <div class="chat-left">
+        <div class="chat-msgs" id="chatMsgs">
+          <div class="msg bot"><div class="mb">안녕하세요! 📊<br><b>"26년 1월 쇼핑검색 광고비?"</b><br><b>"낭비 키워드 알려줘"</b></div><div class="mt">지금</div></div>
+        </div>
+        <div class="chat-inp-row"><input class="ci" id="chatInp" placeholder="궁금한 데이터 입력 후 Enter…" onkeydown="if(event.key==='Enter')sendChat()"><button class="cs" onclick="sendChat()">전송 ➤</button></div>
+      </div>
+      <div class="chat-right"><div class="cr-title">빠른 질문</div><div class="ql-list" id="qlList"></div></div>
+    </div>
+    </div><!-- /chatCardBody -->
+  </div>
+</div>
+
+</div><!-- /secStrat -->
+
+</div><!-- /main -->
+
+<!-- ROI Modal -->
+<div class="mov" id="roiMov"><div class="mbox">
+  <div class="mhd"><div class="mtitle">📐 ROI / ROAS 계산기</div><button class="mclose" onclick="closeRoi()">✕</button></div>
+  <div class="frow"><label class="flbl">광고비 (₩)</label><input class="finp" type="number" id="cs" placeholder="예: 1000000" oninput="calcRoi()"></div>
+  <div class="frow"><label class="flbl">전환매출 (₩)</label><input class="finp" type="number" id="cr" placeholder="예: 5000000" oninput="calcRoi()"></div>
+  <div class="frow"><label class="flbl">상품 원가율 (%)</label><input class="finp" type="number" id="cc" placeholder="예: 60" oninput="calcRoi()"></div>
+  <div class="roi-res"><div><div class="rl">ROAS</div><div class="rv2" id="rr1">—</div></div><div><div class="rl">ROI</div><div class="rv2" id="rr2">—</div></div><div><div class="rl">순이익</div><div class="rv2" id="rr3">—</div></div></div>
+</div></div>
+
+<!-- Goal Modal -->
+<div class="mov" id="goalMov"><div class="mbox">
+  <div class="mhd"><div class="mtitle">🎯 월별 목표 설정</div><button class="mclose" onclick="closeGoalModal()">✕</button></div>
+  <div class="gm-sel"><label>기준 월</label><select id="goalMon"><option value="2026-03">2026년 3월</option><option value="2026-01">2026년 1월</option><option value="2025-12">2025년 12월</option></select></div>
+  <div class="gm-grid" id="goalGrid"></div>
+  <div class="gnotice">💡 입력한 목표치가 KPI 달성률 프로그레스바에 즉시 반영됩니다</div>
+  <div class="mfoot"><button class="bcancl" onclick="closeGoalModal()">취소</button><button class="bsave" onclick="saveGoals()">저장하기</button></div>
+</div></div>
+
+<!-- ⑦ 경고 설정 Modal -->
+<div class="mov" id="alertCfgMov"><div class="mbox" style="width:600px">
+  <div class="mhd"><div class="mtitle">⚙ 경고 알림 조건 설정</div><button class="mclose" onclick="closeAlertCfg()">✕</button></div>
+  <p style="font-size:12.5px;color:var(--t2);margin-bottom:16px">조건을 설정하면 기준 초과 시 경고 알림이 표시됩니다. 비교 기준은 각 항목별로 선택할 수 있습니다.</p>
+  <div id="alertRules"></div>
+  <div class="alert-preview" id="alertPreview" style="display:none"></div>
+  <div class="mfoot"><button class="bcancl" onclick="closeAlertCfg()">취소</button><button class="bsave" onclick="saveAlertCfg()">저장 · 적용</button></div>
+</div></div>
+
+<script>
+/* ================================================================ CONSTANTS */
+const MC={impressions:'#2E86DE',clicks:'#00A07A',adSpend:'#FF7043',conversions:'#7C3AED',convRevenue:'#0891B2'};
+const MF={impressions:'num',clicks:'num',adSpend:'cur',conversions:'num',convRevenue:'cur'};
+const ML={impressions:'노출수',clicks:'클릭수',adSpend:'광고비',conversions:'전환수',convRevenue:'전환매출'};
+const MA={impressions:'yL',clicks:'yL',adSpend:'yR',conversions:'yL',convRevenue:'yR'};
+const DAYS=['월','화','수','목','금','토','일'];
+const HOURS=['0시','2시','4시','6시','8시','10시','12시','14시','16시','18시','20시','22시'];
+const LOG_TYPES={budget:{l:'예산 변경',e:'💰'},bid:{l:'입찰가',e:'🎯'},creative:{l:'소재 교체',e:'🎨'},pause:{l:'일시중지',e:'⏸'},start:{l:'재개',e:'▶'},other:{l:'기타',e:'📌'}};
+const TODAY=new Date(2026,2,21);
+
+/* ================================================================ ALERT RULES CONFIG */
+// ⑦ 기본 경고 설정값
+let ALERT_RULES=[
+  {id:'spend_increase',name:'광고비 급증',ico:'💸',enabled:true,field:'adSpend',dir:'up',threshold:30,baseline:'week',desc:'설정값 이상 증가 시 경고'},
+  {id:'roas_drop',name:'ROAS 급락',ico:'📉',enabled:true,field:'roas',dir:'down',threshold:30,baseline:'week',desc:'설정값 이상 감소 시 경고'},
+  {id:'cvr_drop',name:'전환율 하락',ico:'🔻',enabled:true,field:'crto',dir:'down',threshold:25,baseline:'week',desc:'설정값 이상 감소 시 경고'},
+  {id:'cpc_rise',name:'CPC 급등',ico:'💰',enabled:false,field:'cpc',dir:'up',threshold:20,baseline:'week',desc:'설정값 이상 증가 시 경고'},
+  {id:'ctr_drop',name:'CTR 하락',ico:'👁',enabled:false,field:'ctr',dir:'down',threshold:20,baseline:'week',desc:'설정값 이상 감소 시 경고'},
+];
+const BASELINE_LABELS={week:'저번 주',yesterday:'어제',month:'저번 달',year:'작년 동기간'};
+try{const s=localStorage.getItem('fc_alert_rules2');if(s)ALERT_RULES=JSON.parse(s)}catch(e){}
+
+/* ================================================================ DATE STATE */
+let DS={from:new Date(2026,2,15),to:new Date(2026,2,21),days:7,preset:'최근 7일(오늘 포함)'};
+let DP={open:false,startYM:{y:2026,m:2},endYM:{y:2026,m:2},selFrom:new Date(2026,2,15),selTo:new Date(2026,2,21),picking:'from'};
+const PRESETS=[
+  {l:'오늘',fn:()=>range(0,0)},{l:'어제',fn:()=>range(-1,-1)},
+  {l:'최근 7일(오늘 포함)',fn:()=>range(-6,0)},{l:'최근 7일(오늘 제외)',fn:()=>range(-7,-1)},
+  {l:'최근 30일(오늘 포함)',fn:()=>range(-29,0)},{l:'최근 30일(오늘 제외)',fn:()=>range(-30,-1)},
+  {l:'이번 주',fn:()=>thisWeek()},{l:'지난 주',fn:()=>lastWeek()},
+  {l:'이번 달',fn:()=>thisMonth()},{l:'지난 달',fn:()=>lastMonth()},
+];
+function range(f,t){const fd=new Date(TODAY);fd.setDate(fd.getDate()+f);const td=new Date(TODAY);td.setDate(td.getDate()+t);return{from:fd,to:td}}
+function thisWeek(){const d=new Date(TODAY),day=d.getDay()||7;const f=new Date(d);f.setDate(d.getDate()-day+1);return{from:f,to:new Date(TODAY)}}
+function lastWeek(){const d=new Date(TODAY),day=d.getDay()||7;const t=new Date(d);t.setDate(d.getDate()-day);const f=new Date(t);f.setDate(t.getDate()-6);return{from:f,to:t}}
+function thisMonth(){return{from:new Date(TODAY.getFullYear(),TODAY.getMonth(),1),to:new Date(TODAY)}}
+function lastMonth(){const t=new Date(TODAY.getFullYear(),TODAY.getMonth(),0);return{from:new Date(t.getFullYear(),t.getMonth(),1),to:t}}
+
+function p2(n){return String(n).padStart(2,'0')}
+function fmtD(d){return`${d.getFullYear()}.${p2(d.getMonth()+1)}.${p2(d.getDate())}.`}
+function fmtDK(d){return`${d.getFullYear()}.${p2(d.getMonth()+1)}.${p2(d.getDate())}`}
+
+function toggleDp(){DP.open?closeDp():openDp()}
+function openDp(){
+  DP.open=true;DP.selFrom=new Date(DS.from);DP.selTo=new Date(DS.to);DP.picking='from';
+  DP.startYM={y:DS.from.getFullYear(),m:DS.from.getMonth()};
+  DP.endYM={y:DS.to.getFullYear(),m:DS.to.getMonth()};
+  renderDpPresets();renderDpCal('s');renderDpCal('e');updateDpPeriod();
+  document.getElementById('dpOv').classList.add('show');
+}
+function closeDp(){DP.open=false;document.getElementById('dpOv').classList.remove('show')}
+function closeDpOv(e){if(e.target===e.currentTarget)closeDp()}
+function applyDp(){
+  if(!DP.selFrom||!DP.selTo)return;
+  let f=DP.selFrom,t=DP.selTo;
+  if(f>t){const tmp=f;f=t;t=tmp}
+  DS={from:f,to:t,days:Math.round((t-f)/(864e5))+1,preset:''};
+  closeDp();updateHeaderDate();reloadAll();
+}
+function renderDpPresets(){
+  document.getElementById('dpPresets').innerHTML=PRESETS.map(p=>`<button class="dp-preset${p.l===DS.preset?' active':''}" onclick="applyPreset('${p.l}')">${p.l}</button>`).join('');
+}
+function applyPreset(label){
+  const p=PRESETS.find(x=>x.l===label);if(!p)return;
+  const r=p.fn();DP.selFrom=r.from;DP.selTo=r.to;DP.picking='from';
+  DP.startYM={y:r.from.getFullYear(),m:r.from.getMonth()};DP.endYM={y:r.to.getFullYear(),m:r.to.getMonth()};
+  DS.preset=label;renderDpPresets();renderDpCal('s');renderDpCal('e');updateDpPeriod();
+}
+function dpNav(side,dir){
+  const ym=side==='s'?DP.startYM:DP.endYM;
+  ym.m+=dir;if(ym.m>11){ym.m=0;ym.y++}if(ym.m<0){ym.m=11;ym.y--}
+  renderDpCal(side);
+}
+function renderDpCal(side){
+  const ym=side==='s'?DP.startYM:DP.endYM;
+  document.getElementById(side==='s'?'dpTitleS':'dpTitleE').textContent=`${ym.y}년 ${ym.m+1}월`;
+  const grid=document.getElementById(side==='s'?'dpGS':'dpGE');
+  const MN=['일','월','화','수','목','금','토'];
+  const DOW=['sun','','','','','','sat'];
+  let html=MN.map((d,i)=>`<div class="dp-dhd ${DOW[i]}">${d}</div>`).join('');
+  const first=new Date(ym.y,ym.m,1),startDow=first.getDay(),dim=new Date(ym.y,ym.m+1,0).getDate();
+  const prevDim=new Date(ym.y,ym.m,0).getDate();
+  for(let i=startDow-1;i>=0;i--)html+=`<div class="dp-day other">${prevDim-i}</div>`;
+  const lo=DP.selFrom&&DP.selTo?Math.min(DP.selFrom,DP.selTo):null;
+  const hi=DP.selFrom&&DP.selTo?Math.max(DP.selFrom,DP.selTo):null;
+  for(let d=1;d<=dim;d++){
+    const dt=new Date(ym.y,ym.m,d),dow=dt.getDay();
+    const isToday=dt.toDateString()===TODAY.toDateString();
+    const isSF=DP.selFrom&&dt.toDateString()===DP.selFrom.toDateString();
+    const isST=DP.selTo&&dt.toDateString()===DP.selTo.toDateString();
+    const isStart=DP.selFrom&&DP.selTo&&dt.toDateString()===new Date(Math.min(DP.selFrom,DP.selTo)).toDateString();
+    const isEnd=DP.selFrom&&DP.selTo&&dt.toDateString()===new Date(Math.max(DP.selFrom,DP.selTo)).toDateString();
+    const inRange=lo&&hi&&dt>lo&&dt<hi;
+    let cls='dp-day';
+    if(dow===0)cls+=' sun';if(dow===6)cls+=' sat';if(isToday)cls+=' today';
+    if(isStart&&isEnd)cls+=' sel';else if(isStart)cls+=' rs';else if(isEnd)cls+=' re';else if(inRange)cls+=' inrange';
+    html+=`<div class="${cls}" onclick="dpClickDay(${ym.y},${ym.m},${d})">${d}</div>`;
+  }
+  const rem=(7-(startDow+dim)%7)%7;
+  for(let d=1;d<=rem;d++)html+=`<div class="dp-day other">${d}</div>`;
+  grid.innerHTML=html;
+}
+function dpClickDay(y,m,d){
+  const dt=new Date(y,m,d);
+  if(DP.picking==='from'||!DP.selFrom){DP.selFrom=dt;DP.selTo=null;DP.picking='to';DS.preset=''}
+  else{if(dt<DP.selFrom){DP.selTo=DP.selFrom;DP.selFrom=dt}else DP.selTo=dt;DP.picking='from';DS.preset=''}
+  renderDpPresets();renderDpCal('s');renderDpCal('e');updateDpPeriod();
+}
+function updateDpPeriod(){
+  const el=document.getElementById('dpPeriodTxt');
+  if(!DP.selFrom){el.textContent='시작일을 선택하세요';return}
+  if(!DP.selTo){el.textContent=`${fmtD(DP.selFrom)} ~ 종료일 선택`;return}
+  const lo=new Date(Math.min(DP.selFrom,DP.selTo)),hi=new Date(Math.max(DP.selFrom,DP.selTo));
+  const days=Math.round((hi-lo)/864e5)+1;
+  el.textContent=`${fmtD(lo)} ~ ${fmtD(hi)} (${days}일간)`;
+}
+function updateHeaderDate(){
+  const preset=DS.preset?`${DS.preset} : `:'';
+  document.getElementById('dateRangeTxt').textContent=`${preset}${fmtD(DS.from)} ~ ${fmtD(DS.to)}`;
+  document.getElementById('updTxt').textContent=`${fmtDK(DS.to)} 기준 · 샘플 데이터`;
+}
+
+/* ================================================================ DATA */
+function seed(d,i){const s=(d.getFullYear()*1000+d.getMonth()*30+d.getDate())*13+i;return(Math.sin(s*7.3)*43758.5453%1+1)%1*0.5+0.75}
+function periodMult(){const d=DS.days;return d<=1?0.16:d<=3?0.45:d<=7?1.0:d<=14?1.92:d<=30?4.0:d<=90?11.5:d<=180?22:45}
+const B7={
+  '전체':   {impressions:500284,clicks:15247,adSpend:8500000,conversions:320,convRevenue:45000000,roas:529,ctr:3.06,crto:2.09,cpc:557},
+  '쇼핑검색':{impressions:282000,clicks:11390,adSpend:5980000,conversions:200,convRevenue:25206000,roas:422,ctr:2.84,crto:1.75,cpc:525},
+  '파워링크':{impressions:109100,clicks:4110, adSpend:1990000,conversions:98, convRevenue:10032000,roas:504,ctr:3.77,crto:2.38,cpc:484},
+  '콘텐츠': {impressions:89700, clicks:890,  adSpend:310000, conversions:12, convRevenue:680000,  roas:219,ctr:0.99,crto:1.35,cpc:348},
+  '브랜드':  {impressions:49200, clicks:853,  adSpend:220000, conversions:50, convRevenue:1960000, roas:891,ctr:1.73,crto:5.86,cpc:258},
+};
+// ① 비교 기간 설명 텍스트
+function getPeriodDesc(){
+  const d=DS.days;
+  const pFrom=new Date(DS.from.getTime()-d*864e5);
+  const pTo=new Date(DS.from.getTime()-864e5);
+  let label='';
+  if(d===1)label='어제';
+  else if(d===7)label='저번 주';
+  else if(d===30||d===31)label='저번 달';
+  else if(d===365||d===366)label='작년 동기간';
+  else label=`${d}일 전 동기간`;
+  return{label,range:`${fmtDK(pFrom)} ~ ${fmtDK(pTo)}`,days:d};
+}
+function getPeriodLabel(){return getPeriodDesc().label;}
+function getPeriodStr(){const p=getPeriodDesc();return`${p.label} (${p.range})`;}
+
+function getKpiData(type){
+  const base=B7[type]||B7['전체'],m=periodMult();
+  const r={};
+  ['impressions','clicks','adSpend','conversions','convRevenue'].forEach((k,i)=>{
+    r[k]=Math.round(base[k]*m*seed(DS.from,i+10));
+    r['p_'+k]=Math.round(base[k]*m*seed(DS.from,i+20)*0.93);
+  });
+  r.roas=r.adSpend>0?Math.round(r.convRevenue/r.adSpend*100):0;
+  r.p_roas=r.p_adSpend>0?Math.round(r.p_convRevenue/r.p_adSpend*100):0;
+  // 파생 지표
+  r.ctr=r.impressions>0?parseFloat((r.clicks/r.impressions*100).toFixed(2)):0;
+  r.p_ctr=r.p_impressions>0?parseFloat((r.p_clicks/r.p_impressions*100).toFixed(2)):0;
+  r.cpc=r.clicks>0?Math.round(r.adSpend/r.clicks):0;
+  r.p_cpc=r.p_clicks>0?Math.round(r.p_adSpend/r.p_clicks):0;
+  r.crto=r.clicks>0?parseFloat((r.conversions/r.clicks*100).toFixed(2)):0;
+  r.p_crto=r.p_clicks>0?parseFloat((r.p_conversions/r.p_clicks*100).toFixed(2)):0;
+  r.cpConv=r.conversions>0?Math.round(r.adSpend/r.conversions):0;
+  r.p_cpConv=r.p_conversions>0?Math.round(r.p_adSpend/r.p_conversions):0;
+  return r;
+}
+function getDailyData(type){
+  const base=B7[type]||B7['전체'],d=Math.min(DS.days,30);
+  const labels=[],cur={impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]};
+  const prv={impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]};
+  for(let i=d-1;i>=0;i--){
+    const dt=new Date(DS.to);dt.setDate(dt.getDate()-i);
+    labels.push(`${dt.getMonth()+1}/${dt.getDate()}`);
+    const pdt=new Date(dt);pdt.setDate(pdt.getDate()-d);
+    ['impressions','clicks','adSpend','conversions','convRevenue'].forEach((k,ki)=>{
+      cur[k].push(Math.round(base[k]/7*seed(dt,ki+1)));
+      prv[k].push(Math.round(base[k]/7*seed(pdt,ki+2)*0.93));
+    });
+  }
+  return{labels,cur,prv};
+}
+function getCampData(){
+  const m=periodMult();
+  return CAMPS_BASE.map((c,i)=>({
+    ...c,
+    impressions:Math.round(c.impressions*m*seed(DS.from,i+30)),
+    clicks:     Math.round(c.clicks*m*seed(DS.from,i+40)),
+    adSpend:    Math.round(c.adSpend*m*seed(DS.from,i+50)),
+    conversions:Math.round(c.conversions*m*seed(DS.from,i+60)),
+    convRevenue:Math.round(c.convRevenue*m*seed(DS.from,i+70)),
+    prevAdSpend:Math.round(c.adSpend*m*seed(DS.from,i+80)*0.9),
+    ctr:parseFloat((c.ctr*seed(DS.from,i+90)).toFixed(2)),
+    crto:parseFloat((c.crto*seed(DS.from,i+91)).toFixed(2)),
+    get roas(){return this.adSpend>0?Math.round(this.convRevenue/this.adSpend*100):0},
+    get cpConv(){return this.conversions>0?Math.round(this.adSpend/this.conversions):0},
+  }));
+}
+function getKwData(){
+  const m=periodMult();
+  return KW_BASE.map((k,i)=>({
+    ...k,
+    impressions:Math.round(k.impressions*m*seed(DS.from,i+100)),
+    clicks:     Math.round(k.clicks*m*seed(DS.from,i+110)),
+    adSpend:    Math.round(k.adSpend*m*seed(DS.from,i+120)),
+    conversions:Math.round(k.conversions*m*seed(DS.from,i+130)),
+    convRevenue:Math.round(k.convRevenue*m*seed(DS.from,i+140)),
+    get cpc(){return this.clicks>0?Math.round(this.adSpend/this.clicks):0},
+    get roas(){return this.adSpend>0?Math.round(this.convRevenue/this.adSpend*100):0},
+    get cpConv(){return this.conversions>0?Math.round(this.adSpend/this.conversions):0},
+  }));
+}
+
+const CAMPS_BASE=[
+  {id:1,name:'스타리온 업소용냉장고',type:'쇼핑검색',status:'활성',  impressions:125400,clicks:3840,adSpend:2150000,conversions:82,convRevenue:12300000,prevAdSpend:1287000,ctr:3.06,crto:2.13,alr:'danger'},
+  {id:2,name:'라셀르 카페냉장고',    type:'쇼핑검색',status:'활성',  impressions:89300, clicks:2540,adSpend:1420000,conversions:54,convRevenue:5980000, prevAdSpend:1385000,ctr:2.84,crto:2.12,alr:null},
+  {id:3,name:'업소용냉장고 파워링크',type:'파워링크',status:'활성',  impressions:48200, clicks:1820,adSpend:1050000,conversions:38,convRevenue:3990000, prevAdSpend:990000, ctr:3.77,crto:2.09,alr:null},
+  {id:4,name:'라셀르 냉장쇼케이스',  type:'쇼핑검색',status:'활성',  impressions:72100, clicks:2180,adSpend:980000, conversions:28,convRevenue:2840000, prevAdSpend:920000, ctr:3.02,crto:1.28,alr:null},
+  {id:5,name:'스타리온냉장고 브랜드',type:'파워링크',status:'일시중지',impressions:31500,clicks:1240,adSpend:520000, conversions:42,convRevenue:4620000, prevAdSpend:510000, ctr:3.94,crto:3.39,alr:null},
+  {id:6,name:'업소용 냉동고',        type:'쇼핑검색',status:'활성',  impressions:56800, clicks:1650,adSpend:890000, conversions:14,convRevenue:1602000, prevAdSpend:810000, ctr:2.90,crto:0.85,alr:'danger'},
+  {id:7,name:'냉장고추천 콘텐츠광고',type:'콘텐츠', status:'활성',  impressions:122000,clicks:890, adSpend:310000, conversions:12,convRevenue:680000,  prevAdSpend:290000, ctr:0.73,crto:1.35,alr:null},
+  {id:8,name:'라셀르 와인냉장고',    type:'쇼핑검색',status:'활성',  impressions:38700, clicks:1180,adSpend:540000, conversions:22,convRevenue:2484000, prevAdSpend:520000, ctr:3.05,crto:1.86,alr:null},
+  {id:9,name:'카페용냉장고 파워링크',type:'파워링크',status:'일시중지',impressions:29400,clicks:1050,adSpend:420000, conversions:18,convRevenue:1422000, prevAdSpend:400000, ctr:3.57,crto:1.71,alr:null},
+  {id:10,name:'포쿨 브랜드검색',     type:'브랜드', status:'활성',  impressions:66984, clicks:853, adSpend:220000, conversions:50,convRevenue:1960000, prevAdSpend:179000, ctr:1.27,crto:5.86,alr:null},
+];
+const KW_BASE=[
+  {kw:'업소용냉장고',    type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:28400,clicks:920,adSpend:520000,conversions:22,convRevenue:3080000},
+  {kw:'소형업소냉장고',  type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:18200,clicks:640,adSpend:380000,conversions:18,convRevenue:2520000},
+  {kw:'업소용냉동냉장고',type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:12600,clicks:580,adSpend:420000,conversions:14,convRevenue:1820000},
+  {kw:'스탠드형냉장고',  type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:8900, clicks:210,adSpend:145000,conversions:3, convRevenue:270000},
+  {kw:'업소용냉장고추천',type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:6400, clicks:380,adSpend:260000,conversions:0, convRevenue:0},
+  {kw:'냉장고가격',      type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:15200,clicks:240,adSpend:180000,conversions:1, convRevenue:98000},
+  {kw:'카페냉장고',      type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:22100,clicks:820,adSpend:460000,conversions:26,convRevenue:2860000},
+  {kw:'카페쇼케이스냉장고',type:'쇼핑검색',campaign:'라셀르 카페냉장고',  impressions:14500,clicks:540,adSpend:310000,conversions:16,convRevenue:1760000},
+  {kw:'라셀르냉장고',    type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:9800, clicks:390,adSpend:220000,conversions:12,convRevenue:1320000},
+  {kw:'음료냉장고',      type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:18600,clicks:420,adSpend:290000,conversions:8, convRevenue:720000},
+  {kw:'쇼케이스냉장고가격',type:'쇼핑검색',campaign:'라셀르 카페냉장고',  impressions:7200, clicks:180,adSpend:140000,conversions:0, convRevenue:0},
+  {kw:'업소용냉장고구매',type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:11400,clicks:620,adSpend:350000,conversions:18,convRevenue:1980000},
+  {kw:'냉장고렌탈',      type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:8600, clicks:340,adSpend:210000,conversions:6, convRevenue:660000},
+  {kw:'중고업소냉장고',  type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:12400,clicks:280,adSpend:195000,conversions:2, convRevenue:176000},
+  {kw:'냉장고임대',      type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:4200, clicks:120,adSpend:88000, conversions:0, convRevenue:0},
+  {kw:'포쿨냉장고',      type:'브랜드',  campaign:'포쿨 브랜드검색',       impressions:18200,clicks:380,adSpend:76000, conversions:24,convRevenue:1080000},
+  {kw:'포쿨스타리온',    type:'브랜드',  campaign:'포쿨 브랜드검색',       impressions:12400,clicks:260,adSpend:52000, conversions:16,convRevenue:720000},
+  {kw:'포쿨라셀르',      type:'브랜드',  campaign:'포쿨 브랜드검색',       impressions:8800, clicks:180,adSpend:36000, conversions:10,convRevenue:450000},
+  {kw:'냉장고추천',      type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:24000,clicks:360,adSpend:252000,conversions:3, convRevenue:270000},
+  {kw:'소상공인냉장고',  type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:4800, clicks:180,adSpend:144000,conversions:6, convRevenue:660000},
+  {kw:'카운터냉장고',    type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:5400, clicks:160,adSpend:112000,conversions:0, convRevenue:0},
+  {kw:'냉장고구매',      type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:16200,clicks:480,adSpend:336000,conversions:8, convRevenue:720000},
+  {kw:'업소용냉장고가격',type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:11000,clicks:310,adSpend:232500,conversions:4, convRevenue:440000},
+  {kw:'라셀르쇼케이스',  type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:7200, clicks:310,adSpend:217000,conversions:4, convRevenue:360000},
+  {kw:'업무용냉장고',    type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:8200, clicks:260,adSpend:195000,conversions:3, convRevenue:270000},
+  {kw:'300리터냉장고',   type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:5100, clicks:160,adSpend:120000,conversions:0, convRevenue:0},
+  {kw:'스타리온냉장고',  type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:9200, clicks:310,adSpend:217000,conversions:9, convRevenue:990000},
+  {kw:'냉장고비교',      type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:9800, clicks:200,adSpend:150000,conversions:1, convRevenue:110000},
+  {kw:'냉장고임대단기',  type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:3800, clicks:120,adSpend:90000, conversions:0, convRevenue:0},
+  {kw:'카페업소냉장고',  type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:6800, clicks:290,adSpend:203000,conversions:7, convRevenue:630000},
+];
+const MO_DATA={
+  '2026-01':{쇼핑검색:{adSpend:28500000,convRevenue:142500000,conversions:1050},파워링크:{adSpend:9200000,convRevenue:38640000,conversions:342},콘텐츠:{adSpend:3100000,convRevenue:9610000,conversions:86},브랜드:{adSpend:1800000,convRevenue:16200000,conversions:180}},
+  '2025-12':{쇼핑검색:{adSpend:24100000,convRevenue:118000000,conversions:880},파워링크:{adSpend:7800000,convRevenue:31200000,conversions:289},콘텐츠:{adSpend:2600000,convRevenue:7540000,conversions:72},브랜드:{adSpend:1500000,convRevenue:13000000,conversions:152}},
+  '2025-03':{쇼핑검색:{adSpend:8500000,convRevenue:45000000,conversions:320},파워링크:{adSpend:2100000,convRevenue:9100000,conversions:98},콘텐츠:{adSpend:310000,convRevenue:680000,conversions:12},브랜드:{adSpend:220000,convRevenue:1960000,conversions:50}},
+};
+const GOALS={
+  '전체':   {impressions:600000,clicks:18000,adSpend:10000000,conversions:400,convRevenue:55000000,roas:600,ctr:3.5,cpc:500,crto:2.5,cpConv:25000},
+  '쇼핑검색':{impressions:350000,clicks:13000,adSpend:7000000, conversions:240,convRevenue:32000000,roas:450,ctr:3.2,cpc:480,crto:2.0,cpConv:28000},
+  '파워링크':{impressions:130000,clicks:5000, adSpend:2400000, conversions:120,convRevenue:13000000,roas:540,ctr:4.0,cpc:440,crto:2.8,cpConv:20000},
+  '콘텐츠': {impressions:110000,clicks:1100, adSpend:380000,  conversions:18, convRevenue:900000,  roas:237,ctr:1.2,cpc:320,crto:1.8,cpConv:22000},
+  '브랜드':  {impressions:60000, clicks:1000, adSpend:260000,  conversions:60, convRevenue:2400000, roas:920,ctr:2.0,cpc:250,crto:6.0,cpConv:5000},
+};
+const QS=[
+  {tag:'광고비',q:'총 광고비 얼마야?'},{tag:'매출',q:'총 매출액 얼마야?'},
+  {tag:'ROAS',q:'ROAS 가장 높은 캠페인?'},{tag:'낭비',q:'낭비 키워드 알려줘'},
+  {tag:'낭비',q:'ROAS 0인 키워드?'},{tag:'캠페인',q:'활성 캠페인 몇 개야?'},
+  {tag:'월별',q:'26년 1월 쇼핑검색 광고비?'},{tag:'경고',q:'경고 캠페인 알려줘'},
+];
+
+/* ================================================================ STATE */
+const ST={
+  kpiType:'전체',trendType:'전체',curMetric:'impressions',showCompare:true,
+  cmpOption:'week',
+  activeMetrics:new Set(['impressions']),
+  metricOrder:['impressions'], // 선택 순서 추적: [0]=좌축, [1]=우축
+  hmType:'전체',hmMetric:'roas',hmInterval:2, // 히트맵 시간 단위 (1 or 2)
+  kwSort:{col:'adSpend',dir:'desc'},kwPage:1,kwPS:10,
+  cmpSort:null,cmpDir:'desc',cmpTypeF:'all',cmpOnOff:'all',cmpAlo:false,cmpSearch:'',cmpPage:1,cmpPS:10,
+  aiShown:false,
+};
+let LOG=[];
+
+/* ================================================================ FORMATTERS */
+function fN(v){return Number(Math.round(v)).toLocaleString('ko-KR')}
+function fC(v){return '₩'+Number(Math.round(v)).toLocaleString('ko-KR')}
+function fS(v,fmt){if(fmt==='cur'){if(v>=10000000)return'₩'+(v/10000000).toFixed(1)+'천만';if(v>=1000000)return'₩'+(v/1000000).toFixed(1)+'백만';if(v>=10000)return'₩'+(v/10000).toFixed(0)+'만';return'₩'+Math.round(v).toLocaleString()}if(v>=10000)return(v/10000).toFixed(0)+'만';if(v>=1000)return(v/1000).toFixed(0)+'k';return Math.round(v)}
+function fV(v,fmt){return fmt==='cur'?fC(v):fmt==='pct'?Math.round(v)+'%':fN(v)}
+function chgP(c,p){return p?Math.round(((c-p)/p)*100):0}
+function chgCls(p,inv){if(p===0)return'neu';if(p>0)return inv?'ub':'ug';return inv?'dg':'db'}
+// ① 변화율 배지 + 툴팁 HTML 생성
+function chgBadge(pct,inv,extraTip){
+  const cls=chgCls(pct,inv),sym=pct>0?'▲':pct<0?'▼':'—';
+  const p=getPeriodDesc();
+  const valSign=pct>0?'+':'';
+  const invNote=inv?'<br><span class="tip-line" style="color:#FCA5A5">※ 광고비는 감소가 긍정적</span>':'';
+  const tipContent=`<b>${p.label} 대비 ${valSign}${pct}%</b><span class="tip-line">${p.range}</span>${invNote}${extraTip?'<br><span class="tip-line" style="color:#86EFAC">'+extraTip+'</span>':''}`;
+  return`<div class="tip-wrap"><span class="cb ${cls}">${sym} ${Math.abs(pct)}%</span><div class="tip-box">${tipContent}</div></div>`;
+}
+function chgLbl(p,inv){const c=chgCls(p,inv),s=p>0?'▲':'▼';return`<span class="chg ${c}">${s} ${Math.abs(p)}%</span>`}
+function rvCls(v){return v>=500?'rvh':v>=300?'rvm':'rvl'}
+function tBadge(t){const m={'쇼핑검색':'bsh','파워링크':'bpl','콘텐츠':'bct','브랜드':'bbr'};return`<span class="badge ${m[t]||'bsh'}">${t}</span>`}
+function stBadge(s){return s==='활성'?`<span class="badge bson">● 활성</span>`:`<span class="badge bsoff">⏸ 일시중지</span>`}
+function nowT(){return new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false})}
+function lerp(c1,c2,t){const p=n=>parseInt(n,16);const[r,g,b]=[p(c1.slice(1,3)),p(c1.slice(3,5)),p(c1.slice(5,7))],[r2,g2,b2]=[p(c2.slice(1,3)),p(c2.slice(3,5)),p(c2.slice(5,7))];return`rgb(${Math.round(r+(r2-r)*t)},${Math.round(g+(g2-g)*t)},${Math.round(b+(b2-b)*t)})`}
+
+/* ================================================================ CLOCK */
+function updateClock(){
+  const now=new Date(),kst=new Date(now.getTime()+(now.getTimezoneOffset()*60000)+32400000);
+  const h24=kst.getHours();
+  const isAm=h24<12;
+  const h12=h24%12||12;
+  const ampm=isAm?'오전':'오후';
+  document.getElementById('clockAmpm').textContent=ampm;
+  document.getElementById('clockTime').textContent=`${p2(h12)}:${p2(kst.getMinutes())}:${p2(kst.getSeconds())}`;
+  document.getElementById('clockDate').textContent=`${kst.getFullYear()}.${p2(kst.getMonth()+1)}.${p2(kst.getDate())}`;
+}
+updateClock();setInterval(updateClock,1000);
+
+/* ================================================================ ⑦ ALERTS */
+function evalAlerts(){
+  const kd=getKpiData('전체');
+  const triggered=[];
+  ALERT_RULES.forEach(rule=>{
+    if(!rule.enabled)return;
+    let cur=kd[rule.field]??0,prev=kd['p_'+rule.field]??0;
+    if(!prev)return;
+    const pct=Math.round(((cur-prev)/prev)*100);
+    const absChange=Math.abs(pct);
+    const cond=rule.dir==='up'?pct>=rule.threshold:pct<=-rule.threshold;
+    if(cond){
+      const blLabel=BASELINE_LABELS[rule.baseline]||'저번 주';
+      triggered.push({...rule,pct,absChange,blLabel,lv:absChange>=50?'danger':absChange>=30?'warning':'info'});
+    }
+  });
+  return triggered;
+}
+function renderAlerts(){
+  const alerts=evalAlerts();
+  document.getElementById('alertCnt').textContent=`${alerts.length}건`;
+  const container=document.getElementById('alertCards');
+  if(!alerts.length){
+    container.innerHTML=`<div style="padding:20px 16px;color:var(--t3);font-size:13px;grid-column:1/-1">✅ 현재 설정된 경고 조건에 해당하는 항목이 없습니다.</div>`;
+    return;
+  }
+  container.style.gridTemplateColumns=alerts.length>=3?'repeat(3,1fr)':alerts.length===2?'repeat(2,1fr)':'1fr';
+  container.innerHTML=alerts.map(a=>{
+    const sign=a.pct>0?'+':'';
+    return`<div class="alert-card">
+      <div class="ac-head">
+        <div class="ac-icon ${a.lv}">${a.ico}</div>
+        <div>
+          <div class="ac-badge ${a.lv}">${a.lv==='danger'?'🔴 위험':a.lv==='warning'?'🟡 경고':'🔵 안내'}</div>
+          <div class="ac-title ${a.lv}">${a.name}</div>
+        </div>
+      </div>
+      <div class="ac-msg"><b>${a.blLabel} 대비 ${sign}${a.pct}%</b> ${a.dir==='up'?'증가':'감소'}</div>
+      <div class="ac-detail">기준: ${a.threshold}% 이상 ${a.dir==='up'?'증가':'감소'} 시 경고</div>
+    </div>`;
+  }).join('');
+}
+function toggleAlert(){
+  const b=document.getElementById('alertBody'),c=b.classList.toggle('coll');
+  document.getElementById('ahTog').classList.toggle('r',!c);
+  document.getElementById('alertHd').classList.toggle('coll',c);
+}
+
+/* ⑦ 경고 설정 모달 */
+function openAlertCfg(){
+  document.getElementById('alertRules').innerHTML=ALERT_RULES.map(r=>`
+    <div class="alert-rule" id="ar-${r.id}">
+      <div class="ar-head">
+        <div class="ar-name">${r.ico} ${r.name}</div>
+        <label class="ar-toggle">
+          <input type="checkbox" id="arc-${r.id}" ${r.enabled?'checked':''} onchange="toggleRule('${r.id}')">
+          <span class="ar-toggle-lbl" id="arl-${r.id}">${r.enabled?'활성':'비활성'}</span>
+        </label>
+      </div>
+      <div class="ar-body" id="arb-${r.id}" ${!r.enabled?'style="opacity:.4;pointer-events:none"':''}>
+        <div class="ar-field">
+          <label>${r.dir==='up'?'증가':'감소'} 임계값</label>
+          <div class="ar-inp-wrap">
+            <input class="ar-inp" type="number" id="art-${r.id}" value="${r.threshold}" min="1" max="500" oninput="previewAlert()">
+            <span class="ar-unit">% 이상</span>
+          </div>
+          <div class="ar-desc">${r.desc}</div>
+        </div>
+        <div class="ar-field">
+          <label>비교 기준</label>
+          <select class="ar-sel" id="arb2-${r.id}" onchange="previewAlert()" style="padding:6px 9px;border:1px solid var(--bd);border-radius:var(--rsm);background:#fff;font-size:12.5px;font-weight:700;color:var(--t1);cursor:pointer;margin-top:2px;width:100%">
+            <option value="week" ${(r.baseline||'week')==='week'?'selected':''}>저번 주</option>
+            <option value="yesterday" ${r.baseline==='yesterday'?'selected':''}>어제</option>
+            <option value="month" ${r.baseline==='month'?'selected':''}>저번 달</option>
+            <option value="year" ${r.baseline==='year'?'selected':''}>작년 동기간</option>
+          </select>
+        </div>
+      </div>
+    </div>`).join('');
+  previewAlert();
+  document.getElementById('alertCfgMov').classList.add('show');
+}
+function toggleRule(id){
+  const cb=document.getElementById('arc-'+id);
+  const lbl=document.getElementById('arl-'+id);
+  const body=document.getElementById('arb-'+id);
+  lbl.textContent=cb.checked?'활성':'비활성';
+  body.style.cssText=cb.checked?'':'opacity:.4;pointer-events:none';
+  previewAlert();
+}
+function previewAlert(){
+  const kd=getKpiData('전체');
+  const triggered=[];
+  ALERT_RULES.forEach(r=>{
+    const cb=document.getElementById('arc-'+r.id);
+    if(!cb||!cb.checked)return;
+    const tInp=document.getElementById('art-'+r.id);
+    const bSel=document.getElementById('arb2-'+r.id);
+    const thresh=tInp?parseFloat(tInp.value)||r.threshold:r.threshold;
+    const bl=bSel?bSel.value:(r.baseline||'week');
+    const blLabel=BASELINE_LABELS[bl]||'저번 주';
+    let cur=kd[r.field]??0,prev=kd['p_'+r.field]??0;
+    if(!prev)return;
+    const pct=Math.round(((cur-prev)/prev)*100);
+    const cond=r.dir==='up'?pct>=thresh:pct<=-thresh;
+    if(cond)triggered.push(`${r.ico} ${r.name} (${blLabel} 대비 ${pct>0?'+':''}${pct}%)`);
+  });
+  const prev=document.getElementById('alertPreview');
+  if(triggered.length){prev.style.display='block';prev.innerHTML=`<b>현재 조건으로 발생하는 경고:</b><br>${triggered.join('<br>')}`}
+  else{prev.style.display='none'}
+}
+function saveAlertCfg(){
+  ALERT_RULES.forEach(r=>{
+    const cb=document.getElementById('arc-'+r.id);
+    const tInp=document.getElementById('art-'+r.id);
+    const bSel=document.getElementById('arb2-'+r.id);
+    if(cb)r.enabled=cb.checked;
+    if(tInp)r.threshold=parseFloat(tInp.value)||r.threshold;
+    if(bSel)r.baseline=bSel.value;
+  });
+  try{localStorage.setItem('fc_alert_rules2',JSON.stringify(ALERT_RULES))}catch(e){}
+  closeAlertCfg();renderAlerts();showToast('✅ 경고 설정이 저장되었습니다');
+}
+function closeAlertCfg(){document.getElementById('alertCfgMov').classList.remove('show')}
+
+/* ================================================================ KPI */
+const sparks={};
+const KPI_DEFS=[
+  {id:'impressions', label:'노출수',           fmt:'num', cls:'c-blue',   inv:false},
+  {id:'clicks',      label:'클릭수',           fmt:'num', cls:'c-green',  inv:false},
+  {id:'ctr',         label:'클릭률',           fmt:'pct2',cls:'c-teal',   inv:false},
+  {id:'adSpend',     label:'총비용(광고비)',   fmt:'cur', cls:'c-orange', inv:true },
+  {id:'cpc',         label:'평균클릭비용(CPC)',fmt:'cur', cls:'c-yellow', inv:true },
+  {id:'conversions', label:'총 전환수',        fmt:'num', cls:'c-purple', inv:false},
+  {id:'crto',        label:'총 전환율',        fmt:'pct2',cls:'c-blue2',  inv:false},
+  {id:'convRevenue', label:'총 전환매출액',    fmt:'cur', cls:'c-teal',   inv:false},
+  {id:'roas',        label:'광고수익률(ROAS)', fmt:'pct', cls:'c-yellow2',inv:false},
+  {id:'cpConv',      label:'총 전환당비용',    fmt:'cur', cls:'c-pink',   inv:true },
+];
+const GM=[
+  {id:'impressions',n:'노출수',u:'회',c:'#2E86DE'},
+  {id:'clicks',n:'클릭수',u:'회',c:'#00A07A'},
+  {id:'ctr',n:'클릭률',u:'%',c:'#0891B2'},
+  {id:'adSpend',n:'총비용(광고비)',u:'₩',c:'#FF7043'},
+  {id:'cpc',n:'평균클릭비용',u:'₩',c:'#D97706'},
+  {id:'conversions',n:'총 전환수',u:'건',c:'#7C3AED'},
+  {id:'crto',n:'총 전환율',u:'%',c:'#6366F1'},
+  {id:'convRevenue',n:'총 전환매출',u:'₩',c:'#0891B2'},
+  {id:'roas',n:'광고수익률(ROAS)',u:'%',c:'#D97706'},
+  {id:'cpConv',n:'전환당비용',u:'₩',c:'#EC4899'},
+];
+function fmtKpi(val, fmt){
+  if(fmt==='cur')return`<span class="csym">₩</span>${fN(val)}`;
+  if(fmt==='pct')return`${val}<span class="pct">%</span>`;
+  if(fmt==='pct2')return`${val}<span class="pct">%</span>`;
+  return fN(val);
+}
+function renderKpi(){
+  const kd=getKpiData(ST.kpiType),goals=GOALS[ST.kpiType]||GOALS['전체'];
+  const gridTarget=document.getElementById('kpiGridInner')||document.getElementById('kpiGrid');
+  gridTarget.innerHTML=KPI_DEFS.map(def=>{
+    const val=kd[def.id]??0;
+    const prev=kd['p_'+def.id]??0;
+    const goal=goals[def.id]||val;
+    const pct=chgP(val,prev);
+    const gp=goal>0?Math.min(100,Math.round((val/goal)*100)):0;
+    const gc=gp>=80?'var(--green)':gp>=50?'var(--blue)':'var(--orange)';
+    const gd=def.fmt==='cur'?fC(goal):def.fmt==='pct'||def.fmt==='pct2'?goal+'%':fN(goal);
+    const vH=fmtKpi(val,def.fmt);
+    const badge=chgBadge(pct,def.inv,def.id==='roas'?'ROAS = 전환매출 ÷ 광고비 × 100':def.id==='ctr'?'클릭률 = 클릭수 ÷ 노출수 × 100':def.id==='crto'?'전환율 = 전환수 ÷ 클릭수 × 100':'');
+    const sid=`sp-${ST.kpiType.replace(/\s/g,'_')}-${def.id}`;
+    return`<div class="kpi-card ${def.cls}">
+      <div class="kpi-top"><div class="kpi-lbl">${def.label}</div>${badge}</div>
+      <div class="kpi-val">${vH}</div>
+      <div class="spark"><canvas id="${sid}"></canvas></div>
+      <div class="goal-area"><div class="goal-row"><div style="display:flex;align-items:center;gap:4px"><span class="goal-lbl">목표 달성률</span><span class="goal-chip">${gd}</span></div><span class="goal-pct">${gp}%</span></div><div class="goal-track"><div class="goal-fill" style="width:${gp}%;background:${gc}"></div></div></div>
+    </div>`;
+  }).join('');
+  setTimeout(initSparks,50);
+}
+function initSparks(){
+  const CC={
+    'c-blue':'#2E86DE','c-green':'#00A07A','c-orange':'#FF7043',
+    'c-purple':'#7C3AED','c-teal':'#0891B2','c-yellow':'#D97706',
+    'c-blue2':'#6366F1','c-yellow2':'#D97706','c-pink':'#EC4899'
+  };
+  const dd=getDailyData(ST.kpiType);
+  KPI_DEFS.forEach(def=>{
+    const id=`sp-${ST.kpiType.replace(/\s/g,'_')}-${def.id}`;
+    const cv=document.getElementById(id);if(!cv)return;
+    const key=`${ST.kpiType}-${def.id}`;if(sparks[key])sparks[key].destroy();
+    const col=CC[def.cls]||'#2E86DE';
+    // 파생지표 스파크라인 데이터 계산
+    let data=[];
+    if(def.id==='roas')data=dd.cur.convRevenue.map((r,i)=>dd.cur.adSpend[i]>0?Math.round(r/dd.cur.adSpend[i]*100):0);
+    else if(def.id==='ctr')data=dd.cur.impressions.map((v,i)=>v>0?parseFloat((dd.cur.clicks[i]/v*100).toFixed(2)):0);
+    else if(def.id==='cpc')data=dd.cur.clicks.map((v,i)=>v>0?Math.round(dd.cur.adSpend[i]/v):0);
+    else if(def.id==='crto')data=dd.cur.clicks.map((v,i)=>v>0?parseFloat((dd.cur.conversions[i]/v*100).toFixed(2)):0);
+    else if(def.id==='cpConv')data=dd.cur.conversions.map((v,i)=>v>0?Math.round(dd.cur.adSpend[i]/v):0);
+    else data=dd.cur[def.id]||[];
+    const fmt=def.fmt==='pct2'?'pct2':def.fmt;
+    sparks[key]=new Chart(cv,{type:'line',data:{labels:data.map((_,i)=>i),datasets:[{data,borderColor:col,borderWidth:2,fill:true,backgroundColor:col+'18',tension:.4,pointRadius:0,pointHoverRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label(ctx){return fmt==='cur'?fC(ctx.parsed.y):fmt==='pct'||fmt==='pct2'?ctx.parsed.y+'%':fN(ctx.parsed.y)}}}},scales:{x:{display:false},y:{display:false}},animation:{duration:400}}});
+  });
+}
+document.getElementById('kpiTypePills').addEventListener('click',e=>{
+  if(!e.target.classList.contains('pill'))return;
+  ST.kpiType=e.target.dataset.type;
+  document.querySelectorAll('#kpiTypePills .pill').forEach(b=>b.classList.toggle('active',b.dataset.type===ST.kpiType));
+  renderKpi();
+});
+
+/* ================================================================ TREND (멀티셀렉트 최대 2개, 듀얼 Y축) */
+let trendCh=null;
+
+// 축 포매터 — 한국식 숫자
+function fTick(v,fmt){
+  const abs=Math.abs(v);
+  if(fmt==='cur'){
+    if(abs>=100000000)return'₩'+(v/100000000).toFixed(0)+'억';
+    if(abs>=10000000)return'₩'+(v/10000000).toFixed(0)+'천만';
+    if(abs>=1000000)return'₩'+(v/1000000).toFixed(0)+'백만';
+    if(abs>=10000)return'₩'+(v/10000).toFixed(0)+'만';
+    return'₩'+Math.round(v).toLocaleString('ko-KR');
+  }
+  if(fmt==='pct')return Math.round(v)+'%';
+  if(abs>=100000000)return(v/100000000).toFixed(0)+'억';
+  if(abs>=10000000)return(v/10000000).toFixed(0)+'천만';
+  if(abs>=1000000)return(v/1000000).toFixed(0)+'백만';
+  if(abs>=10000)return(v/10000).toFixed(0)+'만';
+  if(abs>=1000)return Math.round(v/100)*100===Math.round(v)?Math.round(v/1000)+'k':Math.round(v).toLocaleString('ko-KR');
+  return Math.round(v).toLocaleString('ko-KR');
+}
+
+// 선택 순서 기반 축: 첫번째=좌축(yL), 두번째=우축(yR)
+// (레거시 AXIS_SIDE는 updateMetricChkUI의 기본 side 참조용으로만 유지)
+const AXIS_SIDE={impressions:'L',clicks:'L',adSpend:'R',conversions:'L',convRevenue:'R'};
+ST.metricOrder = ST.metricOrder || ['impressions'];
+
+function getAxisByOrder(idx){ return idx===0?'yL':'yR'; }
+function getSideByOrder(idx){ return idx===0?'L':'R'; }
+
+function toggleMetricSel(m){
+  const ord=ST.metricOrder;
+  const idx=ord.indexOf(m);
+  if(idx!==-1){
+    if(ord.length===1)return; // 최소 1개 유지
+    ord.splice(idx,1);
+    ST.activeMetrics=new Set(ord);
+  } else {
+    if(ord.length>=2)return; // 최대 2개
+    ord.push(m);
+    ST.activeMetrics=new Set(ord);
+  }
+  updateMetricChkUI();
+  initTrend();
+}
+function updateMetricChkUI(){
+  const ord=ST.metricOrder;
+  document.querySelectorAll('.mchk').forEach(btn=>{
+    const m=btn.dataset.m;
+    const idx=ord.indexOf(m);
+    const isOn=idx!==-1;
+    const side=isOn?getSideByOrder(idx):'';
+    btn.classList.toggle('on',isOn);
+    btn.classList.toggle('axis-L',isOn&&side==='L');
+    btn.classList.toggle('axis-R',isOn&&side==='R');
+    const box=btn.querySelector('.mchk-box');
+    if(box)box.textContent=isOn?'✓':'';
+    const axbadge=btn.querySelector('.mchk-axis');
+    if(axbadge)axbadge.textContent=side==='L'?'좌':'우';
+    // 최대 2개 초과 시 비활성
+    btn.style.opacity=(!isOn&&ord.length>=2)?'0.4':'';
+    btn.style.pointerEvents=(!isOn&&ord.length>=2)?'none':'';
+  });
+}
+function toggleCompare(){} // legacy stub
+
+// 비교 기간 선택 (어제|week|month|year|off) - 시간순
+function setCmpOpt(opt){
+  ST.cmpOption=opt;
+  ST.showCompare=(opt!=='off');
+  document.querySelectorAll('.cmp-opt[data-cmp]').forEach(b=>{
+    b.classList.toggle('active',b.dataset.cmp===opt);
+  });
+  initTrend();
+}
+
+// 비교 데이터를 선택된 옵션에 따라 생성
+function getCmpPrvData(type, metric){
+  const td=getDailyData(type);
+  const opt=ST.cmpOption;
+  if(opt==='off'||!opt)return null;
+  // 옵션별 offset 계산 (어제=1일 전, 저번주=7일, 저번달=30일, 작년=365일)
+  const offsets={yesterday:1,week:7,month:30,year:365};
+  const off=offsets[opt]||7;
+  // 동일 날짜 수만큼 앞 기간 데이터 재생성
+  const base=B7[type]||B7['전체'];
+  const d=Math.min(DS.days,30);
+  const result=[];
+  for(let i=d-1;i>=0;i--){
+    const dt=new Date(DS.to);dt.setDate(dt.getDate()-i);
+    const pdt=new Date(dt);pdt.setDate(pdt.getDate()-off);
+    const ki=['impressions','clicks','adSpend','conversions','convRevenue'].indexOf(metric);
+    result.push(Math.round(base[metric]/7*seed(pdt,ki+2)*0.93));
+  }
+  return result;
+}
+
+// 비교 기간 라벨
+function getCmpLabel(){
+  const m={off:'비교 안 함',yesterday:'어제',week:'저번 주',month:'저번 달',year:'작년'};
+  return m[ST.cmpOption]||'저번 주';
+}
+
+function initTrend(){
+  const td=getDailyData(ST.trendType);
+  const ctx=document.getElementById('trendChart');
+  if(trendCh){trendCh.destroy();trendCh=null}
+
+  const activeArr=ST.metricOrder.filter(m=>ST.activeMetrics.has(m));
+  const pLabel=getCmpLabel();
+  const showCmp=ST.cmpOption!=='off';
+
+  // 선택 순서 기반 축 배정: 첫번째=좌, 두번째=우
+  const hasL=activeArr.length>=1;
+  const hasR=activeArr.length>=2;
+  const fmtL=activeArr.length>=1?MF[activeArr[0]]:'num';
+  const fmtR=activeArr.length>=2?MF[activeArr[1]]:'num';
+
+  // 데이터셋 생성 (중복 방지: 같은 지표가 두 번 들어가지 않도록)
+  const datasets=[];
+  const seenMetrics=new Set();
+  activeArr.forEach((m,idx)=>{
+    if(seenMetrics.has(m))return; // 중복 방지
+    seenMetrics.add(m);
+    const col=MC[m]||'#2E86DE';
+    const ax=getAxisByOrder(idx); // 순서 기반 축 배정
+    const fmt=MF[m];
+    const curData=(td.cur[m]||[]).slice(); // 복사본 사용
+    const prvData=getCmpPrvData(ST.trendType,m)||[];
+    datasets.push({
+      label:ML[m],data:curData,borderColor:col,
+      backgroundColor:idx===0?col+'14':'transparent',
+      borderWidth:2.5,fill:idx===0,tension:.4,
+      pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:col,
+      pointBorderWidth:2,pointHoverRadius:6,
+      yAxisID:ax,metricId:m,metricFmt:fmt,
+    });
+    if(showCmp)datasets.push({
+      label:`${ML[m]} (${pLabel})`,data:prvData.slice(),
+      borderColor:col+'75',backgroundColor:'transparent',
+      borderWidth:1.5,borderDash:[5,4],fill:false,tension:.4,
+      pointRadius:2,pointBackgroundColor:col+'75',pointBorderColor:col+'75',
+      pointBorderWidth:1,pointHoverRadius:4,
+      yAxisID:ax,metricId:m,metricFmt:fmt,
+    });
+  });
+
+  trendCh=new Chart(ctx,{
+    type:'line',
+    data:{labels:td.labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'rgba(11,29,52,.94)',
+          titleColor:'rgba(255,255,255,.75)',
+          bodyColor:'#fff',
+          borderColor:'rgba(255,255,255,.12)',
+          borderWidth:1,padding:13,
+          callbacks:{
+            title(items){return items[0]?.label||''},
+            label(ctx){
+              const m=ctx.dataset.metricId;
+              const fmt=ctx.dataset.metricFmt||'num';
+              const bullet='●';
+              return` ${bullet} ${ctx.dataset.label}: ${fV(ctx.parsed.y,fmt)}`;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          grid:{color:'rgba(11,29,52,.05)',drawBorder:false},
+          ticks:{color:'#4A5568',font:{size:13,weight:'600',family:'Pretendard'},padding:6}
+        },
+        yL:{
+          type:'linear',position:'left',display:hasL,
+          grid:{color:'rgba(11,29,52,.05)',drawBorder:false},
+          ticks:{
+            color:'#4A5568',font:{size:12,family:'Pretendard'},padding:8,
+            callback(v){return fTick(v,fmtL);}
+          }
+        },
+        yR:{
+          type:'linear',position:'right',display:hasR,
+          grid:{drawOnChartArea:false,drawBorder:false},
+          ticks:{
+            color:'#4A5568',font:{size:12,family:'Pretendard'},padding:8,
+            callback(v){return fTick(v,fmtR);}
+          }
+        }
+      }
+    }
+  });
+
+  // 축 레이블 바 업데이트 (순서 기반: 0번째=좌, 1번째=우)
+  const axBar=document.getElementById('trendAxisBar');
+  if(axBar){
+    const m0=activeArr[0],m1=activeArr[1];
+    const lLabel=m0?`<div class="tab-axis"><div class="ax-dot" style="background:${MC[m0]}"></div><span style="color:${MC[m0]}">${ML[m0]}</span><span style="color:var(--t3);font-size:10px">← 좌축</span></div>`:'<div></div>';
+    const rLabel=m1?`<div class="tab-axis"><span style="color:var(--t3);font-size:10px">우축 →</span><span style="color:${MC[m1]}">${ML[m1]}</span><div class="ax-dot" style="background:${MC[m1]}"></div></div>`:'<div></div>';
+    axBar.innerHTML=lLabel+rLabel;
+  }
+
+  // 범례
+  const leg=document.getElementById('trendLeg');
+  if(leg){
+    let html=activeArr.map(m=>`<div class="tl-item"><div class="tl-dot" style="background:${MC[m]}"></div>${ML[m]}</div>`).join('');
+    if(showCmp)html+=`<div class="tl-item"><div class="tl-dash"></div>${pLabel} (비교)</div>`;
+    leg.innerHTML=html;
+  }
+}
+
+document.getElementById('trendTypeTabs').addEventListener('click',e=>{
+  const tab=e.target.closest('.trend-type-tab');if(!tab)return;
+  ST.trendType=tab.dataset.type;
+  document.querySelectorAll('.trend-type-tab').forEach(b=>b.classList.toggle('active',b.dataset.type===ST.trendType));
+  initTrend();
+});
+
+/* ================================================================ HEATMAP */
+// 히트맵 데이터: 7일(가로) × 24시간(세로) — 1시간 단위로 생성
+const DAYS_FULL=['월','화','수','목','금','토','일'];
+const HOURS_1H=Array.from({length:24},(_,i)=>`${i}시`);
+
+function makeHm(dW,hW24,base){
+  // hW24: 24개 weight (0~23시)
+  const data=[];
+  for(let h=0;h<24;h++){
+    const row=[];
+    for(let d=0;d<7;d++){
+      const hw=hW24[h]||0.1;
+      const n=0.82+Math.sin((d*24+h)*7.3)*0.18+Math.cos((d+h*2)*3.7)*0.1;
+      row.push({
+        roas:Math.max(0,Math.round(base.roas*dW[d]*hw*n)),
+        cvr:Math.max(0,parseFloat((base.cvr*dW[d]*hw*n).toFixed(2))),
+        spend:Math.max(0,Math.round(base.spend*dW[d]*hw*n)),
+        clicks:Math.max(0,Math.round(base.clicks*dW[d]*hw*n)),
+        day:DAYS_FULL[d],hour:HOURS_1H[h]
+      });
+    }
+    data.push(row); // data[hour][day]
+  }
+  return data;
+}
+// 24시간 weight (0~23시)
+const HW24_BASE=[0.05,0.04,0.03,0.03,0.04,0.08,0.15,0.35,0.65,0.9,1.1,1.2,1.1,1.0,0.95,0.9,0.85,0.8,0.75,0.7,0.65,0.55,0.4,0.2];
+const HW24_PL= [0.04,0.03,0.02,0.02,0.03,0.1,0.2,0.5,0.8,1.1,1.3,1.4,1.2,1.1,1.15,1.1,0.9,0.7,0.5,0.4,0.3,0.2,0.1,0.06];
+const HW24_CT= [0.06,0.05,0.03,0.03,0.05,0.09,0.12,0.25,0.45,0.6,0.8,0.9,0.85,0.8,0.75,0.8,0.9,1.0,1.1,1.2,1.1,0.9,0.65,0.3];
+const HW24_BR= [0.08,0.05,0.03,0.03,0.06,0.12,0.2,0.4,0.7,1.0,1.2,1.3,1.1,1.0,1.0,0.95,0.9,0.85,0.8,0.75,0.6,0.45,0.3,0.12];
+
+const HM_DATA={
+  '전체':   makeHm([0.7,1.2,1.3,1.25,1.1,0.85,0.6],HW24_BASE,{roas:500,cvr:2.2,spend:17000,clicks:26}),
+  '쇼핑검색':makeHm([0.8,1.1,1.2,1.15,1.05,1.1,0.75],HW24_BASE,{roas:420,cvr:2.0,spend:12000,clicks:19}),
+  '파워링크':makeHm([0.6,1.3,1.4,1.35,1.15,0.6,0.35],HW24_PL,{roas:500,cvr:2.5,spend:4000,clicks:7}),
+  '콘텐츠': makeHm([0.75,0.9,0.85,0.88,0.82,1.1,1.0],HW24_CT,{roas:220,cvr:1.2,spend:640,clicks:2}),
+  '브랜드':  makeHm([0.85,1.05,1.1,1.1,1.0,0.9,0.8],HW24_BR,{roas:880,cvr:5.5,spend:450,clicks:2}),
+};
+const HM_SCH={roas:{lo:'#EBF4FF',hi:'#1E6BC4'},cvr:{lo:'#E6FAF4',hi:'#00734F'},spend:{lo:'#FFF3EE',hi:'#C94C1E'},clicks:{lo:'#E6FAF4',hi:'#005A3C'}};
+
+function setHmInterval(iv){
+  ST.hmInterval=iv;
+  document.querySelectorAll('[data-iv]').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.iv)===iv));
+  renderHm();
+}
+
+function renderHm(){
+  const rawData=HM_DATA[ST.hmType]||HM_DATA['전체']; // [24][7]
+  const m=ST.hmMetric, sch=HM_SCH[m];
+  const iv=ST.hmInterval||2; // 1 or 2 hours
+  const fmt=v=>m==='roas'||m==='cvr'?v+'%':m==='spend'?fC(v):fN(v);
+
+  // 시간 집계: iv=1이면 24행, iv=2이면 12행 (2시간 평균)
+  const grouped=[];
+  for(let h=0;h<24;h+=iv){
+    const row=[];
+    for(let d=0;d<7;d++){
+      let sum={roas:0,cvr:0,spend:0,clicks:0},cnt=0;
+      for(let hh=h;hh<h+iv&&hh<24;hh++){
+        const c=rawData[hh][d];
+        sum.roas+=c.roas;sum.cvr+=c.cvr;sum.spend+=c.spend;sum.clicks+=c.clicks;cnt++;
+      }
+      const label=iv===1?`${h}시`:`${h}~${h+iv-1}시`;
+      row.push({roas:Math.round(sum.roas/cnt),cvr:parseFloat((sum.cvr/cnt).toFixed(2)),spend:Math.round(sum.spend),clicks:Math.round(sum.clicks),day:DAYS_FULL[d],hour:label,hourIdx:h,dayIdx:d});
+    }
+    grouped.push(row);
+  }
+
+  // 최고/최저 계산
+  const allV=grouped.flat().map(c=>c[m]);
+  const minV=Math.min(...allV),maxV=Math.max(...allV);
+  const norm=v=>maxV===minV?0.5:(v-minV)/(maxV-minV);
+  let best=null,worst=null,bestV=-Infinity,worstV=Infinity;
+  grouped.flat().forEach(c=>{if(c[m]>bestV){bestV=c[m];best=c}if(c[m]<worstV&&c[m]>0){worstV=c[m];worst=c}});
+
+  // 그라데이션 띠 업데이트
+  const gradBar=document.getElementById('hmGradBar');
+  if(gradBar&&best){
+    gradBar.innerHTML=`
+      <div style="display:flex;flex-direction:column;gap:3px;padding:2px 0 6px">
+        <div style="position:relative;height:18px;border-radius:6px;overflow:hidden;background:linear-gradient(to right,${sch.lo},${sch.hi})">
+          <span style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:rgba(255,255,255,.8)">낮음 — ${fmt(minV)}</span>
+          <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:rgba(255,255,255,.9)">높음 — ${fmt(maxV)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700">
+          <span style="color:var(--g2)">🏆 최고: ${best.day}요일 ${best.hour} (${fmt(bestV)})</span>
+          <span style="color:var(--red)">⚠️ 최저: ${worst?worst.day+'요일 '+worst.hour+' ('+fmt(worstV)+')':'-'}</span>
+        </div>
+      </div>`;
+  }
+
+  // 테이블: 세로=시간(행), 가로=요일(열)
+  let html=`<tr><th class="hm-th-hour"></th>`;
+  DAYS_FULL.forEach(d=>html+=`<th class="hm-th-day">${d}</th>`);
+  html+='</tr>';
+
+  grouped.forEach((row,hi)=>{
+    const hourLabel=iv===1?`${hi*iv}시`:`${hi*iv}~${hi*iv+iv-1}시`;
+    html+=`<tr><td class="hm-th-hour">${hourLabel}</td>`;
+    row.forEach((cell,di)=>{
+      const v=cell[m],t=norm(v),bg=lerp(sch.lo,sch.hi,t),tc=t>0.55?'#fff':'#0B1D34';
+      const disp=m==='roas'?v+'%':m==='cvr'?v+'%':m==='spend'?(v>=10000?(v/10000).toFixed(0)+'만':''):(v>=1000?(v/1000).toFixed(0)+'k':v||'');
+      html+=`<td class="hm-cell" style="background:${bg};color:${tc}" onmouseenter="showHmTip(event,'${cell.day}','${cell.hour}',${cell.roas},${cell.cvr},${cell.spend},${cell.clicks})" onmouseleave="hideHmTip()">${disp}</td>`;
+    });
+    html+='</tr>';
+  });
+  document.getElementById('hmTbl').innerHTML=html;
+}
+function showHmTip(e,day,hour,roas,cvr,spend,clicks){
+  const tip=document.getElementById('hmTip');
+  tip.innerHTML=`<b>${day}요일 ${hour}</b> · ${ST.hmType}<br>ROAS: <b>${roas}%</b><br>전환율: <b>${cvr}%</b><br>광고비: <b>${fC(spend)}</b><br>클릭: <b>${fN(clicks)}</b>`;
+  tip.style.cssText=`display:block;left:${e.clientX+14}px;top:${e.clientY-10}px`;
+}
+function hideHmTip(){document.getElementById('hmTip').style.display='none'}
+function setHmMetric(m){
+  ST.hmMetric=m;
+  document.querySelectorAll('#hmMetricBtns .cmp-opt').forEach(b=>b.classList.toggle('active',b.dataset.hm===m));
+  renderHm();
+}
+// 히트맵 유형 탭
+document.getElementById('hmTypeTabs').addEventListener('click',e=>{
+  const tab=e.target.closest('.trend-type-tab');if(!tab)return;
+  ST.hmType=tab.dataset.type;
+  document.querySelectorAll('#hmTypeTabs .trend-type-tab').forEach(b=>b.classList.toggle('active',b.dataset.type===ST.hmType));
+  renderHm();
+});
+
+/* ================================================================ KEYWORD TABLE */
+function getWaste(k){if(k.conversions===0&&k.adSpend>100000)return'high';if(k.roas<200&&k.adSpend>150000)return'mid';return'low'}
+function wChip(k){const w=getWaste(k);if(w==='high')return`<span class="wchip wh">🔴 낭비높음</span>`;if(w==='mid')return`<span class="wchip wm">🟡 낭비중간</span>`;return`<span class="wchip wl">🟢 효율좋음</span>`}
+function getKwF(){
+  let list=getKwData();
+  const q=document.getElementById('kwSearch').value.toLowerCase();if(q)list=list.filter(k=>k.kw.toLowerCase().includes(q)||k.campaign.toLowerCase().includes(q));
+  const tf=document.getElementById('kwTypeF').value;if(tf!=='all')list=list.filter(k=>k.type===tf);
+  const cf=document.getElementById('kwCampF').value;if(cf!=='all')list=list.filter(k=>k.campaign===cf);
+  const wf=document.getElementById('kwWasteF').value;if(wf!=='all')list=list.filter(k=>getWaste(k)===wf);
+  list.sort((a,b)=>{const av=a[ST.kwSort.col]??0,bv=b[ST.kwSort.col]??0;return ST.kwSort.dir==='asc'?av-bv:bv-av});
+  return list;
+}
+function renderKw(){
+  const all=getKwF(),total=all.length,pages=Math.ceil(total/ST.kwPS)||1;
+  if(ST.kwPage>pages)ST.kwPage=pages;
+  const slice=all.slice((ST.kwPage-1)*ST.kwPS,ST.kwPage*ST.kwPS);
+  document.getElementById('kwCnt').textContent=`${total}개 키워드`;
+  const maxS=Math.max(...slice.map(k=>k.adSpend),1);
+  document.getElementById('kwBody').innerHTML=slice.map(k=>`
+    <tr><td><b>${k.kw}</b></td><td>${tBadge(k.type)}</td>
+    <td style="font-size:11px;color:var(--t2);max-width:130px;white-space:normal">${k.campaign}</td>
+    <td>${fN(k.impressions)}</td><td>${fN(k.clicks)}</td>
+    <td><div class="kwbar-cell"><div class="kwbar" style="width:${Math.round(k.adSpend/maxS*65)}px;background:${k.conversions===0&&k.adSpend>100000?'var(--red)':'var(--orange)'}"></div>${fC(k.adSpend)}</div></td>
+    <td>${fC(k.cpc)}</td>
+    <td style="font-weight:800;color:${k.conversions===0?'var(--red)':'inherit'}">${k.conversions}</td>
+    <td>
+      <div class="tip-wrap"><span class="rv ${rvCls(k.roas)}">${k.roas?k.roas+'%':'—'}</span>
+        <div class="tip-box"><b>ROAS = 전환매출 ÷ 광고비 × 100</b><span class="tip-line">${k.roas?`${fC(k.convRevenue)} ÷ ${fC(k.adSpend)} = ${k.roas}%`:'전환 없음'}</span><br><span class="tip-line">500%↑ 우수 / 300~499% 정상 / 300%↓ 개선 필요</span></div>
+      </div>
+    </td>
+    <td>${k.cpConv?fC(k.cpConv):'—'}</td><td>${wChip(k)}</td></tr>`).join('');
+  renderPgn('kwPgn','kwPgi',ST.kwPage,pages,total,ST.kwPS,'kwGoPage');
+}
+document.querySelectorAll('th[data-kw]').forEach(th=>{th.classList.add('sort');th.addEventListener('click',()=>{const c=th.dataset.kw;if(ST.kwSort.col===c)ST.kwSort.dir=ST.kwSort.dir==='desc'?'asc':'desc';else{ST.kwSort.col=c;ST.kwSort.dir='desc'}document.querySelectorAll('th[data-kw]').forEach(t=>t.classList.remove('sasc','sdesc'));th.classList.add(ST.kwSort.dir==='asc'?'sasc':'sdesc');renderKw()})});
+function kwGoPage(p){const pages=Math.ceil(getKwF().length/ST.kwPS)||1;if(p<1||p>pages)return;ST.kwPage=p;renderKw()}
+
+/* ================================================================ CAMP TABLE */
+function getCmpF(){
+  let list=getCampData();
+  const q=ST.cmpSearch.toLowerCase();if(q)list=list.filter(c=>c.name.toLowerCase().includes(q));
+  if(ST.cmpTypeF!=='all')list=list.filter(c=>c.type===ST.cmpTypeF);
+  if(ST.cmpOnOff==='on')list=list.filter(c=>c.status==='활성');
+  if(ST.cmpOnOff==='off')list=list.filter(c=>c.status==='일시중지');
+  if(ST.cmpAlo)list=list.filter(c=>c.alr);
+  if(ST.cmpSort)list.sort((a,b)=>{const av=a[ST.cmpSort]??0,bv=b[ST.cmpSort]??0;return ST.cmpDir==='asc'?av-bv:bv-av});
+  return list;
+}
+function renderCmp(){
+  const all=getCmpF(),total=all.length,pages=Math.ceil(total/ST.cmpPS)||1;
+  if(ST.cmpPage>pages)ST.cmpPage=pages;
+  const slice=all.slice((ST.cmpPage-1)*ST.cmpPS,ST.cmpPage*ST.cmpPS);
+  document.getElementById('cmpCnt').textContent=`${total}개 캠페인`;
+  document.getElementById('cmpBody').innerHTML=slice.map(c=>`
+    <tr class="${c.alr?'alr-r':''}">
+      <td><div class="tdn">${c.alr?'<div class="adot"></div>':''}<span class="tdnt">${c.name}</span></div></td>
+      <td>${tBadge(c.type)}</td><td>${stBadge(c.status)}</td>
+      <td>${fC(c.adSpend)}</td><td>${chgLbl(chgP(c.adSpend,c.prevAdSpend),true)}</td>
+      <td>${fN(c.impressions)}</td><td>${fN(c.clicks)}</td><td>${fN(c.conversions)}</td><td>${fC(c.convRevenue)}</td>
+      <td>
+        <div class="tip-wrap"><span class="rv ${rvCls(c.roas)}">${c.roas}%</span>
+          <div class="tip-box"><b>ROAS 계산</b><span class="tip-line">${fC(c.convRevenue)} ÷ ${fC(c.adSpend)} = ${c.roas}%</span><br><span class="tip-line">목표 ROAS: ${(GOALS['전체'].roas||600)}%</span></div>
+        </div>
+      </td>
+      <td>${c.ctr.toFixed(2)}%</td><td>${c.crto.toFixed(2)}%</td><td>${fC(c.cpConv)}</td>
+    </tr>`).join('');
+  renderPgn('cmpPgn','cmpPgi',ST.cmpPage,pages,total,ST.cmpPS,'cmpGoPage');
+}
+function cmpGoPage(p){const pages=Math.ceil(getCmpF().length/ST.cmpPS)||1;if(p<1||p>pages)return;ST.cmpPage=p;renderCmp()}
+function onSearch(){ST.cmpSearch=document.getElementById('cmpSearch').value;ST.cmpPage=1;renderCmp()}
+function onFilter(){ST.cmpTypeF=document.getElementById('cmpTypeF').value;ST.cmpPage=1;renderCmp()}
+function toggleOnOff(m){ST.cmpOnOff=ST.cmpOnOff===m?'all':m;document.getElementById('btnOn').classList.toggle('active',ST.cmpOnOff==='on');document.getElementById('btnOff').classList.toggle('active',ST.cmpOnOff==='off');ST.cmpPage=1;renderCmp()}
+function toggleAlo(){ST.cmpAlo=!ST.cmpAlo;document.getElementById('aloBtn').classList.toggle('active',ST.cmpAlo);ST.cmpPage=1;renderCmp()}
+document.querySelectorAll('th[data-col]').forEach(th=>{th.classList.add('sort');th.addEventListener('click',()=>{const c=th.dataset.col;if(ST.cmpSort===c)ST.cmpDir=ST.cmpDir==='desc'?'asc':'desc';else{ST.cmpSort=c;ST.cmpDir='desc'}document.querySelectorAll('th[data-col]').forEach(t=>t.classList.remove('sasc','sdesc'));th.classList.add(ST.cmpDir==='asc'?'sasc':'sdesc');renderCmp()})});
+
+/* ================================================================ PAGINATION */
+function renderPgn(pgnId,pgiId,page,pages,total,ps,goFn){
+  let html=`<button class="pg" onclick="${goFn}(${page-1})" ${page===1?'disabled':''}>‹</button>`;
+  const s=Math.max(1,page-2),e=Math.min(pages,page+2);
+  if(s>1)html+=`<button class="pg" onclick="${goFn}(1)">1</button>${s>2?'<span style="padding:0 3px;color:var(--t3)">…</span>':''}`;
+  for(let i=s;i<=e;i++)html+=`<button class="pg ${page===i?'active':''}" onclick="${goFn}(${i})">${i}</button>`;
+  if(e<pages)html+=`${e<pages-1?'<span style="padding:0 3px;color:var(--t3)">…</span>':''}<button class="pg" onclick="${goFn}(${pages})">${pages}</button>`;
+  html+=`<button class="pg" onclick="${goFn}(${page+1})" ${page===pages?'disabled':''}>›</button>`;
+  document.getElementById(pgnId).innerHTML=html;
+  document.getElementById(pgiId).textContent=`${(page-1)*ps+1}–${Math.min(page*ps,total)} / 총 ${total}건`;
+}
+
+/* ================================================================ AI */
+function runAi(){
+  if(ST.aiShown)return;
+  // 카드가 접혀있으면 먼저 펼치기
+  const ab=document.getElementById('aiBody');
+  if(ab&&ab.classList.contains('coll'))toggleCard('aiBody','aiCardTog');
+  document.getElementById('aiTrig').style.display='none';
+  document.getElementById('aiLd').classList.add('show');
+  setTimeout(()=>{document.getElementById('aiLd').classList.remove('show');document.getElementById('aiRes').classList.add('show');ST.aiShown=true},2000);
+}
+
+/* ================================================================ LOG */
+function addLog(){
+  const d=document.getElementById('logDate').value,t=document.getElementById('logType').value,n=document.getElementById('logNote').value.trim();
+  if(!n)return;
+  LOG.unshift({id:Date.now(),date:d,type:t,note:n});
+  try{localStorage.setItem('fc_log3',JSON.stringify(LOG))}catch(e){}
+  document.getElementById('logNote').value='';
+  renderLog();
+  showToast(`✅ 변경 이력 추가 (${LOG_TYPES[t].l})`);
+}
+function deleteLog(id){LOG=LOG.filter(l=>l.id!==id);try{localStorage.setItem('fc_log3',JSON.stringify(LOG))}catch(e){}renderLog()}
+let LOG_FILTER='all';
+function setLogFilter(type){
+  LOG_FILTER=type;
+  document.querySelectorAll('.log-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.lf===type));
+  renderLog();
+}
+function renderLog(){
+  const filtered=LOG_FILTER==='all'?LOG:LOG.filter(l=>l.type===LOG_FILTER);
+  document.getElementById('logCnt').textContent=`${LOG.length}건`;
+  const tl=document.getElementById('logTl');
+  if(!filtered.length){
+    tl.innerHTML=LOG.length===0
+      ?`<div class="log-empty">📋 아직 기록이 없습니다. 입찰가·예산·소재 변경 시 기록해두세요.</div>`
+      :`<div class="log-empty">선택한 유형의 기록이 없습니다</div>`;
+    return;
+  }
+  // ⑤ → 디자인 제거, 타임라인 점+선 스타일로
+  tl.innerHTML=filtered.map(l=>{
+    const tm=LOG_TYPES[l.type]||LOG_TYPES.other;
+    return`<div class="log-item">
+      <div class="log-line"></div>
+      <div class="ldot ${l.type}">${tm.e}</div>
+      <div class="log-cont">
+        <div class="log-hd">
+          <span class="log-dt">${l.date}</span>
+          <span class="ltb ${l.type}">${tm.l}</span>
+        </div>
+        <div class="log-note">${escHtml(l.note)}</div>
+      </div>
+      <button class="ldel" onclick="deleteLog(${l.id})" title="삭제">✕</button>
+    </div>`;
+  }).join('');
+}
+function loadLog(){try{const d=localStorage.getItem('fc_log3');if(d)LOG=JSON.parse(d)}catch(e){}}
+function injectSampleLog(){if(LOG.length>0)return;LOG=[{id:3,date:'2026-03-19',type:'bid',note:'[업소용냉동고] ROAS 하락으로 입찰가 ₩1,200→₩800 하향'},{id:2,date:'2026-03-17',type:'budget',note:'[스타리온 업소용냉장고] 일 예산 ₩500,000→₩700,000 상향'},{id:1,date:'2026-03-15',type:'creative',note:'[라셀르 카페냉장고] 메인 소재 교체 (CTR 개선 목적)'}]}
+
+/* ================================================================ GOAL MODAL */
+function openGoalModal(){const type=ST.kpiType,goals=GOALS[type]||GOALS['전체'];document.getElementById('goalGrid').innerHTML=GM.map(m=>`<div class="gf"><div class="gf-hd"><div class="gf-dot" style="background:${m.c}"></div><span class="gf-name">${m.n}</span><span class="gf-unit">(${m.u})</span></div><input class="gf-inp" id="g-${m.id}" type="number" value="${goals[m.id]||0}"></div>`).join('');document.getElementById('goalMov').classList.add('show')}
+function closeGoalModal(){document.getElementById('goalMov').classList.remove('show')}
+function saveGoals(){const type=ST.kpiType;if(!GOALS[type])GOALS[type]={};GM.forEach(m=>{const v=parseFloat(document.getElementById('g-'+m.id).value);if(!isNaN(v)&&v>0)GOALS[type][m.id]=v});closeGoalModal();renderKpi();showToast(`✅ [${type}] 목표치 저장됨`)}
+document.getElementById('goalMov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeGoalModal()});
+
+/* ================================================================ ROI */
+function openRoi(){document.getElementById('roiMov').classList.add('show')}
+function closeRoi(){document.getElementById('roiMov').classList.remove('show')}
+document.getElementById('roiMov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeRoi()});
+function calcRoi(){const s=parseFloat(document.getElementById('cs').value)||0,r=parseFloat(document.getElementById('cr').value)||0,c=parseFloat(document.getElementById('cc').value)||0;const e1=document.getElementById('rr1'),e2=document.getElementById('rr2'),e3=document.getElementById('rr3');if(!s||!r){[e1,e2,e3].forEach(e=>{e.textContent='—';e.className='rv2'});return}const roas=Math.round((r/s)*100),profit=Math.round(r*(1-c/100)-s),roi=Math.round((profit/s)*100);e1.textContent=roas+'%';e2.textContent=(roi>=0?'+':'')+roi+'%';e3.textContent=(profit>=0?'':'-')+'₩'+Math.abs(profit).toLocaleString('ko-KR');e1.className='rv2 '+(roas>=400?'good':'bad');e2.className='rv2 '+(roi>=0?'good':'bad');e3.className='rv2 '+(profit>=0?'good':'bad')}
+
+/* ================================================================ CHAT */
+function renderQl(){document.getElementById('qlList').innerHTML=QS.map(q=>`<button class="ql-item" onclick="askQ(this.dataset.q)" data-q="${q.q.replace(/"/g,'&quot;')}"><span class="ql-tag">${q.tag}</span>${q.q}</button>`).join('')}
+function askQ(q){document.getElementById('chatInp').value=q;sendChat()}
+function escHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function addMsg(text,role){const w=document.getElementById('chatMsgs');const d=document.createElement('div');d.className=`msg ${role}`;const safe=role==='user'?escHtml(text):text;d.innerHTML=`<div class="mb">${safe}</div><div class="mt">${nowT()}</div>`;w.appendChild(d);w.scrollTop=w.scrollHeight}
+function sendChat(){const inp=document.getElementById('chatInp');const q=inp.value.trim();if(!q)return;addMsg(q,'user');inp.value='';setTimeout(()=>addMsg(ansQ(q),'bot'),300)}
+function ansQ(q){
+  const t=q.toLowerCase();
+  const cmp=getCampData(),actC=cmp.filter(c=>c.status==='활성'),pauC=cmp.filter(c=>c.status==='일시중지');
+  function pM(s){const p=[[/(26년?|2026).*?(1월|01월)/,'2026-01'],[/(25년?|2025).*?(12월)/,'2025-12'],[/(25년?|2025).*?(3월)/,'2025-03']];for(const[re,k]of p){if(re.test(s))return k}return null}
+  const tm=pM(t);
+  const tpM={'쇼핑검색':['쇼핑검색','쇼핑'],'파워링크':['파워링크','파워'],'콘텐츠':['콘텐츠'],'브랜드':['브랜드']};
+  let ft=null;for(const[k,al]of Object.entries(tpM)){if(al.some(a=>t.includes(a))){ft=k;break}}
+  const ymL={'2026-01':'2026년 1월','2025-12':'2025년 12월','2025-03':'2025년 3월'};
+  if(tm){const md=MO_DATA[tm];const ym=ymL[tm]||tm;if(!md)return`<b>${ym}</b> 데이터 없음 📭`;if(ft&&md[ft]){const d=md[ft];if(t.includes('광고비'))return`📅 <b>${ym} ${ft}</b> 광고비<br>→ <b>${fC(d.adSpend)}</b>`;if(t.includes('매출'))return`📅 <b>${ym} ${ft}</b> 매출<br>→ <b>${fC(d.convRevenue)}</b>`;return`📅 <b>${ym} ${ft}</b><br>광고비: ${fC(d.adSpend)}<br>매출: ${fC(d.convRevenue)}<br>ROAS: ${Math.round(d.convRevenue/d.adSpend*100)}%`}const tot={adSpend:0,convRevenue:0,conversions:0};Object.values(md).forEach(d=>{tot.adSpend+=d.adSpend;tot.convRevenue+=d.convRevenue;tot.conversions+=d.conversions});if(t.includes('광고비'))return`📅 <b>${ym}</b> 총 광고비<br>→ <b>${fC(tot.adSpend)}</b>`;return`📅 <b>${ym}</b> 전체<br>광고비: ${fC(tot.adSpend)}<br>매출: ${fC(tot.convRevenue)}<br>ROAS: ${Math.round(tot.convRevenue/tot.adSpend*100)}%`}
+  const kw=getKwData();
+  if(t.includes('낭비 키워드')||t.includes('낭비키워드')){const w=kw.filter(k=>getWaste(k)==='high');return`🔴 낭비 키워드 <b>${w.length}개</b><br>${w.map(k=>`· ${k.kw} [${k.type}] ${fC(k.adSpend)} 전환0`).join('<br>')}`}
+  if(t.includes('roas 0')||t.includes('전환없는')||t.includes('전환 없는')){const w=kw.filter(k=>k.conversions===0);return`⚠️ 전환 0건 키워드 <b>${w.length}개</b><br>${w.slice(0,5).map(k=>`· ${k.kw} [${k.type}]`).join('<br>')}`}
+  if(t.includes('총 광고비')||(t.includes('광고비')&&t.includes('얼마'))){return`📊 총 광고비 (${DS.days}일)<br>→ <b>${fC(cmp.reduce((a,c)=>a+c.adSpend,0))}</b>`}
+  if(t.includes('매출액')||t.includes('총 매출')){return`💰 총 매출액<br>→ <b>${fC(cmp.reduce((a,c)=>a+c.convRevenue,0))}</b>`}
+  if(t.includes('roas')&&t.includes('높')){const b=cmp.reduce((a,c)=>a.roas>c.roas?a:c);return`🏆 ROAS 최고: <b>${b.name}</b> (${b.roas}%)`}
+  if(t.includes('활성')){return`✅ 활성 <b>${actC.length}개</b><br>${actC.map(c=>`· ${c.name}`).join('<br>')}`}
+  if(t.includes('일시중지')){return`⏸ 일시중지 <b>${pauC.length}개</b><br>${pauC.map(c=>`· ${c.name}`).join('<br>')}`}
+  if(t.includes('경고')){const a=cmp.filter(c=>c.alr);return`🚨 경고 <b>${a.length}개</b><br>${a.map(c=>`· ${c.name} (ROAS ${c.roas}%)`).join('<br>')}`}
+  if(ft){const list=cmp.filter(c=>c.type===ft);const s=list.reduce((a,c)=>a+c.adSpend,0),r=list.reduce((a,c)=>a+c.convRevenue,0);return`🛍 <b>${ft}</b> (${list.length}개)<br>광고비: ${fC(s)}<br>ROAS: ${Math.round(r/s*100)}%`}
+  return`🤔 예시: "낭비 키워드 알려줘" · "26년 1월 쇼핑검색 광고비?" · "총 매출액 얼마야?"`;
+}
+
+/* ================================================================ TOAST */
+function showToast(msg){const el=document.createElement('div');el.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0B1D34;color:#fff;padding:10px 20px;border-radius:9px;font-size:12.5px;font-weight:700;box-shadow:0 6px 20px rgba(11,29,52,.3);z-index:600';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2300)}
+
+/* ================================================================ RELOAD */
+function reloadAll(){renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp()}
+
+/* ================================================================ 접기/펴기 */
+function toggleCard(bodyId, togId){
+  const body=document.getElementById(bodyId);
+  const tog=document.getElementById(togId);
+  if(!body)return;
+  const isOpen=!body.classList.contains('coll');
+  body.classList.toggle('coll',isOpen);
+  // max-height 처리
+  if(isOpen){body.style.maxHeight='0'}
+  else{body.style.maxHeight='4000px'}
+  if(tog)tog.classList.toggle('open',!isOpen);
+}
+function toggleSec(bodyId, togId){
+  toggleCard(bodyId,togId);
+}
+
+/* ================================================================ INIT */
+function init(){
+  loadLog();injectSampleLog();
+  updateHeaderDate();
+  renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();renderQl();
+}
+init();
+</script>
+</body>
+</html>
