@@ -702,62 +702,21 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <div class="card-body" id="secStrat" style="max-height:3000px">
 
-<!-- ⑧ AI 분석: 전체 폭 (큰 영역) -->
+<!-- ⑧ AI 전략 분석 (통합) -->
 <div class="card strat-ai">
   <div class="card-head" onclick="toggleCard('aiBody','aiCardTog')">
     <div class="card-title"><div class="card-ico">🤖</div> AI 광고 전략 분석</div>
     <div style="display:flex;align-items:center;gap:8px">
-      <span class="card-sub">Claude Sonnet 기반 · 데이터 기반 위험 진단 + 전략 자동 생성</span>
+      <span class="card-sub">실시간 데이터 기반 · 위험 진단 + 전략 자동 생성</span>
       <div class="ctog open" id="aiCardTog">▼</div>
     </div>
   </div>
-  <div class="card-body" id="aiBody" style="max-height:600px">
+  <div class="card-body" id="aiBody" style="max-height:1200px">
     <div style="padding:16px">
-    <div class="ai-trig" id="aiTrig"><div class="ai-desc">현재 광고 데이터를 분석하여 위험 요인 진단 및 다음 주 실행 전략을 자동으로 생성합니다</div><button class="btn-ai" onclick="runAi()"><div class="ai-ico">✨</div>AI 분석 실행</button></div>
-    <div class="ai-ld" id="aiLd"><div class="spinner"></div><div style="color:var(--t2);font-size:13px">캠페인 데이터 분석 중…</div></div>
-    <div class="ai-res" id="aiRes">
-      <div class="ai-card sum"><div class="ai-ct">📊 현황 요약</div><ul><li>광고비 ₩8,500,000, 전기간 대비 +12%</li><li>ROAS 529% — 목표(600%) 대비 71%p 미달</li><li>전환수 320건, 전환매출 ₩45,000,000 (+8%)</li><li>CTR 3.0%, CPC ₩557, 활성 캠페인 8개</li></ul></div>
-      <div class="ai-card risk"><div class="ai-ct">⚠️ 위험 요인</div><ul><li>업소용냉동고 ROAS 180% — 손익분기점 미달</li><li>3일 연속 전환 0건, CPA ₩63,571 급등</li><li>스타리온냉장고 일 예산 167% 초과 집행</li><li>전체 예산 소진율 85% — 초과 예상</li></ul></div>
-      <div class="ai-card strat"><div class="ai-ct">🎯 추천 전략</div><ul><li>[업소용냉동고] 입찰가 50% 즉시 하향 또는 일시중지</li><li>[스타리온냉장고] 일 예산 ₩700,000으로 상향</li><li>[포쿨 브랜드] ROAS 891% — 예산 2배 증액 권장</li><li>CTR 하위 캠페인 A/B 소재 2개 이상 등록</li></ul></div>
-    </div>
-    </div>
-  </div>
-</div>
-
-<!-- 키워드 추천 + 입찰 전략: 2열 -->
-<div class="two-col" style="margin-bottom:14px">
-  <!-- 키워드 추천/발굴 -->
-  <div class="card" style="margin-bottom:0">
-    <div class="card-head" onclick="toggleCard('kwSuggestBody','kwSuggestTog')">
-      <div class="card-title"><div class="card-ico">🔍</div> 키워드 추천/발굴</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="card-sub">연관 키워드 + 월간 검색량</span>
-        <div class="ctog open" id="kwSuggestTog">▼</div>
-      </div>
-    </div>
-    <div class="card-body" id="kwSuggestBody" style="max-height:600px">
-      <div style="padding:14px">
-        <div style="display:flex;gap:7px;margin-bottom:12px">
-          <input class="linp" id="kwSuggestInput" style="flex:1" placeholder="키워드 입력 (예: 업소용냉장고)" onkeydown="if(event.key==='Enter')searchKwSuggest()">
-          <button class="bsm bnavy" onclick="searchKwSuggest()">🔍 검색</button>
-        </div>
-        <div id="kwSuggestResult" style="font-size:13px;color:var(--t2)">키워드를 입력하면 네이버 연관 키워드 + 월간 검색량을 조회합니다.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 입찰 전략 설정 -->
-  <div class="card" style="margin-bottom:0">
-    <div class="card-head" onclick="toggleCard('bidStratBody','bidStratTog')">
-      <div class="card-title"><div class="card-ico">⚡</div> 입찰 전략 설정</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="card-sub">캠페인별 전략 선택</span>
-        <div class="ctog open" id="bidStratTog">▼</div>
-      </div>
-    </div>
-    <div class="card-body" id="bidStratBody" style="max-height:600px">
-      <div style="padding:14px">
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      <!-- 입찰 전략 선택 -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:8px">📌 입찰 전략 선택</div>
+        <div id="bidStratBody" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
           <button class="pill active" onclick="setBidStrat(this,'aggressive')" style="text-align:center;padding:10px 8px">
             <div style="font-size:16px;margin-bottom:4px">🚀</div>
             <div style="font-size:12px;font-weight:800">공격적</div>
@@ -779,14 +738,34 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
             <div style="font-size:10px;color:var(--t2);margin-top:2px">입찰가 -20%</div>
           </button>
         </div>
-        <div id="bidStratDesc" style="padding:12px;background:var(--sf2);border-radius:8px;border:1px solid var(--bd);font-size:13px;color:var(--t1);line-height:1.7">
-          <b>🚀 공격적 전략</b><br>
-          · ROAS 500% 이상 캠페인의 입찰가를 30% 상향<br>
-          · 전환율 높은 키워드 중심으로 예산 집중<br>
-          · 노출 확대를 통한 시장 점유율 확보 목적<br>
-          <span style="color:var(--orange);font-weight:700">⚠️ 주의: 광고비 증가 예상, 일 예산 여유 확인 필요</span>
-        </div>
       </div>
+      <!-- AI 분석 버튼 -->
+      <div class="ai-trig" id="aiTrig" style="border-top:1px solid var(--bd);padding-top:14px">
+        <div class="ai-desc">선택한 전략을 기반으로 현재 광고 데이터를 분석하고 실행 가능한 전략을 생성합니다</div>
+        <button class="btn-ai" onclick="runAi()"><div class="ai-ico">✨</div>AI 전략 분석 실행</button>
+      </div>
+      <div class="ai-ld" id="aiLd"><div class="spinner"></div><div style="color:var(--t2);font-size:13px">데이터 분석 + 전략 생성 중…</div></div>
+      <div class="ai-res" id="aiRes"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 키워드 추천: 전체 폭 -->
+<div class="card" style="margin-bottom:14px">
+  <div class="card-head" onclick="toggleCard('kwSuggestBody','kwSuggestTog')">
+    <div class="card-title"><div class="card-ico">🔍</div> 키워드 추천/발굴</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="card-sub">연관 키워드 + 월간 검색량 + 경쟁도</span>
+      <div class="ctog open" id="kwSuggestTog">▼</div>
+    </div>
+  </div>
+  <div class="card-body" id="kwSuggestBody" style="max-height:600px">
+    <div style="padding:14px">
+      <div style="display:flex;gap:7px;margin-bottom:12px">
+        <input class="linp" id="kwSuggestInput" style="flex:1" placeholder="키워드 입력 (예: 업소용냉장고)" onkeydown="if(event.key==='Enter')searchKwSuggest()">
+        <button class="bsm bnavy" onclick="searchKwSuggest()">🔍 검색</button>
+      </div>
+      <div id="kwSuggestResult" style="font-size:13px;color:var(--t2)">키워드를 입력하면 네이버 연관 키워드 + 월간 검색량을 조회합니다.</div>
     </div>
   </div>
 </div>
@@ -1771,7 +1750,7 @@ function initTrend(){
 document.getElementById('trendTypeTabs').addEventListener('click',e=>{
   const tab=e.target.closest('.trend-type-tab');if(!tab)return;
   ST.trendType=tab.dataset.type;
-  document.querySelectorAll('.trend-type-tab').forEach(b=>b.classList.toggle('active',b.dataset.type===ST.trendType));
+  document.querySelectorAll('#trendTypeTabs .trend-type-tab').forEach(b=>b.classList.toggle('active',b.dataset.type===ST.trendType));
   initTrend();
 });
 
@@ -2010,10 +1989,12 @@ function renderPgn(pgnId,pgiId,page,pages,total,ps,goFn){
 }
 
 /* ================================================================ AI */
+let currentBidStrat = 'aggressive';
 function runAi(){
   const ab=document.getElementById('aiBody');
   if(ab&&ab.classList.contains('coll'))toggleCard('aiBody','aiCardTog');
   document.getElementById('aiTrig').style.display='none';
+  document.getElementById('aiRes').classList.remove('show');
   document.getElementById('aiLd').classList.add('show');
 
   setTimeout(()=>{
@@ -2072,10 +2053,39 @@ function runAi(){
     if(chgSpend>30)stratHtml+=`<li>💰 광고비 ${chgSpend}% 증가 — 비효율 캠페인 예산 재분배 검토</li>`;
     if(!stratHtml)stratHtml='<li>현재 성과 양호, 기존 전략 유지 권장</li>';
 
+    // 선택된 입찰 전략에 따른 실행 계획
+    const stratNames = { aggressive:'🚀 공격적', standard:'⚖️ 기본', balanced:'🎯 균형적', conservative:'🛡️ 보수적' };
+    const stratName = stratNames[currentBidStrat] || '⚖️ 기본';
+    let planHtml = '';
+    if(currentBidStrat==='aggressive'){
+      const topCamps=camps.filter(c=>c.roas>500&&c.adSpend>5000).sort((a,b)=>b.roas-a.roas).slice(0,3);
+      planHtml+=`<li><b>적용 대상:</b> ROAS 500%↑ 캠페인 ${topCamps.length}개</li>`;
+      topCamps.forEach(c=>planHtml+=`<li>→ [${c.name}] 입찰가 30%↑ (ROAS ${c.roas}%)</li>`);
+      planHtml+=`<li><b>예상 효과:</b> 노출 +25~40%, 광고비 +30% 증가 예상</li>`;
+    } else if(currentBidStrat==='conservative'){
+      planHtml+=`<li><b>적용 대상:</b> 전체 활성 캠페인</li>`;
+      planHtml+=`<li>→ 전체 입찰가 20% 하향 적용</li>`;
+      const wastTotal=wastKws.reduce((s,k)=>s+k.adSpend,0);
+      planHtml+=`<li>→ 낭비 키워드 ${wastKws.length}개 즉시 중지 (${fC(wastTotal)} 절감)</li>`;
+      planHtml+=`<li><b>예상 효과:</b> 광고비 -20~30%, 노출 감소 감수</li>`;
+    } else if(currentBidStrat==='balanced'){
+      const goodCamps=camps.filter(c=>c.roas>300&&c.adSpend>5000).length;
+      const badCamps=camps.filter(c=>c.roas>0&&c.roas<300&&c.adSpend>5000).length;
+      planHtml+=`<li><b>ROAS 300%↑:</b> ${goodCamps}개 캠페인 → 입찰가 유지</li>`;
+      planHtml+=`<li><b>ROAS 300%↓:</b> ${badCamps}개 캠페인 → 입찰가 10% 하향</li>`;
+      planHtml+=`<li>→ 전환 없는 키워드 자동 일시중지 검토</li>`;
+      planHtml+=`<li><b>예상 효과:</b> ROAS 개선 + 광고비 최적화</li>`;
+    } else {
+      planHtml+=`<li><b>현행 유지:</b> 현재 입찰가와 예산 그대로 운영</li>`;
+      planHtml+=`<li>→ 주간 성과 모니터링 후 조정 판단</li>`;
+      planHtml+=`<li><b>예상 효과:</b> 안정적 운영, 리스크 없음</li>`;
+    }
+
     document.getElementById('aiRes').innerHTML=`
       <div class="ai-card sum"><div class="ai-ct">📊 현황 요약</div><ul>${sumHtml}</ul></div>
       <div class="ai-card risk"><div class="ai-ct">⚠️ 위험 요인 (${dangerCamps.length+wastKws.length}건)</div><ul>${riskHtml}</ul></div>
-      <div class="ai-card strat"><div class="ai-ct">🎯 추천 전략</div><ul>${stratHtml}</ul></div>`;
+      <div class="ai-card strat"><div class="ai-ct">🎯 추천 전략</div><ul>${stratHtml}</ul></div>
+      <div class="ai-card" style="border-color:rgba(11,29,52,.2);background:var(--sf2);grid-column:1/-1"><div class="ai-ct" style="color:var(--navy)">📋 ${stratName} 전략 실행 계획</div><ul>${planHtml}</ul></div>`;
 
     document.getElementById('aiLd').classList.remove('show');
     document.getElementById('aiRes').classList.add('show');
@@ -2110,15 +2120,12 @@ async function searchKwSuggest(){
 
 /* ================================================================ BID STRATEGY */
 function setBidStrat(btn,type){
+  currentBidStrat=type;
   document.querySelectorAll('#bidStratBody .pill').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const descs={
-    aggressive:'<b>🚀 공격적 전략</b><br>· ROAS 500% 이상 캠페인의 입찰가를 30% 상향<br>· 전환율 높은 키워드 중심으로 예산 집중<br>· 노출 확대를 통한 시장 점유율 확보 목적<br><span style="color:var(--orange);font-weight:700">⚠️ 주의: 광고비 증가 예상, 일 예산 여유 확인 필요</span>',
-    standard:'<b>⚖️ 기본 전략</b><br>· 현재 입찰가와 예산을 유지<br>· 성과 모니터링 위주로 운영<br>· 안정적인 성과가 유지될 때 적합<br><span style="color:var(--green);font-weight:700">✅ 리스크 낮음, 현상 유지</span>',
-    balanced:'<b>🎯 균형적 전략</b><br>· ROAS 300% 이상 캠페인만 입찰가 유지<br>· ROAS 300% 미만 캠페인은 입찰가 10% 하향<br>· 전환 없는 키워드 자동 일시중지 검토<br><span style="color:var(--blue);font-weight:700">📊 데이터 기반 효율 최적화</span>',
-    conservative:'<b>🛡️ 보수적 전략</b><br>· 전체 입찰가 20% 하향<br>· 전환 없는 키워드 즉시 일시중지<br>· 광고비 절감 + 핵심 키워드 집중<br><span style="color:var(--green);font-weight:700">💰 광고비 절감 우선, 노출 감소 감수</span>',
-  };
-  document.getElementById('bidStratDesc').innerHTML=descs[type]||'';
+  // 전략 변경 시 재분석 가능하도록 트리거 버튼 복원
+  const trig=document.getElementById('aiTrig');
+  if(trig&&ST.aiShown){trig.style.display='flex';ST.aiShown=false;document.getElementById('aiRes').classList.remove('show')}
 }
 
 /* ================================================================ LOG */
