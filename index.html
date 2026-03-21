@@ -934,9 +934,22 @@ function updateHeaderDate(){
 let LIVE_DATA = null;
 const WORKER_URL = 'https://naver-ad-proxy.pokool-ad.workers.dev';
 
+function showLoading(show) {
+  let el = document.getElementById('loadingOverlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loadingOverlay';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .2s';
+    el.innerHTML = '<div style="width:40px;height:40px;border:4px solid #E5E7EB;border-top-color:#00C73C;border-radius:50%;animation:spin .7s linear infinite"></div><div style="font-size:15px;font-weight:700;color:#0B1D34">광고 데이터 로딩 중...</div><div style="font-size:13px;color:#4A5568">네이버 API에서 데이터를 가져오고 있습니다</div>';
+    document.body.appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+}
+
 async function fetchDashboardData() {
   const from = DS.from.toISOString().slice(0,10);
   const to = DS.to.toISOString().slice(0,10);
+  showLoading(true);
   try {
     document.getElementById('updTxt').textContent = '데이터 로딩 중...';
     const res = await fetch(`${WORKER_URL}/api/dashboard?from=${from}&to=${to}`);
@@ -948,6 +961,8 @@ async function fetchDashboardData() {
     console.warn('API 연결 실패, 샘플 데이터 사용:', e.message);
     LIVE_DATA = null;
     document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · 샘플 데이터`;
+  } finally {
+    showLoading(false);
   }
 }
 
