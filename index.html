@@ -739,10 +739,9 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
           </button>
         </div>
       </div>
-      <!-- AI 분석 버튼 -->
-      <div class="ai-trig" id="aiTrig" style="border-top:1px solid var(--bd);padding-top:14px">
-        <div class="ai-desc">선택한 전략을 기반으로 현재 광고 데이터를 분석하고 실행 가능한 전략을 생성합니다</div>
-        <button class="btn-ai" onclick="runAi()"><div class="ai-ico">✨</div>AI 전략 분석 실행</button>
+      <!-- AI 분석 버튼 (전략 선택 영역 안에 통합) -->
+      <div class="ai-trig" id="aiTrig" style="margin-top:12px">
+        <button class="btn-ai" onclick="runAi()" style="width:100%"><div class="ai-ico">✨</div>선택한 전략으로 AI 분석 실행</button>
       </div>
       <div class="ai-ld" id="aiLd"><div class="spinner"></div><div style="color:var(--t2);font-size:13px">데이터 분석 + 전략 생성 중…</div></div>
       <div class="ai-res" id="aiRes"></div>
