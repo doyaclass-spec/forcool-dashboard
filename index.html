@@ -816,7 +816,7 @@ const MA={impressions:'yL',clicks:'yL',adSpend:'yR',conversions:'yL',convRevenue
 const DAYS=['월','화','수','목','금','토','일'];
 const HOURS=['0시','2시','4시','6시','8시','10시','12시','14시','16시','18시','20시','22시'];
 const LOG_TYPES={budget:{l:'예산 변경',e:'💰'},bid:{l:'입찰가',e:'🎯'},creative:{l:'소재 교체',e:'🎨'},pause:{l:'일시중지',e:'⏸'},start:{l:'재개',e:'▶'},other:{l:'기타',e:'📌'}};
-const TODAY=new Date(2026,2,21);
+const TODAY=new Date();TODAY.setHours(0,0,0,0);
 
 /* ================================================================ ALERT RULES CONFIG */
 // ⑦ 기본 경고 설정값
@@ -939,16 +939,32 @@ function showLoading(show) {
   if (!el) {
     el = document.createElement('div');
     el.id = 'loadingOverlay';
-    el.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .2s';
-    el.innerHTML = '<div style="width:40px;height:40px;border:4px solid #E5E7EB;border-top-color:#00C73C;border-radius:50%;animation:spin .7s linear infinite"></div><div style="font-size:15px;font-weight:700;color:#0B1D34">광고 데이터 로딩 중...</div><div style="font-size:13px;color:#4A5568">네이버 API에서 데이터를 가져오고 있습니다</div>';
+    el.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .25s;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);background:rgba(255,255,255,0.7)';
+    el.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:40px 50px;box-shadow:0 8px 32px rgba(11,29,52,0.15);display:flex;flex-direction:column;align-items:center;gap:18px;border:1px solid #E4E0D6">
+        <div style="width:48px;height:48px;border:4px solid #E5E7EB;border-top-color:#00C73C;border-radius:50%;animation:spin .7s linear infinite"></div>
+        <div style="font-size:17px;font-weight:800;color:#0B1D34">광고 데이터 불러오는 중</div>
+        <div style="font-size:13px;color:#4A5568;text-align:center;line-height:1.6">네이버 검색광고 API에서<br>160개 캠페인 데이터를 가져오고 있습니다</div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <div style="width:8px;height:8px;border-radius:50%;background:#00C73C;animation:blink 1.4s ease-in-out infinite"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:#00C73C;animation:blink 1.4s ease-in-out 0.2s infinite"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:#00C73C;animation:blink 1.4s ease-in-out 0.4s infinite"></div>
+        </div>
+      </div>`;
     document.body.appendChild(el);
   }
   el.style.display = show ? 'flex' : 'none';
 }
 
+function localDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
 async function fetchDashboardData() {
-  const from = DS.from.toISOString().slice(0,10);
-  const to = DS.to.toISOString().slice(0,10);
+  const from = localDateStr(DS.from);
+  const to = localDateStr(DS.to);
   showLoading(true);
   try {
     document.getElementById('updTxt').textContent = '데이터 로딩 중...';
@@ -956,11 +972,13 @@ async function fetchDashboardData() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     LIVE_DATA = await res.json();
     if (LIVE_DATA.error) throw new Error(LIVE_DATA.error);
-    document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · 실시간 데이터`;
+    const fc = LIVE_DATA?._meta?.failCount || 0;
+    const statusTxt = fc > 0 ? `실시간 데이터 (${fc}건 누락)` : '실시간 데이터';
+    document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · ${statusTxt}`;
   } catch(e) {
     console.warn('API 연결 실패, 샘플 데이터 사용:', e.message);
     LIVE_DATA = null;
-    document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · 샘플 데이터`;
+    document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · ⚠️ 샘플 데이터 (API 연결 실패)`;
   } finally {
     showLoading(false);
   }
