@@ -724,6 +724,73 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   </div>
 </div>
 
+<!-- 키워드 추천 + 입찰 전략: 2열 -->
+<div class="two-col" style="margin-bottom:14px">
+  <!-- 키워드 추천/발굴 -->
+  <div class="card" style="margin-bottom:0">
+    <div class="card-head" onclick="toggleCard('kwSuggestBody','kwSuggestTog')">
+      <div class="card-title"><div class="card-ico">🔍</div> 키워드 추천/발굴</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="card-sub">연관 키워드 + 월간 검색량</span>
+        <div class="ctog open" id="kwSuggestTog">▼</div>
+      </div>
+    </div>
+    <div class="card-body" id="kwSuggestBody" style="max-height:600px">
+      <div style="padding:14px">
+        <div style="display:flex;gap:7px;margin-bottom:12px">
+          <input class="linp" id="kwSuggestInput" style="flex:1" placeholder="키워드 입력 (예: 업소용냉장고)" onkeydown="if(event.key==='Enter')searchKwSuggest()">
+          <button class="bsm bnavy" onclick="searchKwSuggest()">🔍 검색</button>
+        </div>
+        <div id="kwSuggestResult" style="font-size:13px;color:var(--t2)">키워드를 입력하면 네이버 연관 키워드 + 월간 검색량을 조회합니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 입찰 전략 설정 -->
+  <div class="card" style="margin-bottom:0">
+    <div class="card-head" onclick="toggleCard('bidStratBody','bidStratTog')">
+      <div class="card-title"><div class="card-ico">⚡</div> 입찰 전략 설정</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="card-sub">캠페인별 전략 선택</span>
+        <div class="ctog open" id="bidStratTog">▼</div>
+      </div>
+    </div>
+    <div class="card-body" id="bidStratBody" style="max-height:600px">
+      <div style="padding:14px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+          <button class="pill active" onclick="setBidStrat(this,'aggressive')" style="text-align:center;padding:10px 8px">
+            <div style="font-size:16px;margin-bottom:4px">🚀</div>
+            <div style="font-size:12px;font-weight:800">공격적</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:2px">입찰가 +30%</div>
+          </button>
+          <button class="pill" onclick="setBidStrat(this,'standard')" style="text-align:center;padding:10px 8px">
+            <div style="font-size:16px;margin-bottom:4px">⚖️</div>
+            <div style="font-size:12px;font-weight:800">기본</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:2px">현행 유지</div>
+          </button>
+          <button class="pill" onclick="setBidStrat(this,'balanced')" style="text-align:center;padding:10px 8px">
+            <div style="font-size:16px;margin-bottom:4px">🎯</div>
+            <div style="font-size:12px;font-weight:800">균형적</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:2px">ROAS 기반</div>
+          </button>
+          <button class="pill" onclick="setBidStrat(this,'conservative')" style="text-align:center;padding:10px 8px">
+            <div style="font-size:16px;margin-bottom:4px">🛡️</div>
+            <div style="font-size:12px;font-weight:800">보수적</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:2px">입찰가 -20%</div>
+          </button>
+        </div>
+        <div id="bidStratDesc" style="padding:12px;background:var(--sf2);border-radius:8px;border:1px solid var(--bd);font-size:13px;color:var(--t1);line-height:1.7">
+          <b>🚀 공격적 전략</b><br>
+          · ROAS 500% 이상 캠페인의 입찰가를 30% 상향<br>
+          · 전환율 높은 키워드 중심으로 예산 집중<br>
+          · 노출 확대를 통한 시장 점유율 확보 목적<br>
+          <span style="color:var(--orange);font-weight:700">⚠️ 주의: 광고비 증가 예상, 일 예산 여유 확인 필요</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ⑧ 변경이력 + 채팅: 1행 2열 -->
 <div class="strat-bottom">
   <div class="card" style="margin-bottom:0">
@@ -2014,6 +2081,44 @@ function runAi(){
     document.getElementById('aiRes').classList.add('show');
     ST.aiShown=true;
   },1500);
+}
+
+/* ================================================================ KEYWORD SUGGEST */
+async function searchKwSuggest(){
+  const kw=document.getElementById('kwSuggestInput').value.trim();
+  if(!kw)return;
+  const el=document.getElementById('kwSuggestResult');
+  el.innerHTML='<div style="text-align:center;padding:16px;color:var(--t3)"><div class="spinner" style="width:24px;height:24px;margin:0 auto 8px"></div>검색 중...</div>';
+  try{
+    const res=await fetch(`${WORKER_URL}/api/keyword-suggest?keyword=${encodeURIComponent(kw)}`);
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    const list=data.suggestions||[];
+    if(list.length===0){el.innerHTML='<div style="padding:12px;color:var(--t3)">연관 키워드를 찾을 수 없습니다.</div>';return}
+    el.innerHTML=`<div style="margin-bottom:8px;font-weight:700;color:var(--t1)">"${kw}" 연관 키워드 ${list.length}개</div>
+    <div style="max-height:320px;overflow-y:auto"><table style="width:100%;font-size:12px"><thead><tr style="background:var(--sf2)">
+      <th style="text-align:left;padding:6px">키워드</th><th style="text-align:right;padding:6px">월간 검색량</th><th style="text-align:right;padding:6px">PC</th><th style="text-align:right;padding:6px">모바일</th><th style="text-align:center;padding:6px">경쟁도</th>
+    </tr></thead><tbody>${list.map(k=>`<tr style="border-bottom:1px solid var(--bd)">
+      <td style="padding:5px 6px;font-weight:600">${escHtml(k.keyword)}</td>
+      <td style="padding:5px 6px;text-align:right;font-weight:700;color:var(--blue)">${k.monthlyTotalSearch.toLocaleString()}</td>
+      <td style="padding:5px 6px;text-align:right;color:var(--t2)">${k.monthlyPcSearch.toLocaleString()}</td>
+      <td style="padding:5px 6px;text-align:right;color:var(--t2)">${k.monthlyMobileSearch.toLocaleString()}</td>
+      <td style="padding:5px 6px;text-align:center"><span style="padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;${k.competition==='높음'?'background:var(--rbg);color:var(--red)':k.competition==='중간'?'background:var(--obg);color:var(--orange)':'background:var(--gbg);color:var(--g2)'}">${k.competition}</span></td>
+    </tr>`).join('')}</tbody></table></div>`;
+  }catch(e){el.innerHTML=`<div style="padding:12px;color:var(--red)">오류: ${e.message}</div>`}
+}
+
+/* ================================================================ BID STRATEGY */
+function setBidStrat(btn,type){
+  document.querySelectorAll('#bidStratBody .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const descs={
+    aggressive:'<b>🚀 공격적 전략</b><br>· ROAS 500% 이상 캠페인의 입찰가를 30% 상향<br>· 전환율 높은 키워드 중심으로 예산 집중<br>· 노출 확대를 통한 시장 점유율 확보 목적<br><span style="color:var(--orange);font-weight:700">⚠️ 주의: 광고비 증가 예상, 일 예산 여유 확인 필요</span>',
+    standard:'<b>⚖️ 기본 전략</b><br>· 현재 입찰가와 예산을 유지<br>· 성과 모니터링 위주로 운영<br>· 안정적인 성과가 유지될 때 적합<br><span style="color:var(--green);font-weight:700">✅ 리스크 낮음, 현상 유지</span>',
+    balanced:'<b>🎯 균형적 전략</b><br>· ROAS 300% 이상 캠페인만 입찰가 유지<br>· ROAS 300% 미만 캠페인은 입찰가 10% 하향<br>· 전환 없는 키워드 자동 일시중지 검토<br><span style="color:var(--blue);font-weight:700">📊 데이터 기반 효율 최적화</span>',
+    conservative:'<b>🛡️ 보수적 전략</b><br>· 전체 입찰가 20% 하향<br>· 전환 없는 키워드 즉시 일시중지<br>· 광고비 절감 + 핵심 키워드 집중<br><span style="color:var(--green);font-weight:700">💰 광고비 절감 우선, 노출 감소 감수</span>',
+  };
+  document.getElementById('bidStratDesc').innerHTML=descs[type]||'';
 }
 
 /* ================================================================ LOG */
