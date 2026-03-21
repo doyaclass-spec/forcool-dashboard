@@ -641,7 +641,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       </div>
     </th>
     <th class="sort" data-kw="cpConv">전환당비용 <span class="si2"></span></th>
-    <th>낭비지수</th>
+    <th style="cursor:pointer" onclick="showWasteInfo()">낭비지수 <span style="font-size:10px;color:var(--blue)">ⓘ</span></th>
   </tr></thead><tbody id="kwBody"></tbody></table></div>
   <div class="tbl-foot"><div class="pgi" id="kwPgi"></div><div class="pgn" id="kwPgn"></div></div>
   </div><!-- /kwCardBody -->
@@ -1000,6 +1000,52 @@ async function fetchKeywordsAsync(from, to) {
       renderKw();
     }
   } catch {}
+}
+
+function showWasteInfo(){
+  let el=document.getElementById('wasteInfoModal');
+  if(!el){
+    el=document.createElement('div');
+    el.id='wasteInfoModal';
+    el.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);background:rgba(11,29,52,0.5)';
+    el.innerHTML=`<div style="background:#fff;border-radius:16px;padding:28px 32px;max-width:520px;width:92vw;box-shadow:0 8px 32px rgba(11,29,52,0.2);position:relative">
+      <button onclick="document.getElementById('wasteInfoModal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;color:var(--t2);cursor:pointer">✕</button>
+      <h3 style="font-size:17px;font-weight:800;color:#0B1D34;margin-bottom:16px">📊 낭비지수 산정 기준</h3>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="padding:14px;border-radius:10px;background:#FEF2F2;border:1px solid #FECACA">
+          <div style="font-weight:800;color:#DC2626;margin-bottom:6px">🔴 낭비높음</div>
+          <div style="font-size:13px;color:#1A202C;line-height:1.7">
+            <b>조건:</b> 전환 0건 AND 광고비 ₩50,000 이상<br>
+            <b>의미:</b> 돈을 쓰고 있지만 전환이 전혀 없는 키워드<br>
+            <b>권장 액션:</b> 즉시 입찰 중지 또는 50% 이상 하향
+          </div>
+        </div>
+        <div style="padding:14px;border-radius:10px;background:#FFFBEB;border:1px solid #FDE68A">
+          <div style="font-weight:800;color:#D97706;margin-bottom:6px">🟡 주의</div>
+          <div style="font-size:13px;color:#1A202C;line-height:1.7">
+            <b>조건:</b> 전환 0건 AND 광고비 ₩10,000~50,000<br>
+            또는 ROAS 150% 미만 AND 광고비 ₩30,000 이상<br>
+            <b>의미:</b> 효율이 낮거나 전환 부족, 모니터링 필요<br>
+            <b>권장 액션:</b> 입찰가 20~30% 하향 후 추이 관찰
+          </div>
+        </div>
+        <div style="padding:14px;border-radius:10px;background:#F0FDF4;border:1px solid #BBF7D0">
+          <div style="font-weight:800;color:#16A34A;margin-bottom:6px">🟢 효율좋음</div>
+          <div style="font-size:13px;color:#1A202C;line-height:1.7">
+            <b>조건:</b> 위 조건에 해당하지 않음<br>
+            <b>의미:</b> 정상 운영 중이거나 전환 성과가 양호<br>
+            <b>권장 액션:</b> 현행 유지, 성과 우수 시 예산 증액 검토
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:#F8FAFC;border-radius:8px;font-size:12px;color:#4A5568;line-height:1.6">
+        💡 <b>참고:</b> 낭비지수는 선택한 기간의 데이터를 기준으로 계산됩니다. 기간을 변경하면 결과가 달라질 수 있습니다. 신규 키워드는 초기 데이터 수집 기간이 필요하므로 1~2주 후 판단하는 것을 권장합니다.
+      </div>
+    </div>`;
+    document.body.appendChild(el);
+    el.addEventListener('click',(e)=>{if(e.target===el)el.style.display='none'});
+  }
+  el.style.display='flex';
 }
 
 function updateKwCampFilter(keywords) {
@@ -1898,13 +1944,76 @@ function renderPgn(pgnId,pgiId,page,pages,total,ps,goFn){
 
 /* ================================================================ AI */
 function runAi(){
-  if(ST.aiShown)return;
-  // 카드가 접혀있으면 먼저 펼치기
   const ab=document.getElementById('aiBody');
   if(ab&&ab.classList.contains('coll'))toggleCard('aiBody','aiCardTog');
   document.getElementById('aiTrig').style.display='none';
   document.getElementById('aiLd').classList.add('show');
-  setTimeout(()=>{document.getElementById('aiLd').classList.remove('show');document.getElementById('aiRes').classList.add('show');ST.aiShown=true},2000);
+
+  setTimeout(()=>{
+    // 실제 데이터 기반 AI 분석
+    const kpi=getKpiData('전체');
+    const camps=getCampData();
+    const kws=getKwData();
+
+    // 현황 요약
+    const roas=kpi.roas||0;
+    const roasGoal=GOALS['전체']?.roas||600;
+    const chgSpend=kpi.p_adSpend>0?Math.round((kpi.adSpend-kpi.p_adSpend)/kpi.p_adSpend*100):0;
+    const chgConv=kpi.p_conversions>0?Math.round((kpi.conversions-kpi.p_conversions)/kpi.p_conversions*100):0;
+    const activeCamps=camps.filter(c=>c.status==='활성').length;
+
+    let sumHtml=`<li>광고비 ${fC(kpi.adSpend)}, 전기간 대비 ${chgSpend>=0?'+':''}${chgSpend}%</li>`;
+    sumHtml+=`<li>ROAS ${roas}% — 목표(${roasGoal}%) ${roas>=roasGoal?'달성 ✅':'대비 '+(roasGoal-roas)+'%p 미달'}</li>`;
+    sumHtml+=`<li>전환수 ${fN(kpi.conversions)}건 (${chgConv>=0?'+':''}${chgConv}%), 전환매출 ${fC(kpi.convRevenue)}</li>`;
+    sumHtml+=`<li>CTR ${kpi.ctr}%, CPC ${fC(kpi.cpc)}, 활성 캠페인 ${activeCamps}개</li>`;
+
+    // 위험 요인
+    const dangerCamps=camps.filter(c=>c.alr==='danger');
+    const wastKws=kws.filter(k=>getWaste(k)==='high');
+    const midKws=kws.filter(k=>getWaste(k)==='mid');
+    const overBudget=camps.filter(c=>c.adSpend>0&&c.prevAdSpend>0&&(c.adSpend/c.prevAdSpend)>1.5);
+
+    let riskHtml='';
+    dangerCamps.slice(0,2).forEach(c=>{
+      const cr=c.adSpend>0?Math.round(c.convRevenue/c.adSpend*100):0;
+      riskHtml+=`<li>[${c.name}] ROAS ${cr}% — 손익분기점 미달, 광고비 ${fC(c.adSpend)}</li>`;
+    });
+    if(wastKws.length>0)riskHtml+=`<li>낭비 키워드 ${wastKws.length}개 — 전환 없이 광고비 소진 중 (총 ${fC(wastKws.reduce((s,k)=>s+k.adSpend,0))})</li>`;
+    if(midKws.length>0)riskHtml+=`<li>주의 키워드 ${midKws.length}개 — ROAS 150% 미만 또는 전환 부족</li>`;
+    overBudget.slice(0,2).forEach(c=>{
+      riskHtml+=`<li>[${c.name}] 광고비 전기간 대비 ${Math.round(c.adSpend/c.prevAdSpend*100-100)}% 급증</li>`;
+    });
+    if(!riskHtml)riskHtml='<li>현재 특별한 위험 요인 없음 ✅</li>';
+
+    // 추천 전략
+    let stratHtml='';
+    // 낭비 키워드 대응
+    wastKws.slice(0,2).forEach(k=>{
+      stratHtml+=`<li>🔴 [${k.kw}] 입찰 중지 또는 50% 하향 → 광고비 ${fC(k.adSpend)} 절감 가능</li>`;
+    });
+    // ROAS 높은 캠페인 증액
+    const topRoas=camps.filter(c=>c.roas>500&&c.adSpend>10000).sort((a,b)=>b.roas-a.roas);
+    topRoas.slice(0,2).forEach(c=>{
+      stratHtml+=`<li>🟢 [${c.name}] ROAS ${c.roas}% 우수 — 예산 증액 권장</li>`;
+    });
+    // CTR 개선
+    const lowCtr=camps.filter(c=>c.clicks>10&&c.ctr<1).sort((a,b)=>a.ctr-b.ctr);
+    if(lowCtr.length>0)stratHtml+=`<li>📝 CTR 하위 캠페인 ${lowCtr.length}개 — A/B 소재 교체 권장</li>`;
+    // 전환율 개선
+    if(kpi.crto<2)stratHtml+=`<li>🎯 전체 전환율 ${kpi.crto}% — 랜딩페이지 최적화 검토</li>`;
+    // 예산 최적화
+    if(chgSpend>30)stratHtml+=`<li>💰 광고비 ${chgSpend}% 증가 — 비효율 캠페인 예산 재분배 검토</li>`;
+    if(!stratHtml)stratHtml='<li>현재 성과 양호, 기존 전략 유지 권장</li>';
+
+    document.getElementById('aiRes').innerHTML=`
+      <div class="ai-card sum"><div class="ai-ct">📊 현황 요약</div><ul>${sumHtml}</ul></div>
+      <div class="ai-card risk"><div class="ai-ct">⚠️ 위험 요인 (${dangerCamps.length+wastKws.length}건)</div><ul>${riskHtml}</ul></div>
+      <div class="ai-card strat"><div class="ai-ct">🎯 추천 전략</div><ul>${stratHtml}</ul></div>`;
+
+    document.getElementById('aiLd').classList.remove('show');
+    document.getElementById('aiRes').classList.add('show');
+    ST.aiShown=true;
+  },1500);
 }
 
 /* ================================================================ LOG */
