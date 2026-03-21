@@ -968,25 +968,13 @@ async function fetchDashboardData() {
   showLoading(true);
   try {
     document.getElementById('updTxt').textContent = '데이터 로딩 중...';
-    // 대시보드 + 키워드 데이터 병렬 호출
-    const [dashRes, kwRes] = await Promise.all([
-      fetch(`${WORKER_URL}/api/dashboard?from=${from}&to=${to}`),
-      fetch(`${WORKER_URL}/api/keywords?from=${from}&to=${to}`).catch(() => null),
-    ]);
+    // 대시보드 데이터 먼저 로드
+    const dashRes = await fetch(`${WORKER_URL}/api/dashboard?from=${from}&to=${to}`);
     if (!dashRes.ok) throw new Error(`HTTP ${dashRes.status}`);
     LIVE_DATA = await dashRes.json();
     if (LIVE_DATA.error) throw new Error(LIVE_DATA.error);
-    // 키워드 데이터 병합
-    if (kwRes && kwRes.ok) {
-      try {
-        const kwData = await kwRes.json();
-        if (kwData.keywords && kwData.keywords.length > 0) {
-          LIVE_DATA.keywords = kwData.keywords;
-          // 캠페인 필터 동적 생성
-          updateKwCampFilter(kwData.keywords);
-        }
-      } catch {}
-    }
+    // 키워드 데이터는 비동기로 나중에 로드 (대시보드 먼저 표시)
+    fetchKeywordsAsync(from, to);
     const fc = LIVE_DATA?._meta?.failCount || 0;
     const statusTxt = fc > 0 ? `실시간 데이터 (${fc}건 누락)` : '실시간 데이터';
     document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · ${statusTxt}`;
@@ -997,6 +985,20 @@ async function fetchDashboardData() {
   } finally {
     showLoading(false);
   }
+}
+
+async function fetchKeywordsAsync(from, to) {
+  try {
+    const kwCountEl = document.querySelector('[id*="kwCnt"], .tcnt');
+    const res = await fetch(`${WORKER_URL}/api/keywords?from=${from}&to=${to}`);
+    if (!res.ok) return;
+    const kwData = await res.json();
+    if (kwData.keywords && kwData.keywords.length > 0 && LIVE_DATA) {
+      LIVE_DATA.keywords = kwData.keywords;
+      updateKwCampFilter(kwData.keywords);
+      renderKw();
+    }
+  } catch {}
 }
 
 function updateKwCampFilter(keywords) {
