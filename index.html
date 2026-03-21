@@ -630,6 +630,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="tw"><table><thead><tr>
     <th style="min-width:140px">키워드</th><th>광고유형</th><th>캠페인</th>
     <th class="sort" data-kw="impressions">노출 <span class="si2"></span></th>
+    <th>변화</th>
     <th class="sort" data-kw="clicks">클릭 <span class="si2"></span></th>
     <th class="sort" data-kw="adSpend">광고비 <span class="si2"></span></th>
     <th class="sort" data-kw="cpc">CPC <span class="si2"></span></th>
@@ -1790,8 +1791,28 @@ document.getElementById('hmTypeTabs').addEventListener('click',e=>{
 });
 
 /* ================================================================ KEYWORD TABLE */
-function getWaste(k){if(k.conversions===0&&k.adSpend>100000)return'high';if(k.roas<200&&k.adSpend>150000)return'mid';return'low'}
-function wChip(k){const w=getWaste(k);if(w==='high')return`<span class="wchip wh">🔴 낭비높음</span>`;if(w==='mid')return`<span class="wchip wm">🟡 낭비중간</span>`;return`<span class="wchip wl">🟢 효율좋음</span>`}
+function getWaste(k){
+  if(k.conversions===0&&k.adSpend>50000)return'high';
+  if(k.conversions===0&&k.adSpend>10000)return'mid';
+  if(k.roas>0&&k.roas<150&&k.adSpend>30000)return'mid';
+  return'low';
+}
+function wChip(k){
+  const w=getWaste(k);
+  let action='';
+  if(w==='high')action=' · 입찰 중지 검토';
+  else if(w==='mid')action=' · 입찰가 하향 검토';
+  if(w==='high')return`<span class="wchip wh" title="전환 0, 광고비 ₩${Math.round(k.adSpend).toLocaleString()} 소진${action}">🔴 낭비높음</span>`;
+  if(w==='mid')return`<span class="wchip wm" title="${action}">🟡 주의</span>`;
+  return`<span class="wchip wl">🟢 효율좋음</span>`;
+}
+function kwChgLbl(cur,prev){
+  if(!prev||prev===0)return'<span style="color:var(--t3);font-size:11px">—</span>';
+  const p=Math.round((cur-prev)/prev*100);
+  if(p>0)return`<span class="chg ug">▲${p}%</span>`;
+  if(p<0)return`<span class="chg db">▼${Math.abs(p)}%</span>`;
+  return'<span class="chg ne">0%</span>';
+}
 function getKwF(){
   let list=getKwData();
   const q=document.getElementById('kwSearch').value.toLowerCase();if(q)list=list.filter(k=>k.kw.toLowerCase().includes(q)||k.campaign.toLowerCase().includes(q));
@@ -1810,8 +1831,8 @@ function renderKw(){
   document.getElementById('kwBody').innerHTML=slice.map(k=>`
     <tr><td><b>${k.kw}</b></td><td>${tBadge(k.type)}</td>
     <td style="font-size:11px;color:var(--t2);max-width:130px;white-space:normal">${k.campaign}</td>
-    <td>${fN(k.impressions)}</td><td>${fN(k.clicks)}</td>
-    <td><div class="kwbar-cell"><div class="kwbar" style="width:${Math.round(k.adSpend/maxS*65)}px;background:${k.conversions===0&&k.adSpend>100000?'var(--red)':'var(--orange)'}"></div>${fC(k.adSpend)}</div></td>
+    <td>${fN(k.impressions)}</td><td>${kwChgLbl(k.impressions,k.prevImpressions)}</td><td>${fN(k.clicks)}</td>
+    <td><div class="kwbar-cell"><div class="kwbar" style="width:${Math.round(k.adSpend/maxS*65)}px;background:${getWaste(k)==='high'?'var(--red)':getWaste(k)==='mid'?'var(--orange)':'var(--green)'}"></div>${fC(k.adSpend)}</div></td>
     <td>${fC(k.cpc)}</td>
     <td style="font-weight:800;color:${k.conversions===0?'var(--red)':'inherit'}">${k.conversions}</td>
     <td>
