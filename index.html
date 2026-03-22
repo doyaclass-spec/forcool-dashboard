@@ -1922,8 +1922,8 @@ function renderHm(){
           <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">높음 — ${fmt(maxV)}</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800">
-          <span style="color:var(--g2)">🏆 최고: ${best.day}요일 ${best.hour} (${fmt(bestV)})</span>
           <span style="color:var(--red)">⚠️ 최저: ${worst?worst.day+'요일 '+worst.hour+' ('+fmt(worstV)+')':'-'}</span>
+          <span style="color:var(--g2)">🏆 최고: ${best.day}요일 ${best.hour} (${fmt(bestV)})</span>
         </div>
       </div>`;
   }
