@@ -1160,7 +1160,7 @@ function getDailyData(type){
   const prv={impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]};
   for(let i=d-1;i>=0;i--){
     const dt=new Date(DS.to);dt.setDate(dt.getDate()-i);
-    labels.push(`${dt.getMonth()+1}/${dt.getDate()}`);
+    labels.push(`${String(dt.getFullYear()).slice(2)}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`);
     const pdt=new Date(dt);pdt.setDate(pdt.getDate()-d);
     ['impressions','clicks','adSpend','conversions','convRevenue'].forEach((k,ki)=>{
       cur[k].push(Math.round(base[k]/7*seed(dt,ki+1)));
@@ -1707,7 +1707,7 @@ function getTrendPeriodData(type){
     // 폴백: 현재 일별 데이터를 월별로 그룹핑
     const monthMap={};
     td.labels.forEach((l,i)=>{
-      const mm=l.split('/')[0];
+      const mm=l.slice(0,5); // "26-03" from "26-03-15"
       if(!monthMap[mm])monthMap[mm]={impressions:0,clicks:0,adSpend:0,conversions:0,convRevenue:0};
       ['impressions','clicks','adSpend','conversions','convRevenue'].forEach(m=>{
         monthMap[mm][m]+=(td.cur[m]||[])[i]||0;
@@ -1720,7 +1720,7 @@ function getTrendPeriodData(type){
         data[m].push(monthMap[mm][m]);
       });
     });
-    return{labels:months.map(m=>m+'월'),data};
+    return{labels:months,data};
   }
   return{labels:td.labels,data:td.cur};
 }
