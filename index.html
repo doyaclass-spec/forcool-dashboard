@@ -209,12 +209,12 @@ input,select,textarea{font-family:inherit;outline:none}
 .trend-body{height:380px;position:relative}
 /* 범례 */
 .trend-leg-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
-.tl-item{display:flex;align-items:center;gap:5px;font-size:13.5px;font-weight:600;color:var(--t2)}
-.tl-dot{width:10px;height:10px;border-radius:50%}
+.tl-item{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--t1);padding:6px 14px;background:var(--sf2);border-radius:8px}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .tl-dash{width:18px;height:0;border-top:2px dashed var(--bd2)}
 
 /* ─── HEATMAP ─── */
-.hm-tip{position:fixed;background:rgba(11,29,52,.93);color:#fff;padding:9px 13px;border-radius:8px;font-size:13.5px;pointer-events:none;z-index:500;display:none;line-height:1.6;min-width:155px;box-shadow:var(--s3)}
+.hm-tip{position:fixed;background:rgba(11,29,52,.96);color:#fff;padding:14px 18px;border-radius:10px;font-size:14px;pointer-events:none;z-index:500;display:none;line-height:1.7;min-width:180px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
 .hm-info{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 8px;flex-wrap:wrap;gap:6px}
 .hm-leg{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--t2)}.hm-grad{width:100px;height:8px;border-radius:4px;border:1px solid var(--bd)}
 .hm-badges{display:flex;gap:6px;flex-wrap:wrap}
@@ -222,9 +222,9 @@ input,select,textarea{font-family:inherit;outline:none}
 .hm-worst{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;background:var(--rbg);border:1px solid rgba(229,57,53,.18);border-radius:11px;font-size:12.5px;font-weight:700;color:var(--red)}
 .hm-wrap{padding:4px 16px 14px;overflow-x:auto}
 .hm-tbl{border-collapse:separate;border-spacing:2px;font-size:12.5px;width:100%}
-.hm-tbl .hm-th-day{padding:4px 6px;text-align:center;font-weight:800;font-size:12.5px;color:var(--t2);white-space:nowrap}
-.hm-tbl .hm-th-hour{padding:3px 6px 3px 2px;font-weight:700;font-size:12px;color:var(--t3);white-space:nowrap;text-align:right;min-width:38px}
-.hm-cell{height:28px;border-radius:4px;text-align:center;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;transition:transform .1s;vertical-align:middle}
+.hm-tbl .hm-th-day{padding:6px 8px;text-align:center;font-weight:800;font-size:14px;color:var(--t1);white-space:nowrap}
+.hm-tbl .hm-th-hour{padding:4px 8px 4px 2px;font-weight:700;font-size:13px;color:var(--t1);white-space:nowrap;text-align:right;min-width:50px}
+.hm-cell{height:32px;border-radius:5px;text-align:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;transition:transform .1s;vertical-align:middle}
 .hm-cell:hover{transform:scale(1.12);box-shadow:var(--s2);z-index:2;position:relative}
 /* 그라데이션 띠 */
 .hm-grad-bar{
@@ -562,6 +562,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
         </div>
       </div>
     </div>
+    <!-- 인사이트 요약 -->
+    <div id="trendInsight" style="display:flex;gap:10px;padding:12px 18px;flex-wrap:wrap"></div>
     <!-- 차트 -->
     <div class="trend-chart-wrap">
       <div class="trend-axis-bar" id="trendAxisBar"></div>
@@ -1820,12 +1822,40 @@ function initTrend(){
     axBar.innerHTML=lLabel+rLabel;
   }
 
-  // 범례
+  // 범례 + 합계
   const leg=document.getElementById('trendLeg');
   if(leg){
-    let html=activeArr.map(m=>`<div class="tl-item"><div class="tl-dot" style="background:${MC[m]}"></div>${ML[m]}</div>`).join('');
+    let html=activeArr.map(m=>{
+      const total=(td.cur[m]||[]).reduce((s,v)=>s+v,0);
+      const fmtTotal=MF[m]==='cur'?fC(total):MF[m]==='pct'?Math.round(total/Math.max(1,td.labels.length))+'%':fN(total);
+      return`<div class="tl-item"><div class="tl-dot" style="background:${MC[m]}"></div><span>${ML[m]}</span><span style="font-weight:800;color:${MC[m]}">${fmtTotal}</span></div>`;
+    }).join('');
     if(showCmp)html+=`<div class="tl-item"><div class="tl-dash"></div>${pLabel} (비교)</div>`;
     leg.innerHTML=html;
+  }
+
+  // 인사이트 요약 카드
+  const insEl=document.getElementById('trendInsight');
+  if(insEl){
+    const kd=getKpiData(ST.trendType);
+    const items=[
+      {label:'노출수',val:fN(kd.impressions||0),chg:chgP(kd.impressions,kd.p_impressions),color:'#2E86DE'},
+      {label:'클릭수',val:fN(kd.clicks||0),chg:chgP(kd.clicks,kd.p_clicks),color:'#00A07A'},
+      {label:'광고비',val:fC(kd.adSpend||0),chg:chgP(kd.adSpend,kd.p_adSpend),color:'#FF7043'},
+      {label:'전환수',val:fN(kd.conversions||0),chg:chgP(kd.conversions,kd.p_conversions),color:'#7C3AED'},
+      {label:'ROAS',val:fN(kd.roas||0)+'%',chg:chgP(kd.roas,kd.p_roas),color:'#0891B2'},
+    ];
+    insEl.innerHTML=items.map(it=>{
+      const arrow=it.chg>0?'▲':it.chg<0?'▼':'—';
+      const chgColor=it.chg>0?'var(--green)':it.chg<0?'var(--red)':'var(--t3)';
+      return`<div style="flex:1;min-width:140px;padding:10px 14px;background:var(--sf2);border-radius:10px;border-left:3px solid ${it.color}">
+        <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:4px">${it.label}</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <span style="font-size:18px;font-weight:900;color:var(--t1)">${it.val}</span>
+          <span style="font-size:13px;font-weight:700;color:${chgColor}">${arrow} ${Math.abs(it.chg)}%</span>
+        </div>
+      </div>`;
+    }).join('');
   }
 }
 
