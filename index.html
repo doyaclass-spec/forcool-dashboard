@@ -498,9 +498,9 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
         <button class="pill" data-type="콘텐츠">콘텐츠</button>
         <button class="pill" data-type="브랜드">브랜드</button>
       </div>
-      <div style="display:flex;align-items:center;gap:4px">
-        <span style="font-size:12px;font-weight:700;color:var(--t2)">비교:</span>
-        <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-weight:700;background:var(--sf);color:var(--t1);cursor:pointer">
+      <div style="display:flex;align-items:center;gap:6px;padding:3px 10px;background:var(--sf);border:1.5px solid var(--bd);border-radius:8px">
+        <span style="font-size:13px;font-weight:800;color:var(--t1)">비교</span>
+        <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="padding:5px 10px;border:none;border-radius:6px;font-size:13px;font-weight:700;background:var(--navy);color:#fff;cursor:pointer;outline:none">
           <option value="auto" selected>자동 (동일 기간)</option>
           <option value="week">저번 주</option>
           <option value="month">저번 달</option>
@@ -1614,18 +1614,18 @@ let trendCh=null;
 function fTick(v,fmt){
   const abs=Math.abs(v);
   if(fmt==='cur'){
-    if(abs>=100000000)return'₩'+(v/100000000).toFixed(0)+'억';
-    if(abs>=10000000)return'₩'+(v/10000000).toFixed(0)+'천만';
-    if(abs>=1000000)return'₩'+(v/1000000).toFixed(0)+'백만';
-    if(abs>=10000)return'₩'+(v/10000).toFixed(0)+'만';
+    if(abs>=100000000)return'₩'+(v/100000000).toFixed(1)+'억';
+    if(abs>=10000000)return'₩'+(v/10000000).toFixed(1)+'천만';
+    if(abs>=1000000)return'₩'+(v/1000000).toFixed(1)+'백만';
+    if(abs>=10000)return'₩'+(v/10000).toFixed(1)+'만';
     return'₩'+Math.round(v).toLocaleString('ko-KR');
   }
-  if(fmt==='pct')return Math.round(v)+'%';
-  if(abs>=100000000)return(v/100000000).toFixed(0)+'억';
-  if(abs>=10000000)return(v/10000000).toFixed(0)+'천만';
-  if(abs>=1000000)return(v/1000000).toFixed(0)+'백만';
-  if(abs>=10000)return(v/10000).toFixed(0)+'만';
-  if(abs>=1000)return Math.round(v/100)*100===Math.round(v)?Math.round(v/1000)+'k':Math.round(v).toLocaleString('ko-KR');
+  if(fmt==='pct')return v%1===0?Math.round(v)+'%':v.toFixed(1)+'%';
+  if(abs>=100000000)return(v/100000000).toFixed(1)+'억';
+  if(abs>=10000000)return(v/10000000).toFixed(1)+'천만';
+  if(abs>=1000000)return(v/1000000).toFixed(1)+'백만';
+  if(abs>=10000)return(v/10000).toFixed(1)+'만';
+  if(abs>=1000)return(v/1000).toFixed(1)+'k';
   return Math.round(v).toLocaleString('ko-KR');
 }
 
@@ -1788,6 +1788,7 @@ function initTrend(){
           type:'linear',position:'left',display:hasL,
           grid:{color:'rgba(11,29,52,.05)',drawBorder:false},
           ticks:{
+            maxTicksLimit:8,
             color:'#4A5568',font:{size:12,family:'Pretendard'},padding:8,
             callback(v){return fTick(v,fmtL);}
           }
@@ -1796,6 +1797,7 @@ function initTrend(){
           type:'linear',position:'right',display:hasR,
           grid:{drawOnChartArea:false,drawBorder:false},
           ticks:{
+            maxTicksLimit:8,
             color:'#4A5568',font:{size:12,family:'Pretendard'},padding:8,
             callback(v){return fTick(v,fmtR);}
           }
