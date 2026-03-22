@@ -338,9 +338,9 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 /* ─── LOG ─── */
 .log-filter-btn{padding:3px 9px;border:1px solid var(--bd);border-radius:5px;background:var(--sf2);font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;transition:var(--tr)}.log-filter-btn:hover{background:var(--bd)}.log-filter-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
 /* 비교 기간 / 히트맵 옵션 버튼 */
-.cmp-opt{padding:5px 11px;border-radius:5px;font-size:14px;font-weight:700;color:var(--t2);background:transparent;border:none;cursor:pointer;transition:var(--tr);white-space:nowrap}
-.cmp-opt:hover{background:var(--bd);color:var(--t1)}
-.cmp-opt.active{background:var(--navy);color:#fff}
+.cmp-opt{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;color:var(--t2);background:transparent;border:1.5px solid var(--bd);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cmp-opt:hover{color:var(--t1);border-color:var(--t3)}
+.cmp-opt.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 .log-body{padding:14px 16px}
 .log-add{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
 .linp{padding:6px 9px;border:1px solid var(--bd);border-radius:var(--rsm);background:var(--sf2);font-size:14px;color:var(--t1);transition:var(--tr)}.linp:focus{border-color:var(--blue);background:#fff}
@@ -552,8 +552,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       </div>
       <!-- 비교기간 4개 옵션 버튼 그룹 (시간순: 어제 → 저번 주 → 저번 달 → 작년) -->
       <div style="display:flex;align-items:center;gap:5px">
-        <span style="font-size:12px;font-weight:700;color:var(--t3);margin-right:2px">비교</span>
-        <div id="cmpOptGrp" style="display:flex;gap:3px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:7px;padding:3px">
+        <span style="font-size:13px;font-weight:800;color:var(--t1);margin-right:4px">비교</span>
+        <div id="cmpOptGrp" style="display:flex;gap:5px">
           <button class="cmp-opt" data-cmp="off"   onclick="setCmpOpt('off')"  >비교 안 함</button>
           <button class="cmp-opt" data-cmp="yesterday" onclick="setCmpOpt('yesterday')">어제</button>
           <button class="cmp-opt active" data-cmp="week" onclick="setCmpOpt('week')">저번 주</button>
@@ -585,7 +585,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:12px;font-weight:700;color:var(--t3)">🕐 요일·시간대 히트맵</span>
         <!-- 시간 단위 토글 -->
-        <div style="display:flex;gap:2px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:6px;padding:2px">
+        <div style="display:flex;gap:5px">
           <button class="cmp-opt" data-iv="1" onclick="setHmInterval(1)">1시간</button>
           <button class="cmp-opt active" data-iv="2" onclick="setHmInterval(2)">2시간</button>
         </div>
