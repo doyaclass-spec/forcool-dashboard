@@ -462,8 +462,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <div class="main">
 
-<!-- 起 현황 파악 -->
-<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn1">起</div><span class="p-title">현황 파악</span><span class="p-sub">지금 무슨 일이 벌어지고 있나?</span><span class="p-date" id="pDate1"></span></div></div>
+<!-- 📊 현황 파악 -->
+<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn1">📊</div><span class="p-title">현황 파악</span><span class="p-sub">지금 무슨 일이 벌어지고 있나?</span><span class="p-date" id="pDate1"></span></div></div>
 
 <!-- ⑥ 가로 3개 경고 -->
 <div style="margin-bottom:14px">
@@ -514,8 +514,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="card-body" id="kpiGrid" style="max-height:1600px"><div class="kpi-grid" id="kpiGridInner"></div></div>
 </div>
 
-<!-- 承 트렌드 -->
-<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn2">承</div><span class="p-title">트렌드 분석</span><span class="p-sub">왜 이렇게 됐나? 언제·어디서 성과가 나오나?</span><span class="p-date" id="pDate2"></span></div></div>
+<!-- 📈 트렌드 -->
+<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn2">📈</div><span class="p-title">트렌드 분석</span><span class="p-sub">왜 이렇게 됐나? 언제·어디서 성과가 나오나?</span><span class="p-date" id="pDate2"></span></div></div>
 
 <div class="card-body" id="secTrend" style="max-height:3000px">
 <div class="two-col">
@@ -611,10 +611,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 </div><!-- /two-col -->
 </div><!-- /secTrend -->
 
-<!-- 轉 세부 분석 -->
+<!-- 🔍 세부 분석 -->
 <div class="phase" onclick="toggleSec('secDetail','secDetailTog')" style="cursor:pointer">
   <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
-    <div class="p-num pn3">轉</div>
+    <div class="p-num pn3">🔍</div>
     <span class="p-title">세부 분석</span>
     <span class="p-sub">어디서 예산이 새고, 어디가 효율적인가?</span>
     <span class="p-date" id="pDate3"></span>
@@ -708,10 +708,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 </div><!-- /secDetail -->
 
-<!-- 結 전략 수립 -->
+<!-- 🎯 전략 수립 -->
 <div class="phase" onclick="toggleSec('secStrat','secStratTog')" style="cursor:pointer">
   <div style="display:flex;align-items:center;gap:9px">
-    <div class="p-num pn4">結</div>
+    <div class="p-num pn4">🎯</div>
     <span class="p-title">전략 수립</span>
     <span class="p-sub">분석을 바탕으로 무엇을 어떻게 바꿀 것인가?</span>
   </div>
@@ -790,31 +790,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <!-- ⑧ 변경이력 + 채팅: 1행 2열 -->
 <div class="strat-bottom">
   <div class="card" style="margin-bottom:0">
-    <div class="card-head" onclick="toggleCard('logCardBody','logCardTog')">
-      <div class="card-title"><div class="card-ico">📝</div> 캠페인 변경 이력</div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <div style="display:flex;gap:3px" onclick="event.stopPropagation()">
-          <button class="log-filter-btn active" data-lf="all" onclick="setLogFilter('all')">전체</button>
-          <button class="log-filter-btn" data-lf="budget" onclick="setLogFilter('budget')">💰예산</button>
-          <button class="log-filter-btn" data-lf="bid" onclick="setLogFilter('bid')">🎯입찰가</button>
-          <button class="log-filter-btn" data-lf="creative" onclick="setLogFilter('creative')">🎨소재</button>
-          <button class="log-filter-btn" data-lf="pause" onclick="setLogFilter('pause')">⏸중지</button>
-        </div>
-        <span class="card-sub" id="logCnt">0건</span>
-        <div class="ctog open" id="logCardTog">▼</div>
-      </div>
-    </div>
-    <div class="card-body" id="logCardBody" style="max-height:800px">
-    <div class="log-body">
-      <div class="log-add">
-        <input type="date" class="linp" id="logDate" value="2026-03-21">
-        <select class="linp" id="logType"><option value="budget">예산 변경</option><option value="bid">입찰가 조정</option><option value="creative">소재 교체</option><option value="pause">일시중지</option><option value="start">재개</option><option value="other">기타</option></select>
-        <input type="text" class="linp lnote" id="logNote" placeholder="내용 입력 후 Enter…" onkeydown="if(event.key==='Enter')addLog()">
-        <button class="bsm bnavy" onclick="addLog()">+ 기록</button>
-      </div>
-      <div id="logTl"></div>
-    </div>
-    </div><!-- /logCardBody -->
+    <!-- 변경 이력 카드 삭제됨 (수동 기록 → 불필요) -->
+    <div id="logCardBody" style="display:none"></div>
+    <div id="logTl" style="display:none"></div>
+    <div id="logCnt" style="display:none"></div>
   </div>
 
   <div class="card" style="margin-bottom:0">
