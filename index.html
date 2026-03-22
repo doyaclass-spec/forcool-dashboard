@@ -1305,12 +1305,11 @@ function fV(v,fmt){return fmt==='cur'?fC(v):fmt==='pct'?Math.round(v)+'%':fN(v)}
 function chgP(c,p){return p?Math.round(((c-p)/p)*100):0}
 function chgCls(p,inv){if(p===0)return'neu';if(p>0)return'ug';return'db'}
 // ① 변화율 배지 + 툴팁 HTML 생성
-function chgBadge(pct,inv,extraTip){
+function chgBadge(pct,inv){
   const cls=chgCls(pct,inv),sym=pct>0?'▲':pct<0?'▼':'—';
   const p=getPeriodDesc();
   const valSign=pct>0?'+':'';
-  const invNote=inv?'<br><span class="tip-line" style="color:#FCA5A5">※ 광고비는 감소가 긍정적</span>':'';
-  const tipContent=`<b>${p.label} 대비 ${valSign}${pct}%</b><span class="tip-line">${p.range}</span>${invNote}${extraTip?'<br><span class="tip-line" style="color:#86EFAC">'+extraTip+'</span>':''}`;
+  const tipContent=`<b>${p.label} 대비 ${valSign}${pct}%</b><span class="tip-line">${p.range}</span>`;
   return`<div class="tip-wrap"><span class="cb ${cls}">${sym} ${Math.abs(pct)}%</span><div class="tip-box">${tipContent}</div></div>`;
 }
 function chgLbl(p,inv){const c=chgCls(p,inv),s=p>0?'▲':'▼';return`<span class="chg ${c}">${s} ${Math.abs(p)}%</span>`}
@@ -1535,10 +1534,13 @@ function renderKpi(){
       const gc=ROW_COLORS[def.row]||'var(--blue)';
       const gd=def.fmt==='cur'?fC(goal):def.fmt==='pct'||def.fmt==='pct2'?goal+'%':fN(goal);
       const vH=fmtKpi(val,def.fmt);
-      const badge=chgBadge(pct,def.inv,def.id==='roas'?'ROAS = 전환매출 ÷ 광고비 × 100':def.id==='ctr'?'클릭률 = 클릭수 ÷ 노출수 × 100':def.id==='crto'?'전환율 = 전환수 ÷ 클릭수 × 100':'');
+      const badge=chgBadge(pct,def.inv);
+      const FORMULAS={roas:'ROAS = 전환매출 ÷ 광고비 × 100',ctr:'클릭률 = 클릭수 ÷ 노출수 × 100',crto:'전환율 = 전환수 ÷ 클릭수 × 100',cpc:'CPC = 광고비 ÷ 클릭수',cpConv:'전환당비용 = 광고비 ÷ 전환수'};
+      const formula=FORMULAS[def.id];
+      const lblHtml=formula?`<div class="tip-wrap"><span class="kpi-lbl" style="cursor:help">${def.label}</span><div class="tip-box"><b>${def.label}</b><span class="tip-line">${formula}</span></div></div>`:`<div class="kpi-lbl">${def.label}</div>`;
       const sid=`sp-${ST.kpiType.replace(/\s/g,'_')}-${def.id}`;
       html+=`<div class="kpi-card ${def.cls}">
-        <div class="kpi-top"><div class="kpi-lbl">${def.label}</div>${badge}</div>
+        <div class="kpi-top">${lblHtml}${badge}</div>
         <div class="kpi-val">${vH}</div>
         <div class="spark"><canvas id="${sid}"></canvas></div>
         <div class="goal-area"><div class="goal-row"><div style="display:flex;align-items:center;gap:4px"><span class="goal-lbl">목표 달성률</span><span class="goal-chip">${gd}</span></div><span class="goal-pct">${gp}%</span></div><div class="goal-track"><div class="goal-fill" style="width:${gp}%;background:${gc}"></div></div></div>
