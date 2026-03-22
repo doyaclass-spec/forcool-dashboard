@@ -103,6 +103,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .pn1{background:var(--red)}.pn2{background:var(--blue)}.pn3{background:var(--purple)}.pn4{background:var(--g2)}
 .p-title{font-size:22px;font-weight:900;color:var(--t1);letter-spacing:-.01em}
 .p-sub{font-size:15px;color:var(--t2);margin-left:8px;font-weight:500}
+.p-date{font-size:12px;font-weight:700;color:#fff;background:var(--ng);padding:3px 10px;border-radius:20px;margin-left:auto}
 
 /* ─── CARD ─── */
 .card{background:var(--sf);border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--s1);overflow:hidden;margin-bottom:14px}
@@ -462,7 +463,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <div class="main">
 
 <!-- 起 현황 파악 -->
-<div class="phase"><div style="display:flex;align-items:center;gap:9px"><div class="p-num pn1">起</div><span class="p-title">현황 파악</span><span class="p-sub">지금 무슨 일이 벌어지고 있나?</span></div></div>
+<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn1">起</div><span class="p-title">현황 파악</span><span class="p-sub">지금 무슨 일이 벌어지고 있나?</span><span class="p-date" id="pDate1"></span></div></div>
 
 <!-- ⑥ 가로 3개 경고 -->
 <div style="margin-bottom:14px">
@@ -517,12 +518,13 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 </div>
 
 <!-- 承 트렌드 -->
-<div class="phase"><div style="display:flex;align-items:center;gap:9px"><div class="p-num pn2">承</div><span class="p-title">트렌드 분석</span><span class="p-sub">왜 이렇게 됐나? 언제·어디서 성과가 나오나?</span></div></div>
+<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn2">承</div><span class="p-title">트렌드 분석</span><span class="p-sub">왜 이렇게 됐나? 언제·어디서 성과가 나오나?</span><span class="p-date" id="pDate2"></span></div></div>
 
 <div class="card-body" id="secTrend" style="max-height:3000px">
 <div class="two-col">
   <!-- 트렌드: 전체 폭 카드 (two-col의 첫 컬럼 차지) -->
   <div class="card" style="margin-bottom:0">
+    <div style="font-size:15px;font-weight:800;color:var(--t1);margin-bottom:10px">📈 일별 추이 차트</div>
     <!-- 유형 탭 -->
     <div class="trend-type-tabs" id="trendTypeTabs">
       <button class="trend-type-tab active" data-type="전체">전체</button>
@@ -583,7 +585,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <!-- 컨트롤 행 -->
     <div class="metric-row" style="justify-content:space-between;align-items:center">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:12px;font-weight:700;color:var(--t3)">🕐 요일·시간대 히트맵</span>
+        <span style="font-size:15px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</span>
+        <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="font-size:12px;font-weight:700;padding:4px 8px;border:1.5px solid var(--bd);border-radius:6px;background:#fff;color:var(--t1);cursor:pointer"></select>
         <!-- 시간 단위 토글 -->
         <div style="display:flex;gap:5px">
           <button class="cmp-opt" data-iv="1" onclick="setHmInterval(1)">1시간</button>
@@ -606,10 +609,11 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <!-- 轉 세부 분석 -->
 <div class="phase" onclick="toggleSec('secDetail','secDetailTog')" style="cursor:pointer">
-  <div style="display:flex;align-items:center;gap:9px">
+  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
     <div class="p-num pn3">轉</div>
     <span class="p-title">세부 분석</span>
     <span class="p-sub">어디서 예산이 새고, 어디가 효율적인가?</span>
+    <span class="p-date" id="pDate3"></span>
   </div>
   <div class="sec-tog open" id="secDetailTog" style="margin-left:auto;flex-shrink:0">▼</div>
 </div>
@@ -981,7 +985,13 @@ function updateDpPeriod(){
 function updateHeaderDate(){
   const preset=DS.preset?`${DS.preset} : `:'';
   document.getElementById('dateRangeTxt').textContent=`${preset}${fmtD(DS.from)} ~ ${fmtD(DS.to)}`;
-  document.getElementById('updTxt').textContent=`${fmtDK(DS.to)} 기준 · 샘플 데이터`;
+  document.getElementById('updTxt').textContent=`${fmtDK(DS.to)} 기준 · 실시간 데이터`;
+  // 각 섹션 날짜 배지 업데이트
+  const dateStr=`${fmtD(DS.from)} ~ ${fmtD(DS.to)}`;
+  ['pDate1','pDate2','pDate3'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=dateStr;
+  });
 }
 
 /* ================================================================ API 연동 */
@@ -1951,8 +1961,35 @@ function setHmInterval(iv){
   renderHm();
 }
 
+// 히트맵 월 선택
+ST.hmMonth='current'; // 'current' or '2026-03' etc
+function initHmMonthSel(){
+  const sel=document.getElementById('hmMonthSel');
+  if(!sel)return;
+  const now=new Date();
+  let html='<option value="current">현재 조회 기간</option>';
+  for(let i=0;i<12;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const val=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label=`${String(d.getFullYear()).slice(2)}년 ${d.getMonth()+1}월`;
+    html+=`<option value="${val}">${label}</option>`;
+  }
+  sel.innerHTML=html;
+}
+function setHmMonth(val){
+  ST.hmMonth=val;
+  if(val==='current'){renderHm();return;}
+  // KV에서 해당 월 히트맵 데이터 가져오기
+  const PROXY='https://naver-ad-proxy.pokool-ad.workers.dev';
+  fetch(`${PROXY}/api/history?month=${val}`,{headers:{'Origin':'https://doyaclass-spec.github.io'}})
+    .then(r=>r.json()).then(data=>{
+      if(data.heatmap){ST._hmMonthData=data.heatmap;renderHm()}
+      else renderHm();
+    }).catch(()=>renderHm());
+}
+
 function renderHm(){
-  const hmSource=(LIVE_DATA&&LIVE_DATA.heatmap)?LIVE_DATA.heatmap:HM_DATA;
+  const hmSource=(ST.hmMonth!=='current'&&ST._hmMonthData)?ST._hmMonthData:(LIVE_DATA&&LIVE_DATA.heatmap)?LIVE_DATA.heatmap:HM_DATA;
   const rawData=hmSource[ST.hmType]||hmSource['전체']; // [24][7]
   const m=ST.hmMetric, sch=HM_SCH[m];
   const iv=ST.hmInterval||2; // 1 or 2 hours
@@ -2370,7 +2407,7 @@ function ansQ(q){
 function showToast(msg){const el=document.createElement('div');el.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0B1D34;color:#fff;padding:10px 20px;border-radius:9px;font-size:12.5px;font-weight:700;box-shadow:0 6px 20px rgba(11,29,52,.3);z-index:600';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2300)}
 
 /* ================================================================ RELOAD */
-function reloadAll(){renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp()}
+function reloadAll(){renderAlerts();renderKpi();initTrend();initHmMonthSel();renderHm();renderKw();renderCmp()}
 
 /* ================================================================ 접기/펴기 */
 function toggleCard(bodyId, togId){
