@@ -178,10 +178,10 @@ input,select,textarea{font-family:inherit;outline:none}
 @media(max-width:900px){.two-col{grid-template-columns:1fr}}
 
 /* ─── TREND (전체 폭, 큰 차트) ─── */
-.trend-type-tabs{display:flex;gap:0;border-bottom:2px solid var(--bd);padding:0 18px;background:var(--sf2)}
-.trend-type-tab{padding:11px 16px;font-size:14.5px;font-weight:700;color:var(--t3);background:transparent;border:none;border-bottom:2.5px solid transparent;margin-bottom:-2px;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap}
-.trend-type-tab:hover{color:var(--t1)}
-.trend-type-tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+.trend-type-tabs{display:flex;gap:0;padding:8px 18px;background:var(--sf2);border-bottom:1px solid var(--bd)}
+.trend-type-tab{padding:6px 16px;font-size:13px;font-weight:700;color:var(--t2);background:transparent;border:1.5px solid var(--bd);border-radius:20px;margin-right:6px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.trend-type-tab:hover{color:var(--t1);border-color:var(--t3)}
+.trend-type-tab.active{color:#fff;background:var(--navy);border-color:var(--navy)}
 /* 지표 선택 행 */
 .metric-row{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:8px;background:var(--sf)}
 .metric-chk-grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
