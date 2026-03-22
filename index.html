@@ -175,7 +175,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .btn-goal{display:flex;align-items:center;gap:4px;padding:5px 11px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;font-size:13px;font-weight:700;color:var(--t2);transition:var(--tr)}.btn-goal:hover{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
 
 /* ─── 2-COL ─── */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;align-items:stretch}
 @media(max-width:900px){.two-col{grid-template-columns:1fr}}
 
 /* ─── TREND (전체 폭, 큰 차트) ─── */
@@ -577,6 +577,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <!-- 소제목 + 설명 -->
     <div style="padding:14px 18px 8px">
       <div style="font-size:15px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
+      <div id="hmDesc" style="font-size:12px;color:var(--t3);margin-top:2px">상단 기간 내 각 요일·시간대별 평균 성과를 나타냅니다</div>
       <div style="font-size:12px;color:var(--t3);margin-top:2px">시간대별 광고 효율을 한눈에 파악합니다</div>
     </div>
     <!-- 히트맵 유형 탭 (소제목 아래) -->
@@ -590,7 +591,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <!-- 컨트롤 행 -->
     <div class="metric-row" style="justify-content:space-between;align-items:center">
       <div style="display:flex;align-items:center;gap:8px">
-        <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="font-size:12px;font-weight:700;padding:4px 8px;border:1.5px solid var(--bd);border-radius:6px;background:#fff;color:var(--t1);cursor:pointer"></select>
+        <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="font-size:12px;font-weight:700;padding:4px 8px;border:1.5px solid var(--bd);border-radius:6px;background:#fff;color:var(--t1);cursor:pointer;display:none"></select>
         <!-- 시간 단위 토글 -->
         <div style="display:flex;gap:5px">
           <button class="cmp-opt" data-iv="1" onclick="setHmInterval(1)">1시간</button>
@@ -1505,8 +1506,8 @@ const GM=[
 ];
 function fmtKpi(val, fmt){
   if(fmt==='cur')return`<span class="csym">₩</span>${fN(val)}`;
-  if(fmt==='pct')return`${val}<span class="pct">%</span>`;
-  if(fmt==='pct2')return`${val}<span class="pct">%</span>`;
+  if(fmt==='pct')return`${fN(val)}<span class="pct">%</span>`;
+  if(fmt==='pct2')return`${fN(val)}<span class="pct">%</span>`;
   return fN(val);
 }
 function renderKpi(){
@@ -1981,6 +1982,14 @@ function setHmMonth(val){
 }
 
 function renderHm(){
+  // 히트맵 기간 설명 업데이트
+  const hmDescEl=document.getElementById('hmDesc');
+  if(hmDescEl){
+    const f=DS.from,t=DS.to;
+    const fStr=`${f.getFullYear()}.${String(f.getMonth()+1).padStart(2,'0')}.${String(f.getDate()).padStart(2,'0')}`;
+    const tStr=`${t.getFullYear()}.${String(t.getMonth()+1).padStart(2,'0')}.${String(t.getDate()).padStart(2,'0')}`;
+    hmDescEl.textContent=`${fStr} ~ ${tStr} 기간 내 각 요일·시간대별 평균 성과를 나타냅니다`;
+  }
   const hmSource=(ST.hmMonth!=='current'&&ST._hmMonthData)?ST._hmMonthData:(LIVE_DATA&&LIVE_DATA.heatmap)?LIVE_DATA.heatmap:HM_DATA;
   const rawData=hmSource[ST.hmType]||hmSource['전체']; // [24][7]
   const m=ST.hmMetric, sch=HM_SCH[m];
@@ -2128,13 +2137,13 @@ function renderKw(){
   const maxS=Math.max(...slice.map(k=>k.adSpend),1);
   document.getElementById('kwBody').innerHTML=slice.map(k=>`
     <tr><td><b>${k.kw}</b></td><td>${tBadge(k.type)}</td>
-    <td style="font-size:11px;color:var(--t2);max-width:130px;white-space:normal">${k.campaign}</td>
+    <td style="font-size:11px;color:var(--t2);max-width:130px;white-space:normal"><div class="tip-wrap"><span style="cursor:help">${k.campaign}</span><div class="tip-box" style="font-size:14px;font-weight:600;white-space:nowrap">${k.campaign}</div></div></td>
     <td>${fN(k.impressions)}</td><td>${kwChgLbl(k.impressions,k.prevImpressions)}</td><td>${fN(k.clicks)}</td>
     <td><div class="kwbar-cell"><div class="kwbar" style="width:${Math.round(k.adSpend/maxS*65)}px;background:${getWaste(k)==='high'?'var(--red)':getWaste(k)==='mid'?'var(--orange)':'var(--green)'}"></div>${fC(k.adSpend)}</div></td>
     <td>${fC(k.cpc)}</td>
     <td style="font-weight:800;color:${k.conversions===0?'var(--red)':'inherit'}">${k.conversions}</td>
     <td>
-      <div class="tip-wrap"><span class="rv ${rvCls(k.roas)}">${k.roas?k.roas+'%':'—'}</span>
+      <div class="tip-wrap"><span class="rv ${rvCls(k.roas)}">${k.roas?fN(k.roas)+'%':'—'}</span>
         <div class="tip-box"><b>ROAS = 전환매출 ÷ 광고비 × 100</b><span class="tip-line">${k.roas?`${fC(k.convRevenue)} ÷ ${fC(k.adSpend)} = ${k.roas}%`:'전환 없음'}</span><br><span class="tip-line">500%↑ 우수 / 300~499% 정상 / 300%↓ 개선 필요</span></div>
       </div>
     </td>
@@ -2167,8 +2176,8 @@ function renderCmp(){
       <td>${fC(c.adSpend)}</td><td>${chgLbl(chgP(c.adSpend,c.prevAdSpend),true)}</td>
       <td>${fN(c.impressions)}</td><td>${fN(c.clicks)}</td><td>${fN(c.conversions)}</td><td>${fC(c.convRevenue)}</td>
       <td>
-        <div class="tip-wrap"><span class="rv ${rvCls(c.roas)}">${c.roas}%</span>
-          <div class="tip-box"><b>ROAS 계산</b><span class="tip-line">${fC(c.convRevenue)} ÷ ${fC(c.adSpend)} = ${c.roas}%</span><br><span class="tip-line">목표 ROAS: ${(GOALS['전체'].roas||600)}%</span></div>
+        <div class="tip-wrap"><span class="rv ${rvCls(c.roas)}">${fN(c.roas)}%</span>
+          <div class="tip-box"><b>ROAS 계산</b><span class="tip-line">${fC(c.convRevenue)} ÷ ${fC(c.adSpend)} = ${fN(c.roas)}%</span><br><span class="tip-line">목표 ROAS: ${(GOALS['전체'].roas||600)}%</span></div>
         </div>
       </td>
       <td>${(c.ctr||0).toFixed(2)}%</td><td>${(c.crto||0).toFixed(2)}%</td><td>${fC(c.cpConv||0)}</td>
@@ -2248,7 +2257,7 @@ function runAi(){
     // ROAS 높은 캠페인 증액
     const topRoas=camps.filter(c=>c.roas>500&&c.adSpend>10000).sort((a,b)=>b.roas-a.roas);
     topRoas.slice(0,2).forEach(c=>{
-      stratHtml+=`<li>🟢 [${c.name}] ROAS ${c.roas}% 우수 — 예산 증액 권장</li>`;
+      stratHtml+=`<li>🟢 [${c.name}] ROAS ${fN(c.roas)}% 우수 — 예산 증액 권장</li>`;
     });
     // CTR 개선
     const lowCtr=camps.filter(c=>c.clicks>10&&c.ctr<1).sort((a,b)=>a.ctr-b.ctr);
@@ -2266,7 +2275,7 @@ function runAi(){
     if(currentBidStrat==='aggressive'){
       const topCamps=camps.filter(c=>c.roas>500&&c.adSpend>5000).sort((a,b)=>b.roas-a.roas).slice(0,3);
       planHtml+=`<li><b>적용 대상:</b> ROAS 500%↑ 캠페인 ${topCamps.length}개</li>`;
-      topCamps.forEach(c=>planHtml+=`<li>→ [${c.name}] 입찰가 30%↑ (ROAS ${c.roas}%)</li>`);
+      topCamps.forEach(c=>planHtml+=`<li>→ [${c.name}] 입찰가 30%↑ (ROAS ${fN(c.roas)}%)</li>`);
       planHtml+=`<li><b>예상 효과:</b> 노출 +25~40%, 광고비 +30% 증가 예상</li>`;
     } else if(currentBidStrat==='conservative'){
       planHtml+=`<li><b>적용 대상:</b> 전체 활성 캠페인</li>`;
@@ -2416,7 +2425,7 @@ function ansQ(q){
   if(t.includes('roas')&&t.includes('높')){const b=cmp.reduce((a,c)=>a.roas>c.roas?a:c);return`🏆 ROAS 최고: <b>${b.name}</b> (${b.roas}%)`}
   if(t.includes('활성')){return`✅ 활성 <b>${actC.length}개</b><br>${actC.map(c=>`· ${c.name}`).join('<br>')}`}
   if(t.includes('일시중지')){return`⏸ 일시중지 <b>${pauC.length}개</b><br>${pauC.map(c=>`· ${c.name}`).join('<br>')}`}
-  if(t.includes('경고')){const a=cmp.filter(c=>c.alr);return`🚨 경고 <b>${a.length}개</b><br>${a.map(c=>`· ${c.name} (ROAS ${c.roas}%)`).join('<br>')}`}
+  if(t.includes('경고')){const a=cmp.filter(c=>c.alr);return`🚨 경고 <b>${a.length}개</b><br>${a.map(c=>`· ${c.name} (ROAS ${fN(c.roas)}%)`).join('<br>')}`}
   if(ft){const list=cmp.filter(c=>c.type===ft);const s=list.reduce((a,c)=>a+c.adSpend,0),r=list.reduce((a,c)=>a+c.convRevenue,0);return`🛍 <b>${ft}</b> (${list.length}개)<br>광고비: ${fC(s)}<br>ROAS: ${Math.round(r/s*100)}%`}
   return`🤔 예시: "낭비 키워드 알려줘" · "26년 1월 쇼핑검색 광고비?" · "총 매출액 얼마야?"`;
 }
