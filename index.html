@@ -1887,7 +1887,7 @@ function renderHm(){
   const rawData=hmSource[ST.hmType]||hmSource['전체']; // [24][7]
   const m=ST.hmMetric, sch=HM_SCH[m];
   const iv=ST.hmInterval||2; // 1 or 2 hours
-  const fmt=v=>m==='roas'||m==='cvr'?v+'%':m==='spend'?fC(v):fN(v);
+  const fmt=v=>m==='roas'||m==='cvr'?fN(v)+'%':m==='spend'?fC(v):fN(v);
 
   // 시간 집계: iv=1이면 24행, iv=2이면 12행 (2시간 평균)
   const grouped=[];
@@ -1916,12 +1916,12 @@ function renderHm(){
   const gradBar=document.getElementById('hmGradBar');
   if(gradBar&&best){
     gradBar.innerHTML=`
-      <div style="display:flex;flex-direction:column;gap:3px;padding:2px 0 6px">
-        <div style="position:relative;height:18px;border-radius:6px;overflow:hidden;background:linear-gradient(to right,${sch.lo},${sch.hi})">
-          <span style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:rgba(255,255,255,.8)">낮음 — ${fmt(minV)}</span>
-          <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:rgba(255,255,255,.9)">높음 — ${fmt(maxV)}</span>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:4px 0 8px">
+        <div style="position:relative;height:32px;border-radius:8px;overflow:hidden;background:linear-gradient(to right,${sch.lo},${sch.hi})">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4)">낮음 — ${fmt(minV)}</span>
+          <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)">높음 — ${fmt(maxV)}</span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700">
+        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800">
           <span style="color:var(--g2)">🏆 최고: ${best.day}요일 ${best.hour} (${fmt(bestV)})</span>
           <span style="color:var(--red)">⚠️ 최저: ${worst?worst.day+'요일 '+worst.hour+' ('+fmt(worstV)+')':'-'}</span>
         </div>
@@ -1938,7 +1938,7 @@ function renderHm(){
     html+=`<tr><td class="hm-th-hour">${hourLabel}</td>`;
     row.forEach((cell,di)=>{
       const v=cell[m],t=norm(v),bg=lerp(sch.lo,sch.hi,t),tc=t>0.55?'#fff':'#0B1D34';
-      const disp=m==='roas'?v+'%':m==='cvr'?v+'%':m==='spend'?(v>=10000?(v/10000).toFixed(0)+'만':''):(v>=1000?(v/1000).toFixed(0)+'k':v||'');
+      const disp=m==='roas'?fN(v)+'%':m==='cvr'?v+'%':m==='spend'?(v>=10000?(v/10000).toFixed(0)+'만':''):(v>=1000?(v/1000).toFixed(0)+'k':v||'');
       html+=`<td class="hm-cell" style="background:${bg};color:${tc}" onmouseenter="showHmTip(event,'${cell.day}','${cell.hour}',${cell.roas},${cell.cvr},${cell.spend},${cell.clicks})" onmouseleave="hideHmTip()">${disp}</td>`;
     });
     html+='</tr>';
@@ -1947,7 +1947,7 @@ function renderHm(){
 }
 function showHmTip(e,day,hour,roas,cvr,spend,clicks){
   const tip=document.getElementById('hmTip');
-  tip.innerHTML=`<b>${day}요일 ${hour}</b> · ${ST.hmType}<br>ROAS: <b>${roas}%</b><br>전환율: <b>${cvr}%</b><br>광고비: <b>${fC(spend)}</b><br>클릭: <b>${fN(clicks)}</b>`;
+  tip.innerHTML=`<b>${day}요일 ${hour}</b> · ${ST.hmType}<br>ROAS: <b>${fN(roas)}%</b><br>전환율: <b>${cvr}%</b><br>광고비: <b>${fC(spend)}</b><br>클릭: <b>${fN(clicks)}</b>`;
   tip.style.cssText=`display:block;left:${e.clientX+14}px;top:${e.clientY-10}px`;
 }
 function hideHmTip(){document.getElementById('hmTip').style.display='none'}
