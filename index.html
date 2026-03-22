@@ -2116,7 +2116,7 @@ function renderCmp(){
           <div class="tip-box"><b>ROAS 계산</b><span class="tip-line">${fC(c.convRevenue)} ÷ ${fC(c.adSpend)} = ${c.roas}%</span><br><span class="tip-line">목표 ROAS: ${(GOALS['전체'].roas||600)}%</span></div>
         </div>
       </td>
-      <td>${c.ctr.toFixed(2)}%</td><td>${c.crto.toFixed(2)}%</td><td>${fC(c.cpConv)}</td>
+      <td>${(c.ctr||0).toFixed(2)}%</td><td>${(c.crto||0).toFixed(2)}%</td><td>${fC(c.cpConv||0)}</td>
     </tr>`).join('');
   renderPgn('cmpPgn','cmpPgi',ST.cmpPage,pages,total,ST.cmpPS,'cmpGoPage');
 }
