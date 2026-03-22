@@ -574,7 +574,12 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
   <!-- 히트맵 -->
   <div class="card" style="margin-bottom:0">
-    <!-- 히트맵 유형 탭 (트렌드와 동일 스타일) -->
+    <!-- 소제목 + 설명 -->
+    <div style="padding:14px 18px 8px">
+      <div style="font-size:15px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:2px">시간대별 광고 효율을 한눈에 파악합니다</div>
+    </div>
+    <!-- 히트맵 유형 탭 (소제목 아래) -->
     <div class="trend-type-tabs" id="hmTypeTabs">
       <button class="trend-type-tab active" data-type="전체">전체</button>
       <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
@@ -585,10 +590,6 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <!-- 컨트롤 행 -->
     <div class="metric-row" style="justify-content:space-between;align-items:center">
       <div style="display:flex;align-items:center;gap:8px">
-        <div>
-          <div style="font-size:15px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
-          <div style="font-size:12px;color:var(--t3);margin-top:2px">시간대별 광고 효율을 한눈에 파악합니다</div>
-        </div>
         <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="font-size:12px;font-weight:700;padding:4px 8px;border:1.5px solid var(--bd);border-radius:6px;background:#fff;color:var(--t1);cursor:pointer"></select>
         <!-- 시간 단위 토글 -->
         <div style="display:flex;gap:5px">
