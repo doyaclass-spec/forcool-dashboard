@@ -156,7 +156,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .kpi-card{padding:18px 18px 14px;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);position:relative;transition:background .15s}
 .kpi-card:hover{background:var(--sf2)}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
-.c-blue::before{background:var(--blue)}.c-green::before{background:var(--green)}.c-orange::before{background:var(--orange)}.c-purple::before{background:var(--purple)}.c-teal::before{background:var(--teal)}.c-yellow::before{background:var(--yellow)}.c-navy::before{background:var(--navy)}
+.c-blue::before{background:var(--blue)}.c-green::before{background:var(--green)}.c-orange::before{background:var(--orange)}.c-purple::before{background:var(--purple)}.c-teal::before{background:var(--teal)}.c-yellow::before{background:var(--yellow)}.c-navy::before{background:var(--purple)}
 .kpi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
 .kpi-lbl{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:.04em}
 /* ① ⑤ 변화율 배지에 툴팁 */
@@ -1530,7 +1530,7 @@ function renderKpi(){
       const goal=goals[def.id]||val;
       const pct=chgP(val,prev);
       const gp=goal>0?Math.min(100,Math.round((val/goal)*100)):0;
-      const ROW_COLORS={1:'var(--orange)',2:'var(--blue)',3:'var(--navy)'};
+      const ROW_COLORS={1:'var(--orange)',2:'var(--blue)',3:'var(--purple)'};
       const gc=ROW_COLORS[def.row]||'var(--blue)';
       const gd=def.fmt==='cur'?fC(goal):def.fmt==='pct'||def.fmt==='pct2'?goal+'%':fN(goal);
       const vH=fmtKpi(val,def.fmt);
@@ -1580,7 +1580,7 @@ function toggleKpiVis(id,val){
 }
 function initSparks(){
   const CC={
-    'c-orange':'#FF7043','c-blue':'#2E86DE','c-green':'#00A07A','c-navy':'#0B1D34'
+    'c-orange':'#FF7043','c-blue':'#2E86DE','c-green':'#00A07A','c-navy':'#7C3AED'
   };
   const dd=getDailyData(ST.kpiType);
   KPI_DEFS.filter(d=>kpiVisible[d.id]).forEach(def=>{
