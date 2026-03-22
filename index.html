@@ -633,6 +633,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     </div>
   </div>
   <div class="card-body" id="kwCardBody" style="max-height:2000px">
+  <div id="kwSummaryCards" style="display:flex;gap:10px;padding:12px 16px;flex-wrap:wrap"></div>
   <div class="tbl-bar">
     <div class="sw"><span class="si">🔍</span><input type="text" id="kwSearch" placeholder="키워드 검색…" oninput="renderKw()"></div>
     <select class="fsel" id="kwTypeF" onchange="renderKw()"><option value="all">전체 유형</option><option value="파워링크">파워링크</option><option value="콘텐츠">콘텐츠</option></select>
@@ -2106,6 +2107,32 @@ function getKwF(){
   return list;
 }
 function renderKw(){
+  // 요약 카드 렌더링
+  const allKw=getKwData();
+  const highKw=allKw.filter(k=>getWaste(k)==='high');
+  const midKw=allKw.filter(k=>getWaste(k)==='mid');
+  const lowKw=allKw.filter(k=>getWaste(k)==='low');
+  const highSpend=highKw.reduce((s,k)=>s+k.adSpend,0);
+  const midSpend=midKw.reduce((s,k)=>s+k.adSpend,0);
+  const lowSpend=lowKw.reduce((s,k)=>s+k.adSpend,0);
+  const avgRoasLow=lowKw.length>0?Math.round(lowKw.reduce((s,k)=>s+k.roas,0)/lowKw.length):0;
+  const sc=document.getElementById('kwSummaryCards');
+  if(sc)sc.innerHTML=`
+    <div onclick="document.getElementById('kwWasteF').value='high';renderKw()" style="flex:1;min-width:200px;padding:14px 18px;background:rgba(254,242,242,0.7);border:1px solid rgba(220,38,38,0.2);border-radius:12px;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px)">
+      <div style="font-size:13px;font-weight:800;color:#dc2626;margin-bottom:6px">🔴 낭비 높음</div>
+      <div style="font-size:24px;font-weight:900;color:#0f172a">${highKw.length}개</div>
+      <div style="font-size:12px;color:#334155;margin-top:4px">광고비 ${fC(highSpend)} · 전환 0</div>
+    </div>
+    <div onclick="document.getElementById('kwWasteF').value='mid';renderKw()" style="flex:1;min-width:200px;padding:14px 18px;background:rgba(255,247,237,0.7);border:1px solid rgba(234,88,12,0.2);border-radius:12px;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px)">
+      <div style="font-size:13px;font-weight:800;color:#ea580c;margin-bottom:6px">🟡 주의</div>
+      <div style="font-size:24px;font-weight:900;color:#0f172a">${midKw.length}개</div>
+      <div style="font-size:12px;color:#334155;margin-top:4px">광고비 ${fC(midSpend)} · 입찰 조정 필요</div>
+    </div>
+    <div onclick="document.getElementById('kwWasteF').value='low';renderKw()" style="flex:1;min-width:200px;padding:14px 18px;background:rgba(220,252,231,0.7);border:1px solid rgba(22,163,74,0.2);border-radius:12px;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px)">
+      <div style="font-size:13px;font-weight:800;color:#16a34a;margin-bottom:6px">🟢 효율 좋음</div>
+      <div style="font-size:24px;font-weight:900;color:#0f172a">${lowKw.length}개</div>
+      <div style="font-size:12px;color:#334155;margin-top:4px">평균 ROAS ${fN(avgRoasLow)}%</div>
+    </div>`;
   const all=getKwF(),total=all.length,pages=Math.ceil(total/ST.kwPS)||1;
   if(ST.kwPage>pages)ST.kwPage=pages;
   const slice=all.slice((ST.kwPage-1)*ST.kwPS,ST.kwPage*ST.kwPS);
