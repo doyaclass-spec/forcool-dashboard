@@ -1025,7 +1025,7 @@ async function fetchDashboardData() {
   try {
     document.getElementById('updTxt').textContent = '데이터 로딩 중...';
     // 대시보드 데이터 먼저 로드
-    const dashRes = await fetch(`${WORKER_URL}/api/dashboard?from=${from}&to=${to}`);
+    const dashRes = await fetch(`${WORKER_URL}/api/dashboard-fast?from=${from}&to=${to}`);
     if (!dashRes.ok) throw new Error(`HTTP ${dashRes.status}`);
     LIVE_DATA = await dashRes.json();
     if (LIVE_DATA.error) throw new Error(LIVE_DATA.error);
