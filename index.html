@@ -130,18 +130,19 @@ input,select,textarea{font-family:inherit;outline:none}
 .alert-body.coll{max-height:0;opacity:0}
 /* ⑥ 가로 3열 레이아웃 */
 .alert-cards{display:flex;flex-direction:column;gap:8px;padding:12px 16px}
-.alert-card{display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:10px;border-left:4px solid}
+.alert-card{display:flex;align-items:center;gap:14px;padding:14px 20px;border-radius:10px;border-left:5px solid}
 .alert-card.ac-orange{background:#FFF7ED;border-left-color:#E8590C}
 .alert-card.ac-blue{background:#EFF6FF;border-left-color:#1971C2}
 .alert-card.ac-green{background:#ECFDF5;border-left-color:#0B7A4E}
-.ac-icon{width:34px;height:34px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
-.ac-orange .ac-icon{background:#FFEDD5}.ac-blue .ac-icon{background:#DBEAFE}.ac-green .ac-icon{background:#D1FAE5}
-.ac-inline{flex:1;font-size:15px;font-weight:700;line-height:1.4}
-.ac-orange .ac-inline{color:#9A3412}.ac-blue .ac-inline{color:#1E40AF}.ac-green .ac-inline{color:#065F46}
-.ac-badge-i{padding:2px 8px;border-radius:6px;font-size:12px;font-weight:800;margin-right:6px}
+.ac-inline{flex:1;font-size:16px;font-weight:600;line-height:1.5;color:#111}
+.ac-badge-i{padding:3px 10px;border-radius:6px;font-size:13px;font-weight:800;margin-right:8px}
 .ac-orange .ac-badge-i{background:#FED7AA;color:#9A3412}
 .ac-blue .ac-badge-i{background:#BFDBFE;color:#1E40AF}
 .ac-green .ac-badge-i{background:#A7F3D0;color:#065F46}
+.ac-name{font-weight:800;font-size:16px}
+.ac-orange .ac-name{color:#C2410C}.ac-blue .ac-name{color:#1D4ED8}.ac-green .ac-name{color:#047857}
+.ac-pct{font-weight:900;font-size:17px}
+.ac-orange .ac-pct{color:#E8590C}.ac-blue .ac-pct{color:#1971C2}.ac-green .ac-pct{color:#0B7A4E}
 
 /* ─── KPI ─── */
 .kpi-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--sf2);border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:7px}
@@ -1387,8 +1388,7 @@ function renderAlerts(){
     const lvEmoji=a.lv==='danger'?'🔴':a.lv==='warning'?'🟡':'🔵';
     const lvLabel=a.lv==='danger'?'위험':a.lv==='warning'?'경고':'안내';
     return`<div class="alert-card ${cc}">
-      <div class="ac-icon">${a.ico}</div>
-      <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${a.name}, ${a.blLabel} 대비 <strong>${sign}${a.pct}%</strong> ${a.dir==='up'?'증가':'감소'}, 기준: ${a.threshold}% 이상</div>
+      <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span><span class="ac-name">${a.name}</span>, ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${a.dir==='up'?'증가':'감소'}, 기준: ${a.threshold}% 이상</div>
     </div>`;
   }).join('');
 }
