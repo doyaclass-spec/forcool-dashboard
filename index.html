@@ -130,19 +130,21 @@ input,select,textarea{font-family:inherit;outline:none}
 .alert-body{background:var(--sf);border:1px solid rgba(229,57,53,.25);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden;transition:max-height .3s ease,opacity .2s;max-height:400px;opacity:1}
 .alert-body.coll{max-height:0;opacity:0}
 /* ⑥ 가로 3열 레이아웃 */
-.alert-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+.alert-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;padding:12px 16px}
 @media(max-width:800px){.alert-cards{grid-template-columns:1fr}}
-.alert-card{padding:14px 16px;border-right:1px solid var(--bd);transition:background .1s}
-.alert-card:last-child{border-right:none}
-.alert-card:hover{background:var(--sf2)}
-.ac-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.ac-icon{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.alert-card{padding:16px 18px;border-radius:12px;border-left:4px solid;transition:box-shadow .15s}
+.alert-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.alert-card.ac-orange{background:#FFF7ED;border-left-color:var(--orange)}
+.alert-card.ac-blue{background:#EFF6FF;border-left-color:var(--blue)}
+.alert-card.ac-green{background:#F0FDF4;border-left-color:var(--green)}
+.ac-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ac-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
 .ac-icon.danger{background:var(--rbg)}.ac-icon.warning{background:var(--obg)}.ac-icon.info{background:var(--bbg)}
-.ac-title{font-size:14.5px;font-weight:800}
+.ac-title{font-size:15px;font-weight:800}
 .ac-title.danger{color:var(--red)}.ac-title.warning{color:var(--orange)}.ac-title.info{color:var(--blue)}
-.ac-msg{font-size:14.5px;color:var(--t2);margin-bottom:4px;line-height:1.5}
-.ac-detail{font-size:12.5px;color:var(--t3)}
-.ac-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:12.5px;font-weight:700;margin-bottom:6px}
+.ac-msg{font-size:15px;color:var(--t1);margin-bottom:6px;line-height:1.5;font-weight:600}
+.ac-detail{font-size:13px;color:var(--t2)}
+.ac-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:6px}
 .ac-badge.danger{background:var(--rbg);color:var(--red)}.ac-badge.warning{background:var(--obg);color:var(--orange)}.ac-badge.info{background:var(--bbg);color:var(--blue)}
 
 /* ─── KPI ─── */
@@ -150,7 +152,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .kpi-grid{display:flex;flex-direction:column;gap:0}
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr)}
 .kpi-row.cols-2{grid-template-columns:repeat(2,1fr)}
-.kpi-row-label{font-size:12px;font-weight:800;padding:8px 16px 4px;color:var(--t3);letter-spacing:.05em;border-bottom:1px solid var(--bd);background:var(--sf)}
+.kpi-row-label{display:none}
 @media(max-width:1000px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.kpi-row{grid-template-columns:1fr}}
 /* 행 라벨 */
@@ -436,6 +438,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   </button>
   <div class="hdr-right">
     <div class="clock-wrap">
+      <span id="clockEmoji" style="font-size:20px">☀️</span>
       <div class="clock-date" id="clockDate">--</div>
       <div class="clock-ampm" id="clockAmpm">오전</div>
       <div class="clock-time" id="clockTime">--:--:--</div>
@@ -1288,7 +1291,7 @@ function fC(v){return '₩'+Number(Math.round(v)).toLocaleString('ko-KR')}
 function fS(v,fmt){if(fmt==='cur'){if(v>=10000000)return'₩'+(v/10000000).toFixed(1)+'천만';if(v>=1000000)return'₩'+(v/1000000).toFixed(1)+'백만';if(v>=10000)return'₩'+(v/10000).toFixed(0)+'만';return'₩'+Math.round(v).toLocaleString()}if(v>=10000)return(v/10000).toFixed(0)+'만';if(v>=1000)return(v/1000).toFixed(0)+'k';return Math.round(v)}
 function fV(v,fmt){return fmt==='cur'?fC(v):fmt==='pct'?Math.round(v)+'%':fN(v)}
 function chgP(c,p){return p?Math.round(((c-p)/p)*100):0}
-function chgCls(p,inv){if(p===0)return'neu';if(p>0)return inv?'ub':'ug';return inv?'dg':'db'}
+function chgCls(p,inv){if(p===0)return'neu';if(p>0)return'ug';return'db'}
 // ① 변화율 배지 + 툴팁 HTML 생성
 function chgBadge(pct,inv,extraTip){
   const cls=chgCls(pct,inv),sym=pct>0?'▲':pct<0?'▼':'—';
@@ -1312,6 +1315,7 @@ function updateClock(){
   const isAm=h24<12;
   const h12=h24%12||12;
   const ampm=isAm?'오전':'오후';
+  document.getElementById('clockEmoji').textContent=isAm?'☀️':'🌙';
   document.getElementById('clockAmpm').textContent=ampm;
   document.getElementById('clockTime').textContent=`${p2(h12)}:${p2(kst.getMinutes())}:${p2(kst.getSeconds())}`;
   document.getElementById('clockDate').textContent=`${kst.getFullYear()}.${p2(kst.getMonth()+1)}.${p2(kst.getDate())}`;
@@ -1324,10 +1328,15 @@ document.addEventListener('mouseover',function(e){
   if(!wrap)return;
   const tip=wrap.querySelector('.tip-box');
   if(!tip)return;
+  tip.style.visibility='hidden';tip.style.opacity='0';tip.style.display='block';
   const r=wrap.getBoundingClientRect();
-  tip.style.left=Math.max(8,Math.min(r.left+r.width/2-100,window.innerWidth-220))+'px';
+  const tw=tip.offsetWidth||220;
+  let left=r.left+r.width/2-tw/2;
+  left=Math.max(8,Math.min(left,window.innerWidth-tw-8));
+  tip.style.left=left+'px';
   tip.style.top=(r.top-8)+'px';
   tip.style.transform='translateY(-100%)';
+  tip.style.display='';
 });
 
 /* ================================================================ ⑦ ALERTS */
@@ -1356,10 +1365,11 @@ function renderAlerts(){
     container.innerHTML=`<div style="padding:20px 16px;color:var(--t3);font-size:13px;grid-column:1/-1">✅ 현재 설정된 경고 조건에 해당하는 항목이 없습니다.</div>`;
     return;
   }
-  container.style.gridTemplateColumns=alerts.length>=3?'repeat(3,1fr)':alerts.length===2?'repeat(2,1fr)':'1fr';
   container.innerHTML=alerts.map(a=>{
     const sign=a.pct>0?'+':'';
-    return`<div class="alert-card">
+    const FIELD_COLOR={adSpend:'ac-green',roas:'ac-green',cpc:'ac-orange',ctr:'ac-orange',impressions:'ac-orange',clicks:'ac-orange',crto:'ac-blue',conversions:'ac-blue',convRevenue:'ac-blue',cpConv:'ac-blue'};
+    const cc=FIELD_COLOR[a.field]||'ac-orange';
+    return`<div class="alert-card ${cc}">
       <div class="ac-head">
         <div class="ac-icon ${a.lv}">${a.ico}</div>
         <div>
@@ -1367,7 +1377,7 @@ function renderAlerts(){
           <div class="ac-title ${a.lv}">${a.name}</div>
         </div>
       </div>
-      <div class="ac-msg"><b>${a.blLabel} 대비 ${sign}${a.pct}%</b> ${a.dir==='up'?'증가':'감소'}</div>
+      <div class="ac-msg">${a.blLabel} 대비 <span style="color:${a.pct>0?'var(--green)':'var(--red)'}; font-weight:800">${sign}${a.pct}%</span> ${a.dir==='up'?'증가':'감소'}</div>
       <div class="ac-detail">기준: ${a.threshold}% 이상 ${a.dir==='up'?'증가':'감소'} 시 경고</div>
     </div>`;
   }).join('');
@@ -1496,13 +1506,11 @@ function fmtKpi(val, fmt){
 function renderKpi(){
   const kd=getKpiData(ST.kpiType),goals=GOALS[ST.kpiType]||GOALS['전체'];
   const gridTarget=document.getElementById('kpiGridInner')||document.getElementById('kpiGrid');
-  const ROW_LABELS={1:'📊 트래픽 지표',2:'🎯 전환 지표',3:'💰 수익 지표'};
   let html='';
   [1,2,3].forEach(row=>{
     const defs=KPI_DEFS.filter(d=>d.row===row&&kpiVisible[d.id]);
     if(!defs.length)return;
     const colsCls=defs.length<=2?'cols-2':'';
-    html+=`<div class="kpi-row-label">${ROW_LABELS[row]}</div>`;
     html+=`<div class="kpi-row ${colsCls}">`;
     defs.forEach(def=>{
       const val=kd[def.id]??0;
