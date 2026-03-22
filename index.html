@@ -147,29 +147,29 @@ input,select,textarea{font-family:inherit;outline:none}
 
 /* ─── KPI ─── */
 .kpi-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--sf2);border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:7px}
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr)}
-@media(max-width:1000px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-/* 추가 색상 */
-.c-blue2::before{background:var(--blue)}
-.c-yellow2::before{background:var(--green)}
-.c-pink::before{background:var(--orange)}
-.kpi-card{padding:14px 14px 11px;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);position:relative;transition:background .15s}
+.kpi-grid{display:flex;flex-direction:column;gap:0}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr)}
+.kpi-row.cols-2{grid-template-columns:repeat(2,1fr)}
+.kpi-row-label{font-size:12px;font-weight:800;padding:8px 16px 4px;color:var(--t3);letter-spacing:.05em;border-bottom:1px solid var(--bd);background:var(--sf)}
+@media(max-width:1000px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.kpi-row{grid-template-columns:1fr}}
+/* 행 라벨 */
+.kpi-card{padding:18px 18px 14px;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);position:relative;transition:background .15s}
 .kpi-card:hover{background:var(--sf2)}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
 .c-blue::before{background:var(--blue)}.c-green::before{background:var(--green)}.c-orange::before{background:var(--orange)}.c-purple::before{background:var(--purple)}.c-teal::before{background:var(--teal)}.c-yellow::before{background:var(--yellow)}
 .kpi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.kpi-lbl{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.04em}
+.kpi-lbl{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:.04em}
 /* ① ⑤ 변화율 배지에 툴팁 */
-.cb{display:inline-flex;align-items:center;padding:2px 7px;border-radius:10px;font-size:13px;font-weight:700}
+.cb{display:inline-flex;align-items:center;padding:3px 9px;border-radius:10px;font-size:14px;font-weight:700}
 .ug,.dg{background:var(--gbg);color:var(--g2)}.ub,.db{background:var(--rbg);color:var(--red)}.neu{background:#EEEBE3;color:var(--t3)}
-.kpi-val{font-size:22px;font-weight:900;color:var(--t1);line-height:1.15;margin-bottom:7px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum";letter-spacing:-.01em}
-.kpi-val .csym{font-size:14.5px;font-weight:600;color:var(--t3);vertical-align:middle;margin-right:1px}.kpi-val .pct{font-size:14.5px;font-weight:600;color:var(--t3)}
+.kpi-val{font-size:28px;font-weight:900;color:var(--t1);line-height:1.15;margin-bottom:7px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum";letter-spacing:-.01em}
+.kpi-val .csym{font-size:18px;font-weight:600;color:var(--t3);vertical-align:middle;margin-right:1px}.kpi-val .pct{font-size:18px;font-weight:600;color:var(--t3)}
 .spark{height:30px;margin-bottom:7px}
 .goal-area{border-top:1px solid var(--bd);padding-top:7px}
 .goal-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.goal-lbl{font-size:12px;color:var(--t3)}.goal-chip{font-size:11px;color:var(--t3);background:var(--sf2);border:1px solid var(--bd);padding:0 5px;border-radius:7px;font-variant-numeric:tabular-nums}
-.goal-pct{font-size:12.5px;font-weight:800;color:var(--t2)}
+.goal-lbl{font-size:13px;color:var(--t2)}.goal-chip{font-size:12px;color:var(--t2);background:var(--sf2);border:1px solid var(--bd);padding:1px 7px;border-radius:7px;font-variant-numeric:tabular-nums}
+.goal-pct{font-size:14px;font-weight:800;color:var(--t1)}
 .goal-track{height:4px;background:var(--bd);border-radius:2px;overflow:hidden}
 .goal-fill{height:100%;border-radius:2px;transition:width .8s ease}
 .btn-goal{display:flex;align-items:center;gap:4px;padding:5px 11px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;font-size:13px;font-weight:700;color:var(--t2);transition:var(--tr)}.btn-goal:hover{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
@@ -484,12 +484,15 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <!-- KPI -->
 <div class="card" style="margin-bottom:0">
   <!-- 소제목 행 -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 16px 8px;background:var(--sf);border-bottom:1px solid var(--bd)">
-    <div style="display:flex;align-items:center;gap:7px">
-      <span style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.06em;text-transform:uppercase">핵심 성과 지표 (KPI)</span>
-      <span style="font-size:11px;color:var(--t3)">· 기간 내 광고 전체 성과 요약</span>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;background:var(--sf);border-bottom:1px solid var(--bd)">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:15px;font-weight:800;color:var(--t1);letter-spacing:.04em">핵심 성과 지표 (KPI)</span>
+      <span style="font-size:13px;color:var(--t2)">· 기간 내 광고 전체 성과 요약</span>
     </div>
-    <span style="font-size:11px;color:var(--t3)">전기간 대비 ▲▼ · 월 목표 달성률</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:12px;color:var(--t2)">전기간 대비 ▲▼ · 월 목표 달성률</span>
+      <button onclick="event.stopPropagation();openKpiToggleModal()" style="padding:4px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:12px;font-weight:700;color:var(--t2);cursor:pointer" title="표시할 지표 선택">👁 표시 설정</button>
+    </div>
   </div>
   <div class="kpi-bar" onclick="toggleCard('kpiGrid','kpiCardTog')" style="cursor:pointer">
     <div class="pill-grp" id="kpiTypePills" onclick="event.stopPropagation()">
@@ -1448,17 +1451,23 @@ function closeAlertCfg(){document.getElementById('alertCfgMov').classList.remove
 /* ================================================================ KPI */
 const sparks={};
 const KPI_DEFS=[
-  {id:'impressions', label:'노출수',           fmt:'num', cls:'c-blue',   inv:false},
-  {id:'clicks',      label:'클릭수',           fmt:'num', cls:'c-blue',   inv:false},
-  {id:'ctr',         label:'클릭률',           fmt:'pct2',cls:'c-blue',   inv:false},
-  {id:'adSpend',     label:'총비용(광고비)',   fmt:'cur', cls:'c-orange', inv:true },
-  {id:'cpc',         label:'평균클릭비용(CPC)',fmt:'cur', cls:'c-orange', inv:true },
-  {id:'conversions', label:'총 전환수',        fmt:'num', cls:'c-green',  inv:false},
-  {id:'crto',        label:'총 전환율',        fmt:'pct2',cls:'c-green',  inv:false},
-  {id:'convRevenue', label:'총 전환매출액',    fmt:'cur', cls:'c-green',  inv:false},
-  {id:'roas',        label:'광고수익률(ROAS)', fmt:'pct', cls:'c-green',  inv:false},
-  {id:'cpConv',      label:'총 전환당비용',    fmt:'cur', cls:'c-orange', inv:true },
+  // 1행: 주황 — 트래픽 지표
+  {id:'impressions', label:'노출수',           fmt:'num', cls:'c-orange', inv:false, row:1},
+  {id:'clicks',      label:'클릭수',           fmt:'num', cls:'c-orange', inv:false, row:1},
+  {id:'ctr',         label:'클릭률',           fmt:'pct2',cls:'c-orange', inv:false, row:1},
+  {id:'cpc',         label:'평균클릭비용(CPC)',fmt:'cur', cls:'c-orange', inv:true,  row:1},
+  // 2행: 파랑 — 전환 지표
+  {id:'conversions', label:'총 전환수',        fmt:'num', cls:'c-blue',   inv:false, row:2},
+  {id:'crto',        label:'총 전환율',        fmt:'pct2',cls:'c-blue',   inv:false, row:2},
+  {id:'convRevenue', label:'총 전환매출액',    fmt:'cur', cls:'c-blue',   inv:false, row:2},
+  {id:'cpConv',      label:'총 전환당비용',    fmt:'cur', cls:'c-blue',   inv:true,  row:2},
+  // 3행: 초록 — 수익 지표
+  {id:'adSpend',     label:'총 광고비용',      fmt:'cur', cls:'c-green',  inv:true,  row:3},
+  {id:'roas',        label:'광고수익률(ROAS)', fmt:'pct', cls:'c-green',  inv:false, row:3},
 ];
+// KPI ON/OFF 상태 (localStorage 저장)
+const KPI_VIS_KEY='forcool_kpi_visible';
+let kpiVisible=JSON.parse(localStorage.getItem(KPI_VIS_KEY)||'null')||KPI_DEFS.reduce((o,d)=>{o[d.id]=true;return o},{});
 const GM=[
   {id:'impressions',n:'노출수',u:'회',c:'#2E86DE'},
   {id:'clicks',n:'클릭수',u:'회',c:'#00A07A'},
@@ -1480,34 +1489,70 @@ function fmtKpi(val, fmt){
 function renderKpi(){
   const kd=getKpiData(ST.kpiType),goals=GOALS[ST.kpiType]||GOALS['전체'];
   const gridTarget=document.getElementById('kpiGridInner')||document.getElementById('kpiGrid');
-  gridTarget.innerHTML=KPI_DEFS.map(def=>{
-    const val=kd[def.id]??0;
-    const prev=kd['p_'+def.id]??0;
-    const goal=goals[def.id]||val;
-    const pct=chgP(val,prev);
-    const gp=goal>0?Math.min(100,Math.round((val/goal)*100)):0;
-    const gc=gp>=80?'var(--green)':gp>=50?'var(--blue)':'var(--orange)';
-    const gd=def.fmt==='cur'?fC(goal):def.fmt==='pct'||def.fmt==='pct2'?goal+'%':fN(goal);
-    const vH=fmtKpi(val,def.fmt);
-    const badge=chgBadge(pct,def.inv,def.id==='roas'?'ROAS = 전환매출 ÷ 광고비 × 100':def.id==='ctr'?'클릭률 = 클릭수 ÷ 노출수 × 100':def.id==='crto'?'전환율 = 전환수 ÷ 클릭수 × 100':'');
-    const sid=`sp-${ST.kpiType.replace(/\s/g,'_')}-${def.id}`;
-    return`<div class="kpi-card ${def.cls}">
-      <div class="kpi-top"><div class="kpi-lbl">${def.label}</div>${badge}</div>
-      <div class="kpi-val">${vH}</div>
-      <div class="spark"><canvas id="${sid}"></canvas></div>
-      <div class="goal-area"><div class="goal-row"><div style="display:flex;align-items:center;gap:4px"><span class="goal-lbl">목표 달성률</span><span class="goal-chip">${gd}</span></div><span class="goal-pct">${gp}%</span></div><div class="goal-track"><div class="goal-fill" style="width:${gp}%;background:${gc}"></div></div></div>
-    </div>`;
-  }).join('');
+  const ROW_LABELS={1:'📊 트래픽 지표',2:'🎯 전환 지표',3:'💰 수익 지표'};
+  let html='';
+  [1,2,3].forEach(row=>{
+    const defs=KPI_DEFS.filter(d=>d.row===row&&kpiVisible[d.id]);
+    if(!defs.length)return;
+    const colsCls=defs.length<=2?'cols-2':'';
+    html+=`<div class="kpi-row-label">${ROW_LABELS[row]}</div>`;
+    html+=`<div class="kpi-row ${colsCls}">`;
+    defs.forEach(def=>{
+      const val=kd[def.id]??0;
+      const prev=kd['p_'+def.id]??0;
+      const goal=goals[def.id]||val;
+      const pct=chgP(val,prev);
+      const gp=goal>0?Math.min(100,Math.round((val/goal)*100)):0;
+      const gc=gp>=80?'var(--green)':gp>=50?'var(--blue)':'var(--orange)';
+      const gd=def.fmt==='cur'?fC(goal):def.fmt==='pct'||def.fmt==='pct2'?goal+'%':fN(goal);
+      const vH=fmtKpi(val,def.fmt);
+      const badge=chgBadge(pct,def.inv,def.id==='roas'?'ROAS = 전환매출 ÷ 광고비 × 100':def.id==='ctr'?'클릭률 = 클릭수 ÷ 노출수 × 100':def.id==='crto'?'전환율 = 전환수 ÷ 클릭수 × 100':'');
+      const sid=`sp-${ST.kpiType.replace(/\s/g,'_')}-${def.id}`;
+      html+=`<div class="kpi-card ${def.cls}">
+        <div class="kpi-top"><div class="kpi-lbl">${def.label}</div>${badge}</div>
+        <div class="kpi-val">${vH}</div>
+        <div class="spark"><canvas id="${sid}"></canvas></div>
+        <div class="goal-area"><div class="goal-row"><div style="display:flex;align-items:center;gap:4px"><span class="goal-lbl">목표 달성률</span><span class="goal-chip">${gd}</span></div><span class="goal-pct">${gp}%</span></div><div class="goal-track"><div class="goal-fill" style="width:${gp}%;background:${gc}"></div></div></div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  gridTarget.innerHTML=html;
   setTimeout(initSparks,50);
+}
+function openKpiToggleModal(){
+  const ROW_LABELS={1:'📊 트래픽 지표',2:'🎯 전환 지표',3:'💰 수익 지표'};
+  let inner='';
+  [1,2,3].forEach(row=>{
+    inner+=`<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:6px">${ROW_LABELS[row]}</div>`;
+    KPI_DEFS.filter(d=>d.row===row).forEach(d=>{
+      const chk=kpiVisible[d.id]?'checked':'';
+      inner+=`<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:13px;color:var(--t1)"><input type="checkbox" ${chk} onchange="toggleKpiVis('${d.id}',this.checked)" style="width:16px;height:16px;accent-color:var(--navy)">${d.label}</label>`;
+    });
+    inner+=`</div>`;
+  });
+  const ov=document.createElement('div');
+  ov.id='kpiToggleModal';
+  ov.style.cssText='position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45)';
+  ov.innerHTML=`<div style="background:#fff;border-radius:14px;padding:24px;width:340px;max-height:80vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-size:16px;font-weight:800">👁 KPI 표시 설정</span><button onclick="document.getElementById('kpiToggleModal').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t3)">✕</button></div>
+    ${inner}
+    <div style="text-align:right;margin-top:12px"><button onclick="document.getElementById('kpiToggleModal').remove()" style="padding:8px 20px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">확인</button></div>
+  </div>`;
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});
+  document.body.appendChild(ov);
+}
+function toggleKpiVis(id,val){
+  kpiVisible[id]=val;
+  localStorage.setItem(KPI_VIS_KEY,JSON.stringify(kpiVisible));
+  renderKpi();
 }
 function initSparks(){
   const CC={
-    'c-blue':'#2E86DE','c-green':'#00A07A','c-orange':'#FF7043',
-    'c-purple':'#00A07A','c-teal':'#00A07A','c-yellow':'#FF7043',
-    'c-blue2':'#2E86DE','c-yellow2':'#00A07A','c-pink':'#FF7043'
+    'c-orange':'#FF7043','c-blue':'#2E86DE','c-green':'#00A07A'
   };
   const dd=getDailyData(ST.kpiType);
-  KPI_DEFS.forEach(def=>{
+  KPI_DEFS.filter(d=>kpiVisible[d.id]).forEach(def=>{
     const id=`sp-${ST.kpiType.replace(/\s/g,'_')}-${def.id}`;
     const cv=document.getElementById(id);if(!cv)return;
     const key=`${ST.kpiType}-${def.id}`;if(sparks[key])sparks[key].destroy();
