@@ -1711,6 +1711,17 @@ function getCmpLabel(){
   const m={off:'비교 안 함',yesterday:'어제',week:'저번 주',month:'저번 달',year:'작년'};
   return m[ST.cmpOption]||'저번 주';
 }
+function getCmpRange(){
+  const d=DS.days;
+  let off=d;
+  if(ST.cmpOption==='yesterday')off=1;
+  else if(ST.cmpOption==='week')off=7;
+  else if(ST.cmpOption==='month')off=30;
+  else if(ST.cmpOption==='year')off=365;
+  const pFrom=new Date(DS.from.getTime()-off*864e5);
+  const pTo=new Date(DS.to.getTime()-off*864e5);
+  return`${pFrom.getMonth()+1}/${pFrom.getDate()} ~ ${pTo.getMonth()+1}/${pTo.getDate()}`;
+}
 
 function initTrend(){
   const td=getDailyData(ST.trendType);
@@ -1830,7 +1841,7 @@ function initTrend(){
       const fmtTotal=MF[m]==='cur'?fC(total):MF[m]==='pct'?Math.round(total/Math.max(1,td.labels.length))+'%':fN(total);
       return`<div class="tl-item"><div class="tl-dot" style="background:${MC[m]}"></div><span>${ML[m]}</span><span style="font-weight:800;color:${MC[m]}">${fmtTotal}</span></div>`;
     }).join('');
-    if(showCmp)html+=`<div class="tl-item"><div class="tl-dash"></div>${pLabel} (비교)</div>`;
+    if(showCmp)html+=`<div class="tl-item"><div class="tl-dash"></div>${pLabel} (${getCmpRange()})</div>`;
     leg.innerHTML=html;
   }
 
