@@ -25,13 +25,13 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'SUIT',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--t1);font-size:15px;line-height:1.65;min-height:100vh}
+body{font-family:'SUIT',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(180deg,#f0f4f8 0%,#f8fafc 50%,#f0f4f8 100%);color:var(--t1);font-size:15px;line-height:1.65;min-height:100vh;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 button{cursor:pointer;font-family:inherit;border:none;outline:none}
 input,select,textarea{font-family:inherit;outline:none}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
 
 /* ─── HEADER ─── */
-.hdr{position:sticky;top:0;z-index:200;background:var(--navy);height:var(--hh);display:flex;align-items:center;padding:0 24px;gap:14px;box-shadow:0 2px 12px rgba(11,29,52,.45)}
+.hdr{position:sticky;top:0;z-index:200;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);height:var(--hh);display:flex;align-items:center;padding:0 24px;gap:14px;box-shadow:0 4px 20px rgba(15,23,42,.3)}
 .logo-ico{width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;letter-spacing:-1px;flex-shrink:0}
 /* ③ 제목 변경 + ④ 텍스트 크게 */
 .logo-name{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.02em}
@@ -103,10 +103,10 @@ input,select,textarea{font-family:inherit;outline:none}
 .pn1{background:var(--red)}.pn2{background:var(--blue)}.pn3{background:var(--purple)}.pn4{background:var(--g2)}
 .p-title{font-size:22px;font-weight:900;color:var(--t1);letter-spacing:-.01em}
 .p-sub{font-size:15px;color:var(--t2);margin-left:8px;font-weight:500}
-.p-date{font-size:12px;font-weight:700;color:#fff;background:var(--ng);padding:3px 10px;border-radius:20px;margin-left:auto}
+.p-date{font-size:12px;font-weight:700;color:#334155;background:#e2e8f0;padding:3px 10px;border-radius:20px;margin-left:auto}
 
 /* ─── CARD ─── */
-.card{background:#ffffff;border-radius:8px;border:0.5px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:14px}
+.card{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(226,232,240,0.6);box-shadow:0 2px 8px rgba(0,0,0,0.04),0 0 1px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:14px;transition:box-shadow .2s ease}
 .card-head{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .card-title{font-size:14.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
 .card-ico{width:22px;height:22px;background:var(--navy);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12.5px}
@@ -114,11 +114,11 @@ input,select,textarea{font-family:inherit;outline:none}
 
 /* ─── PILL TABS ─── */
 .pill-grp{display:flex;gap:5px;flex-wrap:wrap}
-.pill{padding:5px 14px;border-radius:6px;font-size:14px;font-weight:600;background:#ffffff;border:0.5px solid #e2e8f0;color:#64748b;transition:var(--tr)}
-.pill:hover{background:#f1f5f9;color:#0f172a}.pill.active{background:#0f172a;border-color:#0f172a;color:#fff}
+.pill{padding:6px 16px;border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,0.7);border:1px solid rgba(226,232,240,0.6);color:#64748b;transition:all .2s ease;backdrop-filter:blur(4px)}
+.pill:hover{background:rgba(241,245,249,0.9);color:#0f172a;border-color:#cbd5e1;transform:translateY(-1px)}.pill.active{background:linear-gradient(135deg,#0f172a,#334155);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(15,23,42,.2)}
 
 /* ─── ALERTS (⑥ 가로 3개) ─── */
-.alert-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#dc2626;border-radius:8px 8px 0 0;cursor:pointer;user-select:none}
+.alert-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:linear-gradient(135deg,#dc2626,#ef4444);border-radius:12px 12px 0 0;cursor:pointer;user-select:none}
 .alert-hd.coll{border-radius:var(--r)}.alert-hd:hover{filter:brightness(1.07)}
 .ah-l{display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;font-size:14.5px}
 .acnt{background:rgba(255,255,255,.22);color:#fff;padding:1px 7px;border-radius:10px;font-size:12.5px;font-weight:700}
@@ -131,7 +131,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .alert-body.coll{max-height:0;opacity:0}
 /* ⑥ 가로 3열 레이아웃 */
 .alert-cards{display:flex;flex-direction:column;gap:8px;padding:12px 16px}
-.alert-card{display:flex;align-items:center;gap:14px;padding:14px 20px;border-radius:6px;border-left:5px solid}
+.alert-card{display:flex;align-items:center;gap:14px;padding:14px 20px;border-radius:10px;border-left:4px solid;backdrop-filter:blur(4px)}
 .alert-card.ac-orange{background:#fff7ed;border-left-color:#ea580c}
 .alert-card.ac-blue{background:#eff6ff;border-left-color:#2563eb}
 .alert-card.ac-green{background:#dcfce7;border-left-color:#16a34a}
@@ -154,8 +154,8 @@ input,select,textarea{font-family:inherit;outline:none}
 @media(max-width:1000px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.kpi-row{grid-template-columns:1fr}}
 /* 행 라벨 */
-.kpi-card{padding:18px 18px 14px;border-right:0.5px solid #e2e8f0;border-bottom:0.5px solid #e2e8f0;position:relative;transition:background .15s;background:#f8fafc}
-.kpi-card:hover{background:#f1f5f9}
+.kpi-card{padding:18px 18px 14px;border-right:1px solid rgba(226,232,240,0.5);border-bottom:1px solid rgba(226,232,240,0.5);position:relative;transition:all .2s ease;background:rgba(248,250,252,0.6)}
+.kpi-card:hover{background:rgba(241,245,249,0.8);box-shadow:inset 0 0 20px rgba(0,0,0,0.02)}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
 .c-blue::before{background:var(--blue)}.c-green::before{background:var(--green)}.c-orange::before{background:var(--orange)}.c-purple::before{background:var(--purple)}.c-teal::before{background:var(--teal)}.c-yellow::before{background:var(--yellow)}.c-navy::before{background:var(--purple)}
 .kpi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
@@ -383,7 +383,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 /* ─── MODALS ─── */
 .mov{position:fixed;inset:0;background:rgba(11,29,52,.5);z-index:400;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .mov.show{display:flex}
-.mbox{background:#ffffff;border-radius:12px;padding:22px;width:520px;max-width:94vw;box-shadow:0 4px 24px rgba(0,0,0,0.08);border:0.5px solid #e2e8f0;animation:mIn .2s ease;max-height:90vh;overflow-y:auto}
+.mbox{background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:16px;padding:22px;width:520px;max-width:94vw;box-shadow:0 8px 32px rgba(0,0,0,0.1),0 0 1px rgba(0,0,0,0.05);border:1px solid rgba(226,232,240,0.5);animation:mIn .2s ease;max-height:90vh;overflow-y:auto}
 @keyframes mIn{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
 .mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .mtitle{font-size:15px;font-weight:900;color:var(--t1);display:flex;align-items:center;gap:7px}
@@ -499,15 +499,12 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
         <button class="pill" data-type="콘텐츠">콘텐츠</button>
         <button class="pill" data-type="브랜드">브랜드</button>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;padding:3px 10px;background:var(--sf);border:1.5px solid var(--bd);border-radius:8px">
-        <span style="font-size:13px;font-weight:800;color:var(--t1)">비교</span>
-        <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="padding:5px 10px;border:none;border-radius:6px;font-size:13px;font-weight:700;background:var(--navy);color:#fff;cursor:pointer;outline:none">
-          <option value="auto" selected>자동 (동일 기간)</option>
-          <option value="week">저번 주</option>
-          <option value="month">저번 달</option>
-          <option value="year">작년 동기간</option>
-        </select>
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px">
+        <span style="font-size:12px;font-weight:700;color:var(--t2)">📊 이전 동일 기간과 자동 비교</span>
       </div>
+      <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="display:none">
+        <option value="auto" selected>자동 (동일 기간)</option>
+      </select>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="btn-goal" onclick="event.stopPropagation();openGoalModal()">🎯 월별 목표 설정</button>
@@ -524,7 +521,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <div class="two-col">
   <!-- 트렌드: 전체 폭 카드 (two-col의 첫 컬럼 차지) -->
   <div class="card" style="margin-bottom:0">
-    <div style="font-size:15px;font-weight:800;color:var(--t1);margin-bottom:10px">📈 일별 추이 차트</div>
+    <div style="padding:14px 18px 0">
+      <div style="font-size:15px;font-weight:800;color:var(--t1)">📈 일별 추이 차트</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:2px">선택한 기간의 일별 성과 변화를 확인합니다</div>
+    </div>
     <!-- 유형 탭 -->
     <div class="trend-type-tabs" id="trendTypeTabs">
       <button class="trend-type-tab active" data-type="전체">전체</button>
@@ -563,7 +563,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       </div>
     </div>
     <!-- 인사이트 요약 -->
-    <div id="trendInsight" style="display:flex;gap:10px;padding:12px 18px;flex-wrap:wrap"></div>
+    <div id="trendInsight" style="display:none"></div>
     <!-- 차트 -->
     <div class="trend-chart-wrap">
       <div class="trend-axis-bar" id="trendAxisBar"></div>
@@ -585,7 +585,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <!-- 컨트롤 행 -->
     <div class="metric-row" style="justify-content:space-between;align-items:center">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:15px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</span>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:2px">시간대별 광고 효율을 한눈에 파악합니다</div>
+        </div>
         <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="font-size:12px;font-weight:700;padding:4px 8px;border:1.5px solid var(--bd);border-radius:6px;background:#fff;color:var(--t1);cursor:pointer"></select>
         <!-- 시간 단위 토글 -->
         <div style="display:flex;gap:5px">
