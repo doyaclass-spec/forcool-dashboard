@@ -156,7 +156,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .kpi-card{padding:18px 18px 14px;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);position:relative;transition:background .15s}
 .kpi-card:hover{background:var(--sf2)}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
-.c-blue::before{background:var(--blue)}.c-green::before{background:var(--green)}.c-orange::before{background:var(--orange)}.c-purple::before{background:var(--purple)}.c-teal::before{background:var(--teal)}.c-yellow::before{background:var(--yellow)}
+.c-blue::before{background:var(--blue)}.c-green::before{background:var(--green)}.c-orange::before{background:var(--orange)}.c-purple::before{background:var(--purple)}.c-teal::before{background:var(--teal)}.c-yellow::before{background:var(--yellow)}.c-navy::before{background:var(--navy)}
 .kpi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
 .kpi-lbl{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:.04em}
 /* ① ⑤ 변화율 배지에 툴팁 */
@@ -1346,7 +1346,10 @@ document.addEventListener('mouseover',function(e){
   const r=wrap.getBoundingClientRect();
   _gt.style.left='-9999px';_gt.style.top='0';_gt.classList.add('show');
   const tw=_gt.offsetWidth,th=_gt.offsetHeight;
-  let left=Math.max(8,Math.min(r.left+r.width/2-tw/2,window.innerWidth-tw-8));
+  const vw=document.documentElement.clientWidth;
+  let left=r.left+r.width/2-tw/2;
+  if(left+tw>vw-12)left=vw-tw-12;
+  if(left<12)left=12;
   let top=r.top-th-10;
   if(top<8)top=r.bottom+10;
   _gt.style.left=left+'px';_gt.style.top=top+'px';
@@ -1488,9 +1491,9 @@ const KPI_DEFS=[
   {id:'crto',        label:'총 전환율',        fmt:'pct2',cls:'c-blue',   inv:false, row:2},
   {id:'convRevenue', label:'총 전환매출액',    fmt:'cur', cls:'c-blue',   inv:false, row:2},
   {id:'cpConv',      label:'총 전환당비용',    fmt:'cur', cls:'c-blue',   inv:true,  row:2},
-  // 3행: 초록 — 수익 지표
-  {id:'adSpend',     label:'총 광고비용',      fmt:'cur', cls:'c-green',  inv:true,  row:3},
-  {id:'roas',        label:'광고수익률(ROAS)', fmt:'pct', cls:'c-green',  inv:false, row:3},
+  // 3행: 네이비 — 수익 지표
+  {id:'adSpend',     label:'총 광고비용',      fmt:'cur', cls:'c-navy',   inv:true,  row:3},
+  {id:'roas',        label:'광고수익률(ROAS)', fmt:'pct', cls:'c-navy',   inv:false, row:3},
 ];
 // KPI ON/OFF 상태 (localStorage 저장)
 const KPI_VIS_KEY='forcool_kpi_visible';
@@ -1528,7 +1531,8 @@ function renderKpi(){
       const goal=goals[def.id]||val;
       const pct=chgP(val,prev);
       const gp=goal>0?Math.min(100,Math.round((val/goal)*100)):0;
-      const gc=gp>=80?'var(--green)':gp>=50?'var(--blue)':'var(--orange)';
+      const ROW_COLORS={1:'var(--orange)',2:'var(--blue)',3:'var(--navy)'};
+      const gc=ROW_COLORS[def.row]||'var(--blue)';
       const gd=def.fmt==='cur'?fC(goal):def.fmt==='pct'||def.fmt==='pct2'?goal+'%':fN(goal);
       const vH=fmtKpi(val,def.fmt);
       const badge=chgBadge(pct,def.inv,def.id==='roas'?'ROAS = 전환매출 ÷ 광고비 × 100':def.id==='ctr'?'클릭률 = 클릭수 ÷ 노출수 × 100':def.id==='crto'?'전환율 = 전환수 ÷ 클릭수 × 100':'');
@@ -1574,7 +1578,7 @@ function toggleKpiVis(id,val){
 }
 function initSparks(){
   const CC={
-    'c-orange':'#FF7043','c-blue':'#2E86DE','c-green':'#00A07A'
+    'c-orange':'#FF7043','c-blue':'#2E86DE','c-green':'#00A07A','c-navy':'#0B1D34'
   };
   const dd=getDailyData(ST.kpiType);
   KPI_DEFS.filter(d=>kpiVisible[d.id]).forEach(def=>{
