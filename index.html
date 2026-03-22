@@ -130,22 +130,26 @@ input,select,textarea{font-family:inherit;outline:none}
 .alert-body{background:var(--sf);border:1px solid rgba(229,57,53,.25);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden;transition:max-height .3s ease,opacity .2s;max-height:400px;opacity:1}
 .alert-body.coll{max-height:0;opacity:0}
 /* ⑥ 가로 3열 레이아웃 */
-.alert-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;padding:12px 16px}
-@media(max-width:800px){.alert-cards{grid-template-columns:1fr}}
-.alert-card{padding:16px 18px;border-radius:12px;border-left:4px solid;transition:box-shadow .15s}
+.alert-cards{display:flex;flex-direction:column;gap:10px;padding:14px 16px}
+.alert-card{display:flex;align-items:center;gap:14px;padding:14px 20px;border-radius:12px;border-left:5px solid;transition:box-shadow .15s}
 .alert-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
-.alert-card.ac-orange{background:#FFF7ED;border-left-color:var(--orange)}
-.alert-card.ac-blue{background:#EFF6FF;border-left-color:var(--blue)}
-.alert-card.ac-green{background:#F0FDF4;border-left-color:var(--green)}
-.ac-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.ac-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
-.ac-icon.danger{background:var(--rbg)}.ac-icon.warning{background:var(--obg)}.ac-icon.info{background:var(--bbg)}
-.ac-title{font-size:15px;font-weight:800}
-.ac-title.danger{color:var(--red)}.ac-title.warning{color:var(--orange)}.ac-title.info{color:var(--blue)}
-.ac-msg{font-size:15px;color:var(--t1);margin-bottom:6px;line-height:1.5;font-weight:600}
-.ac-detail{font-size:13px;color:var(--t2)}
-.ac-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:6px}
-.ac-badge.danger{background:var(--rbg);color:var(--red)}.ac-badge.warning{background:var(--obg);color:var(--orange)}.ac-badge.info{background:var(--bbg);color:var(--blue)}
+.alert-card.ac-orange{background:#FFF7ED;border-left-color:#E8590C}
+.alert-card.ac-blue{background:#EFF6FF;border-left-color:#1971C2}
+.alert-card.ac-green{background:#ECFDF5;border-left-color:#0B7A4E}
+.ac-icon{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ac-orange .ac-icon{background:#FFEDD5}.ac-blue .ac-icon{background:#DBEAFE}.ac-green .ac-icon{background:#D1FAE5}
+.ac-body{flex:1;min-width:0}
+.ac-title-row{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.ac-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:8px;font-size:12px;font-weight:800}
+.ac-orange .ac-badge{background:#FED7AA;color:#9A3412}
+.ac-blue .ac-badge{background:#BFDBFE;color:#1E40AF}
+.ac-green .ac-badge{background:#A7F3D0;color:#065F46}
+.ac-title{font-size:16px;font-weight:900}
+.ac-orange .ac-title{color:#C2410C}.ac-blue .ac-title{color:#1D4ED8}.ac-green .ac-title{color:#047857}
+.ac-msg{font-size:15px;font-weight:700;line-height:1.4}
+.ac-orange .ac-msg{color:#7C2D12}.ac-blue .ac-msg{color:#1E3A5F}.ac-green .ac-msg{color:#064E3B}
+.ac-detail{font-size:13px;font-weight:500}
+.ac-orange .ac-detail{color:#9A3412}.ac-blue .ac-detail{color:#1E40AF}.ac-green .ac-detail{color:#065F46}
 
 /* ─── KPI ─── */
 .kpi-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--sf2);border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:7px}
@@ -1369,16 +1373,13 @@ function renderAlerts(){
     const sign=a.pct>0?'+':'';
     const FIELD_COLOR={adSpend:'ac-green',roas:'ac-green',cpc:'ac-orange',ctr:'ac-orange',impressions:'ac-orange',clicks:'ac-orange',crto:'ac-blue',conversions:'ac-blue',convRevenue:'ac-blue',cpConv:'ac-blue'};
     const cc=FIELD_COLOR[a.field]||'ac-orange';
+    const lvLabel=a.lv==='danger'?'위험':a.lv==='warning'?'경고':'안내';
     return`<div class="alert-card ${cc}">
-      <div class="ac-head">
-        <div class="ac-icon ${a.lv}">${a.ico}</div>
-        <div>
-          <div class="ac-badge ${a.lv}">${a.lv==='danger'?'🔴 위험':a.lv==='warning'?'🟡 경고':'🔵 안내'}</div>
-          <div class="ac-title ${a.lv}">${a.name}</div>
-        </div>
+      <div class="ac-icon">${a.ico}</div>
+      <div class="ac-body">
+        <div class="ac-title-row"><span class="ac-badge">${lvLabel}</span><span class="ac-title">${a.name}</span></div>
+        <div class="ac-msg">${a.blLabel} 대비 <strong>${sign}${a.pct}%</strong> ${a.dir==='up'?'증가':'감소'} · 기준 ${a.threshold}% 이상</div>
       </div>
-      <div class="ac-msg">${a.blLabel} 대비 <span style="color:${a.pct>0?'var(--green)':'var(--red)'}; font-weight:800">${sign}${a.pct}%</span> ${a.dir==='up'?'증가':'감소'}</div>
-      <div class="ac-detail">기준: ${a.threshold}% 이상 ${a.dir==='up'?'증가':'감소'} 시 경고</div>
     </div>`;
   }).join('');
 }
