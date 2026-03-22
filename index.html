@@ -845,8 +845,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <!-- Goal Modal -->
 <div class="mov" id="goalMov"><div class="mbox">
-  <div class="mhd"><div class="mtitle">🎯 월별 목표 설정</div><button class="mclose" onclick="closeGoalModal()">✕</button></div>
-  <div class="gm-sel"><label>기준 월</label><select id="goalMon"><option value="2026-03">2026년 3월</option><option value="2026-01">2026년 1월</option><option value="2025-12">2025년 12월</option></select></div>
+  <div class="mhd"><div class="mtitle">🎯 <span id="goalMonthTitle"></span> 네이버광고 목표 설정</div><button class="mclose" onclick="closeGoalModal()">✕</button></div>
   <div class="gm-grid" id="goalGrid"></div>
   <div class="gnotice">💡 입력한 목표치가 KPI 달성률 프로그레스바에 즉시 반영됩니다</div>
   <div class="mfoot"><button class="bcancl" onclick="closeGoalModal()">취소</button><button class="bsave" onclick="saveGoals()">저장하기</button></div>
@@ -1327,7 +1326,8 @@ function updateClock(){
   const isAm=h24<12;
   const h12=h24%12||12;
   const ampm=isAm?'오전':'오후';
-  document.getElementById('clockEmoji').textContent=isAm?'☀️':'🌙';
+  const emoji=h24>=6&&h24<9?'🌅':h24>=9&&h24<17?'☀️':h24>=17&&h24<19?'🌇':h24>=19&&h24<21?'🌆':'🌙';
+  document.getElementById('clockEmoji').textContent=emoji;
   document.getElementById('clockAmpm').textContent=ampm;
   document.getElementById('clockTime').textContent=`${p2(h12)}:${p2(kst.getMinutes())}:${p2(kst.getSeconds())}`;
   document.getElementById('clockDate').textContent=`${kst.getFullYear()}.${p2(kst.getMonth()+1)}.${p2(kst.getDate())}`;
@@ -2245,7 +2245,7 @@ function loadLog(){try{const d=localStorage.getItem('fc_log3');if(d)LOG=JSON.par
 function injectSampleLog(){if(LOG.length>0)return;LOG=[{id:3,date:'2026-03-19',type:'bid',note:'[업소용냉동고] ROAS 하락으로 입찰가 ₩1,200→₩800 하향'},{id:2,date:'2026-03-17',type:'budget',note:'[스타리온 업소용냉장고] 일 예산 ₩500,000→₩700,000 상향'},{id:1,date:'2026-03-15',type:'creative',note:'[라셀르 카페냉장고] 메인 소재 교체 (CTR 개선 목적)'}]}
 
 /* ================================================================ GOAL MODAL */
-function openGoalModal(){const type=ST.kpiType,goals=GOALS[type]||GOALS['전체'];document.getElementById('goalGrid').innerHTML=GM.map(m=>`<div class="gf"><div class="gf-hd"><div class="gf-dot" style="background:${m.c}"></div><span class="gf-name">${m.n}</span><span class="gf-unit">(${m.u})</span></div><input class="gf-inp" id="g-${m.id}" type="number" value="${goals[m.id]||0}"></div>`).join('');document.getElementById('goalMov').classList.add('show')}
+function openGoalModal(){const type=ST.kpiType,goals=GOALS[type]||GOALS['전체'];const now=new Date(),kst=new Date(now.getTime()+(now.getTimezoneOffset()*60000)+32400000);document.getElementById('goalMonthTitle').textContent=`${kst.getFullYear()}년 ${kst.getMonth()+1}월`;document.getElementById('goalGrid').innerHTML=GM.map(m=>`<div class="gf"><div class="gf-hd"><div class="gf-dot" style="background:${m.c}"></div><span class="gf-name">${m.n}</span><span class="gf-unit">(${m.u})</span></div><input class="gf-inp" id="g-${m.id}" type="number" value="${goals[m.id]||0}"></div>`).join('');document.getElementById('goalMov').classList.add('show')}
 function closeGoalModal(){document.getElementById('goalMov').classList.remove('show')}
 function saveGoals(){const type=ST.kpiType;if(!GOALS[type])GOALS[type]={};GM.forEach(m=>{const v=parseFloat(document.getElementById('g-'+m.id).value);if(!isNaN(v)&&v>0)GOALS[type][m.id]=v});closeGoalModal();renderKpi();showToast(`✅ [${type}] 목표치 저장됨`)}
 document.getElementById('goalMov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeGoalModal()});
