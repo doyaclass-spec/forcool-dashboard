@@ -1763,18 +1763,23 @@ function initTrend(){
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'rgba(11,29,52,.94)',
-          titleColor:'rgba(255,255,255,.75)',
+          backgroundColor:'rgba(11,29,52,.96)',
+          titleColor:'#fff',
           bodyColor:'#fff',
-          borderColor:'rgba(255,255,255,.12)',
-          borderWidth:1,padding:13,
+          borderColor:'rgba(255,255,255,.2)',
+          borderWidth:1,
+          padding:{top:14,bottom:14,left:18,right:18},
+          cornerRadius:10,
+          titleFont:{size:15,weight:'800',family:'Pretendard'},
+          bodyFont:{size:14,weight:'600',family:'Pretendard'},
+          bodySpacing:8,
+          titleMarginBottom:10,
+          boxWidth:12,boxHeight:12,boxPadding:6,
           callbacks:{
             title(items){return items[0]?.label||''},
             label(ctx){
-              const m=ctx.dataset.metricId;
               const fmt=ctx.dataset.metricFmt||'num';
-              const bullet='●';
-              return` ${bullet} ${ctx.dataset.label}: ${fV(ctx.parsed.y,fmt)}`;
+              return` ● ${ctx.dataset.label}: ${fV(ctx.parsed.y,fmt)}`;
             }
           }
         }
