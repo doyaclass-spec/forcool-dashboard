@@ -81,18 +81,17 @@ input,select,textarea{font-family:inherit;outline:none}
 /* ─── CUSTOM TOOLTIP ─── */
 /* ① ⑤ 마우스오버 툴팁 */
 .tip-wrap{position:relative;display:inline-flex}
-.tip-box{
-  position:fixed;
-  background:rgba(11,29,52,.95);color:#fff;
-  padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.55;
-  white-space:nowrap;pointer-events:none;z-index:9999;
-  opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s;
-  box-shadow:var(--s3);min-width:200px;text-align:left;
+.tip-box{display:none}
+#globalTip{
+  position:fixed;z-index:99999;pointer-events:none;
+  background:rgba(11,29,52,.96);color:#fff;
+  padding:12px 16px;border-radius:10px;font-size:14px;line-height:1.6;
+  box-shadow:0 8px 30px rgba(0,0,0,.3);min-width:220px;max-width:360px;text-align:left;
+  white-space:normal;opacity:0;transition:opacity .12s;
 }
-.tip-box::after{display:none}
-.tip-wrap:hover .tip-box{opacity:1;visibility:visible}
-.tip-box b{color:var(--green);display:block;margin-bottom:3px;font-size:13.5px}
-.tip-box .tip-line{color:rgba(255,255,255,.7);font-size:12.5px}
+#globalTip.show{opacity:1}
+#globalTip b{color:#4ADE80;display:block;margin-bottom:4px;font-size:15px;font-weight:800}
+#globalTip .tip-line{color:rgba(255,255,255,.8);font-size:13px;display:block;margin-top:2px}
 
 /* ─── MAIN ─── */
 .main{max-width:1400px;margin:0 auto;padding:0 22px 60px}
@@ -130,26 +129,19 @@ input,select,textarea{font-family:inherit;outline:none}
 .alert-body{background:var(--sf);border:1px solid rgba(229,57,53,.25);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden;transition:max-height .3s ease,opacity .2s;max-height:400px;opacity:1}
 .alert-body.coll{max-height:0;opacity:0}
 /* ⑥ 가로 3열 레이아웃 */
-.alert-cards{display:flex;flex-direction:column;gap:10px;padding:14px 16px}
-.alert-card{display:flex;align-items:center;gap:14px;padding:14px 20px;border-radius:12px;border-left:5px solid;transition:box-shadow .15s}
-.alert-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.alert-cards{display:flex;flex-direction:column;gap:8px;padding:12px 16px}
+.alert-card{display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:10px;border-left:4px solid}
 .alert-card.ac-orange{background:#FFF7ED;border-left-color:#E8590C}
 .alert-card.ac-blue{background:#EFF6FF;border-left-color:#1971C2}
 .alert-card.ac-green{background:#ECFDF5;border-left-color:#0B7A4E}
-.ac-icon{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ac-icon{width:34px;height:34px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
 .ac-orange .ac-icon{background:#FFEDD5}.ac-blue .ac-icon{background:#DBEAFE}.ac-green .ac-icon{background:#D1FAE5}
-.ac-body{flex:1;min-width:0}
-.ac-title-row{display:flex;align-items:center;gap:8px;margin-bottom:2px}
-.ac-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:8px;font-size:12px;font-weight:800}
-.ac-orange .ac-badge{background:#FED7AA;color:#9A3412}
-.ac-blue .ac-badge{background:#BFDBFE;color:#1E40AF}
-.ac-green .ac-badge{background:#A7F3D0;color:#065F46}
-.ac-title{font-size:16px;font-weight:900}
-.ac-orange .ac-title{color:#C2410C}.ac-blue .ac-title{color:#1D4ED8}.ac-green .ac-title{color:#047857}
-.ac-msg{font-size:15px;font-weight:700;line-height:1.4}
-.ac-orange .ac-msg{color:#7C2D12}.ac-blue .ac-msg{color:#1E3A5F}.ac-green .ac-msg{color:#064E3B}
-.ac-detail{font-size:13px;font-weight:500}
-.ac-orange .ac-detail{color:#9A3412}.ac-blue .ac-detail{color:#1E40AF}.ac-green .ac-detail{color:#065F46}
+.ac-inline{flex:1;font-size:15px;font-weight:700;line-height:1.4}
+.ac-orange .ac-inline{color:#9A3412}.ac-blue .ac-inline{color:#1E40AF}.ac-green .ac-inline{color:#065F46}
+.ac-badge-i{padding:2px 8px;border-radius:6px;font-size:12px;font-weight:800;margin-right:6px}
+.ac-orange .ac-badge-i{background:#FED7AA;color:#9A3412}
+.ac-blue .ac-badge-i{background:#BFDBFE;color:#1E40AF}
+.ac-green .ac-badge-i{background:#A7F3D0;color:#065F46}
 
 /* ─── KPI ─── */
 .kpi-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--sf2);border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:7px}
@@ -497,12 +489,23 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <button onclick="event.stopPropagation();openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer" title="표시할 지표 선택">👁 표시 설정</button>
   </div>
   <div class="kpi-bar" onclick="toggleCard('kpiGrid','kpiCardTog')" style="cursor:pointer">
-    <div class="pill-grp" id="kpiTypePills" onclick="event.stopPropagation()">
-      <button class="pill active" data-type="전체">전체</button>
-      <button class="pill" data-type="쇼핑검색">쇼핑검색</button>
-      <button class="pill" data-type="파워링크">파워링크</button>
-      <button class="pill" data-type="콘텐츠">콘텐츠</button>
-      <button class="pill" data-type="브랜드">브랜드</button>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap" onclick="event.stopPropagation()">
+      <div class="pill-grp" id="kpiTypePills">
+        <button class="pill active" data-type="전체">전체</button>
+        <button class="pill" data-type="쇼핑검색">쇼핑검색</button>
+        <button class="pill" data-type="파워링크">파워링크</button>
+        <button class="pill" data-type="콘텐츠">콘텐츠</button>
+        <button class="pill" data-type="브랜드">브랜드</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:12px;font-weight:700;color:var(--t2)">비교:</span>
+        <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-weight:700;background:var(--sf);color:var(--t1);cursor:pointer">
+          <option value="auto" selected>자동 (동일 기간)</option>
+          <option value="week">저번 주</option>
+          <option value="month">저번 달</option>
+          <option value="year">작년 동기간</option>
+        </select>
+      </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="btn-goal" onclick="event.stopPropagation();openGoalModal()">🎯 월별 목표 설정</button>
@@ -1116,8 +1119,13 @@ const B7={
   '브랜드':  {impressions:49200, clicks:853,  adSpend:220000, conversions:50, convRevenue:1960000, roas:891,ctr:1.73,crto:5.86,cpc:258},
 };
 // ① 비교 기간 설명 텍스트
+let KPI_BASELINE='auto';
+function changeKpiBaseline(v){KPI_BASELINE=v;renderKpi();}
 function getPeriodDesc(){
-  const d=DS.days;
+  let d=DS.days;
+  if(KPI_BASELINE==='week')d=7;
+  else if(KPI_BASELINE==='month')d=30;
+  else if(KPI_BASELINE==='year')d=365;
   const pFrom=new Date(DS.from.getTime()-d*864e5);
   const pTo=new Date(DS.from.getTime()-864e5);
   let label='';
@@ -1326,21 +1334,24 @@ function updateClock(){
 }
 updateClock();setInterval(updateClock,1000);
 
-/* ================================================================ TOOLTIP POSITIONING */
+/* ================================================================ GLOBAL TOOLTIP */
+const _gt=document.createElement('div');_gt.id='globalTip';document.body.appendChild(_gt);
 document.addEventListener('mouseover',function(e){
   const wrap=e.target.closest('.tip-wrap');
-  if(!wrap)return;
-  const tip=wrap.querySelector('.tip-box');
-  if(!tip)return;
-  tip.style.visibility='hidden';tip.style.opacity='0';tip.style.display='block';
+  if(!wrap){_gt.classList.remove('show');return;}
+  const src=wrap.querySelector('.tip-box');
+  if(!src){_gt.classList.remove('show');return;}
+  _gt.innerHTML=src.innerHTML;
   const r=wrap.getBoundingClientRect();
-  const tw=tip.offsetWidth||220;
-  let left=r.left+r.width/2-tw/2;
-  left=Math.max(8,Math.min(left,window.innerWidth-tw-8));
-  tip.style.left=left+'px';
-  tip.style.top=(r.top-8)+'px';
-  tip.style.transform='translateY(-100%)';
-  tip.style.display='';
+  _gt.style.left='-9999px';_gt.style.top='0';_gt.classList.add('show');
+  const tw=_gt.offsetWidth,th=_gt.offsetHeight;
+  let left=Math.max(8,Math.min(r.left+r.width/2-tw/2,window.innerWidth-tw-8));
+  let top=r.top-th-10;
+  if(top<8)top=r.bottom+10;
+  _gt.style.left=left+'px';_gt.style.top=top+'px';
+});
+document.addEventListener('mouseout',function(e){
+  if(e.target.closest('.tip-wrap'))_gt.classList.remove('show');
 });
 
 /* ================================================================ ⑦ ALERTS */
@@ -1373,13 +1384,11 @@ function renderAlerts(){
     const sign=a.pct>0?'+':'';
     const FIELD_COLOR={adSpend:'ac-green',roas:'ac-green',cpc:'ac-orange',ctr:'ac-orange',impressions:'ac-orange',clicks:'ac-orange',crto:'ac-blue',conversions:'ac-blue',convRevenue:'ac-blue',cpConv:'ac-blue'};
     const cc=FIELD_COLOR[a.field]||'ac-orange';
+    const lvEmoji=a.lv==='danger'?'🔴':a.lv==='warning'?'🟡':'🔵';
     const lvLabel=a.lv==='danger'?'위험':a.lv==='warning'?'경고':'안내';
     return`<div class="alert-card ${cc}">
       <div class="ac-icon">${a.ico}</div>
-      <div class="ac-body">
-        <div class="ac-title-row"><span class="ac-badge">${lvLabel}</span><span class="ac-title">${a.name}</span></div>
-        <div class="ac-msg">${a.blLabel} 대비 <strong>${sign}${a.pct}%</strong> ${a.dir==='up'?'증가':'감소'} · 기준 ${a.threshold}% 이상</div>
-      </div>
+      <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${a.name}, ${a.blLabel} 대비 <strong>${sign}${a.pct}%</strong> ${a.dir==='up'?'증가':'감소'}, 기준: ${a.threshold}% 이상</div>
     </div>`;
   }).join('');
 }
