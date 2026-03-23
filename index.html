@@ -17,11 +17,11 @@
   --yellow:#d97706;--ybg:#fefce8;
   --purple:#7c3aed;--pbg:#f5f3ff;
   --teal:#0891b2;--tbg:#ecfeff;
-  --t1:#0f172a;--t2:#334155;--t3:#64748b;
+  --t1:#0f172a;--t2:#1e293b;--t3:#475569;
   --bd:#e2e8f0;--bd2:#cbd5e1;
   --r:8px;--rsm:6px;--rlg:12px;
   --s1:0 1px 3px rgba(0,0,0,0.06);--s2:0 4px 6px rgba(0,0,0,0.05);--s3:0 4px 24px rgba(0,0,0,0.08);
-  --tr:all .15s ease;--hh:60px;
+  --tr:all .15s ease;--hh:80px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -34,7 +34,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .hdr{position:sticky;top:0;z-index:200;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);height:var(--hh);display:flex;align-items:center;padding:0 24px;gap:14px;box-shadow:0 4px 20px rgba(15,23,42,.3)}
 .logo-ico{width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;letter-spacing:-1px;flex-shrink:0}
 /* ③ 제목 변경 + ④ 텍스트 크게 */
-.logo-name{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.02em}
+.logo-name{font-size:24px;font-weight:900;color:#fff;letter-spacing:-.02em}
 .hdiv{width:1px;height:26px;background:rgba(255,255,255,.14);flex-shrink:0}
 .date-btn{display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:var(--tr);flex-shrink:0}
 .date-btn:hover{background:rgba(255,255,255,.14)}
@@ -463,7 +463,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <div class="main">
 
 <!-- 📊 현황 파악 -->
-<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn1">📊</div><span class="p-title">현황 파악</span><span class="p-sub">지금 무슨 일이 벌어지고 있나?</span><span class="p-date" id="pDate1"></span></div></div>
+<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn1">📊</div><span class="p-title">현황 파악</span><span class="p-date" id="pDate1" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span></div></div>
 
 <!-- ⑥ 가로 3개 경고 -->
 <div style="margin-bottom:14px">
@@ -485,8 +485,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <!-- 소제목 행 -->
   <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;background:var(--sf);border-bottom:1px solid var(--bd)">
     <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:15px;font-weight:800;color:var(--t1);letter-spacing:.04em">핵심 성과 지표 (KPI)</span>
-      <span style="font-size:13px;color:var(--t2)">· 기간 내 광고 전체 성과 요약</span>
+      <span style="font-size:20px;font-weight:800;color:var(--t1);letter-spacing:.04em">📊 핵심 성과 지표 (KPI)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:13px;color:var(--t2)">기간 내 광고 전체 성과 요약 · 당일 데이터는 네이버 정산 전 수치로 최종 확정값과 미세한 차이(0.1% 이내)가 있을 수 있습니다</span>
     </div>
     <button onclick="event.stopPropagation();openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer" title="표시할 지표 선택">👁 표시 설정</button>
   </div>
@@ -515,7 +517,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 </div>
 
 <!-- 📈 트렌드 -->
-<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn2">📈</div><span class="p-title">트렌드 분석</span><span class="p-sub">왜 이렇게 됐나? 언제·어디서 성과가 나오나?</span><span class="p-date" id="pDate2"></span></div></div>
+<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn2">📈</div><span class="p-title">트렌드 분석</span><span class="p-date" id="pDate2" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span></div></div>
 
 <div class="card-body" id="secTrend" style="max-height:3000px">
 <div class="two-col">
@@ -618,8 +620,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
     <div class="p-num pn3">🔍</div>
     <span class="p-title">세부 분석</span>
-    <span class="p-sub">어디서 예산이 새고, 어디가 효율적인가?</span>
-    <span class="p-date" id="pDate3"></span>
+    <span class="p-date" id="pDate3" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
   </div>
   <div class="sec-tog open" id="secDetailTog" style="margin-left:auto;flex-shrink:0">▼</div>
 </div>
@@ -715,7 +716,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div style="display:flex;align-items:center;gap:9px">
     <div class="p-num pn4">🎯</div>
     <span class="p-title">전략 수립</span>
-    <span class="p-sub">분석을 바탕으로 무엇을 어떻게 바꿀 것인가?</span>
+    <span class="p-date" id="pDate4" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
   </div>
   <div class="sec-tog open" id="secStratTog" style="margin-left:auto;flex-shrink:0">▼</div>
 </div>
@@ -956,7 +957,7 @@ function updateHeaderDate(){
   document.getElementById('updTxt').textContent=`${fmtDK(DS.to)} 기준 · 실시간 데이터`;
   // 각 섹션 날짜 배지 업데이트
   const dateStr=`${fmtD(DS.from)} ~ ${fmtD(DS.to)}`;
-  ['pDate1','pDate2','pDate3'].forEach(id=>{
+  ['pDate1','pDate2','pDate3','pDate4'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.textContent=dateStr;
   });
@@ -1367,8 +1368,9 @@ function renderAlerts(){
     const cc=FIELD_COLOR[a.field]||'ac-orange';
     const lvEmoji=a.lv==='danger'?'🔴':a.lv==='warning'?'🟡':'🔵';
     const lvLabel=a.lv==='danger'?'위험':a.lv==='warning'?'경고':'안내';
+    const dirWord=a.dir==='up'?'증가':'감소';
     return`<div class="alert-card ${cc}">
-      <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span><span class="ac-name">${a.name}</span>, ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${a.dir==='up'?'증가':'감소'}, 기준: ${a.threshold}% 이상</div>
+      <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${a.name}이(가) ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${dirWord}하였습니다.</div>
     </div>`;
   }).join('');
 }
