@@ -202,12 +202,12 @@ input,select,textarea{font-family:inherit;outline:none}
 .cmp-tog:hover{border-color:var(--t2);color:var(--t2)}.cmp-tog.on{background:var(--bbg);border-color:var(--blue);border-style:solid;color:var(--blue)}
 .cmp-tog .cmp-line{width:18px;height:0;border-top:2px dashed currentColor}
 /* 차트 영역 */
-.trend-chart-wrap{padding:14px 18px 18px}
+.trend-chart-wrap{padding:8px 18px 8px}
 .trend-axis-bar{display:flex;justify-content:space-between;margin-bottom:6px;min-height:20px}
 .tab-axis{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700}
 .tab-axis .ax-dot{width:9px;height:9px;border-radius:50%}
 /* 차트 높이 380px */
-.trend-body{height:380px;position:relative}
+.trend-body{height:450px;position:relative}
 /* 범례 */
 .trend-leg-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
 .tl-item{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--t1);padding:6px 14px;background:var(--sf2);border-radius:8px}
@@ -486,9 +486,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;background:var(--sf);border-bottom:1px solid var(--bd)">
     <div style="display:flex;align-items:center;gap:8px">
       <span style="font-size:20px;font-weight:800;color:var(--t1);letter-spacing:.04em">📊 핵심 성과 지표 (KPI)</span>
+      <span class="p-date" id="pDateKpi" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:13px;color:var(--t2)">기간 내 광고 전체 성과 요약 · 당일 데이터는 네이버 정산 전 수치로 최종 확정값과 미세한 차이(0.1% 이내)가 있을 수 있습니다</span>
+      <span style="font-size:12px;color:var(--t2)">당일 데이터는 네이버 정산 전 수치로 최종 확정값과 미세한 차이(0.1% 이내)가 있을 수 있습니다</span>
     </div>
     <button onclick="event.stopPropagation();openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer" title="표시할 지표 선택">👁 표시 설정</button>
   </div>
@@ -538,26 +539,26 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <!-- 지표 선택 (체크박스 멀티셀렉트, 최대 2개) -->
     <div class="metric-row">
       <div class="metric-chk-grp" id="metricChkGrp">
-        <button class="mchk on axis-L" data-m="impressions" onclick="toggleMetricSel('impressions')">
-          <div class="mchk-box">✓</div>노출수<span class="mchk-axis">좌</span>
+        <button class="mchk on axis-L" data-m="impressions" onclick="toggleMetricSel('impressions')" style="border-color:#EF4444;color:#EF4444">
+          <div class="mchk-box" style="border-color:#EF4444;background:#EF4444">✓</div>노출수<span class="mchk-axis">좌</span>
         </button>
-        <button class="mchk" data-m="clicks" onclick="toggleMetricSel('clicks')">
-          <div class="mchk-box"></div>클릭수<span class="mchk-axis">좌</span>
+        <button class="mchk" data-m="clicks" onclick="toggleMetricSel('clicks')" style="border-color:#F97316;color:#F97316">
+          <div class="mchk-box" style="border-color:#F97316"></div>클릭수<span class="mchk-axis">좌</span>
         </button>
-        <button class="mchk" data-m="ctr" onclick="toggleMetricSel('ctr')">
-          <div class="mchk-box"></div>클릭률<span class="mchk-axis">좌</span>
+        <button class="mchk" data-m="ctr" onclick="toggleMetricSel('ctr')" style="border-color:#22C55E;color:#22C55E">
+          <div class="mchk-box" style="border-color:#22C55E"></div>클릭률<span class="mchk-axis">좌</span>
         </button>
-        <button class="mchk" data-m="cpc" onclick="toggleMetricSel('cpc')">
-          <div class="mchk-box"></div>평균CPC<span class="mchk-axis">우</span>
+        <button class="mchk" data-m="cpc" onclick="toggleMetricSel('cpc')" style="border-color:#EAB308;color:#EAB308">
+          <div class="mchk-box" style="border-color:#EAB308"></div>평균CPC<span class="mchk-axis">우</span>
         </button>
-        <button class="mchk" data-m="adSpend" onclick="toggleMetricSel('adSpend')">
-          <div class="mchk-box"></div>광고비<span class="mchk-axis">우</span>
+        <button class="mchk" data-m="adSpend" onclick="toggleMetricSel('adSpend')" style="border-color:#3B82F6;color:#3B82F6">
+          <div class="mchk-box" style="border-color:#3B82F6"></div>광고비<span class="mchk-axis">우</span>
         </button>
-        <button class="mchk" data-m="conversions" onclick="toggleMetricSel('conversions')">
-          <div class="mchk-box"></div>전환수<span class="mchk-axis">좌</span>
+        <button class="mchk" data-m="conversions" onclick="toggleMetricSel('conversions')" style="border-color:#6366F1;color:#6366F1">
+          <div class="mchk-box" style="border-color:#6366F1"></div>전환수<span class="mchk-axis">좌</span>
         </button>
-        <button class="mchk" data-m="convRevenue" onclick="toggleMetricSel('convRevenue')">
-          <div class="mchk-box"></div>전환매출<span class="mchk-axis">우</span>
+        <button class="mchk" data-m="convRevenue" onclick="toggleMetricSel('convRevenue')" style="border-color:#A855F7;color:#A855F7">
+          <div class="mchk-box" style="border-color:#A855F7"></div>전환매출<span class="mchk-axis">우</span>
         </button>
       </div>
       <!-- 기간 옵션 삭제: 상단 날짜선택기 기간을 따름 -->
@@ -581,31 +582,45 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <div style="font-size:12px;color:var(--t3);margin-top:2px">시간대별 광고 효율을 한눈에 파악합니다</div>
     </div>
     <!-- 히트맵 유형 탭 (소제목 아래) -->
-    <div class="trend-type-tabs" id="hmTypeTabs">
-      <button class="trend-type-tab active" data-type="전체">전체</button>
-      <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
-      <button class="trend-type-tab" data-type="파워링크">파워링크</button>
-      <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
-      <button class="trend-type-tab" data-type="브랜드">브랜드</button>
-    </div>
-    <!-- 컨트롤 행 -->
-    <div class="metric-row" style="justify-content:space-between;align-items:center">
-      <div style="display:flex;align-items:center;gap:8px">
-        <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="font-size:12px;font-weight:700;padding:4px 8px;border:1.5px solid var(--bd);border-radius:6px;background:#fff;color:var(--t1);cursor:pointer;display:none"></select>
-        <!-- 시간 단위 토글 -->
-        <div style="display:flex;gap:5px">
-          <button class="cmp-opt" data-iv="1" onclick="setHmInterval(1)">1시간</button>
-          <button class="cmp-opt active" data-iv="2" onclick="setHmInterval(2)">2시간</button>
-        </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="trend-type-tabs" id="hmTypeTabs" style="margin-bottom:0">
+        <button class="trend-type-tab active" data-type="전체">전체</button>
+        <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
+        <button class="trend-type-tab" data-type="파워링크">파워링크</button>
+        <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
+        <button class="trend-type-tab" data-type="브랜드">브랜드</button>
       </div>
-      <div id="hmMetricBtns" style="display:flex;gap:3px;flex-wrap:wrap;background:var(--sf2);border:1.5px solid var(--bd);border-radius:7px;padding:3px">
-        <button class="cmp-opt" data-hm="impressions" onclick="setHmMetric('impressions')" style="color:#EF4444">노출수</button>
-        <button class="cmp-opt" data-hm="clicks" onclick="setHmMetric('clicks')" style="color:#F97316">클릭수</button>
-        <button class="cmp-opt" data-hm="cvr" onclick="setHmMetric('cvr')" style="color:#22C55E">전환율</button>
-        <button class="cmp-opt" data-hm="spend" onclick="setHmMetric('spend')" style="color:#EAB308">광고비</button>
-        <button class="cmp-opt active" data-hm="roas" onclick="setHmMetric('roas')" style="color:#3B82F6">ROAS</button>
-        <button class="cmp-opt" data-hm="conversions" onclick="setHmMetric('conversions')" style="color:#6366F1">전환수</button>
-        <button class="cmp-opt" data-hm="cpc" onclick="setHmMetric('cpc')" style="color:#A855F7">CPC</button>
+      <div style="border-left:2px solid var(--bd);height:20px;margin:0 4px"></div>
+      <div style="display:flex;gap:5px">
+        <button class="cmp-opt" data-iv="1" onclick="setHmInterval(1)">1시간</button>
+        <button class="cmp-opt active" data-iv="2" onclick="setHmInterval(2)">2시간</button>
+      </div>
+    </div>
+    <!-- 컨트롤 행: 지표 선택 (체크박스 스타일) -->
+    <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="display:none"></select>
+    <div class="metric-row">
+      <div id="hmMetricBtns" class="metric-chk-grp">
+        <button class="mchk" data-hm="impressions" onclick="setHmMetric('impressions')" style="border-color:#EF4444;color:#EF4444">
+          <div class="mchk-box" style="border-color:#EF4444"></div>노출수
+        </button>
+        <button class="mchk" data-hm="clicks" onclick="setHmMetric('clicks')" style="border-color:#F97316;color:#F97316">
+          <div class="mchk-box" style="border-color:#F97316"></div>클릭수
+        </button>
+        <button class="mchk" data-hm="cvr" onclick="setHmMetric('cvr')" style="border-color:#22C55E;color:#22C55E">
+          <div class="mchk-box" style="border-color:#22C55E"></div>전환율
+        </button>
+        <button class="mchk" data-hm="spend" onclick="setHmMetric('spend')" style="border-color:#EAB308;color:#EAB308">
+          <div class="mchk-box" style="border-color:#EAB308"></div>광고비
+        </button>
+        <button class="mchk on" data-hm="roas" onclick="setHmMetric('roas')" style="border-color:#3B82F6;color:#3B82F6">
+          <div class="mchk-box" style="border-color:#3B82F6;background:#3B82F6">✓</div>ROAS
+        </button>
+        <button class="mchk" data-hm="conversions" onclick="setHmMetric('conversions')" style="border-color:#6366F1;color:#6366F1">
+          <div class="mchk-box" style="border-color:#6366F1"></div>전환수
+        </button>
+        <button class="mchk" data-hm="cpc" onclick="setHmMetric('cpc')" style="border-color:#A855F7;color:#A855F7">
+          <div class="mchk-box" style="border-color:#A855F7"></div>CPC
+        </button>
       </div>
     </div>
     <!-- 그라데이션 띠 (최저~최고 색상 범례 + 정보) -->
@@ -728,6 +743,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="card-head" onclick="toggleCard('aiBody','aiCardTog')">
     <div class="card-title"><div class="card-ico">🤖</div> AI 광고 전략 분석</div>
     <div style="display:flex;align-items:center;gap:8px">
+      <span class="p-date" id="pDate5" style="font-size:13px;font-weight:700;color:var(--t1);background:var(--sf2);padding:3px 10px;border-radius:6px"></span>
       <span class="card-sub">실시간 데이터 기반 · 위험 진단 + 전략 자동 생성</span>
       <div class="ctog open" id="aiCardTog">▼</div>
     </div>
@@ -736,29 +752,35 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <div style="padding:16px">
       <!-- 입찰 전략 선택 -->
       <div style="margin-bottom:14px">
-        <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:8px">📌 입찰 전략 선택</div>
+        <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px">📌 입찰 전략 선택</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:10px">현재 ROAS와 광고비 추이를 기반으로 전략을 선택하세요. <span id="bidRecommend" style="font-weight:800;color:var(--green)"></span></div>
         <div id="bidStratBody" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-          <button class="pill active" onclick="setBidStrat(this,'aggressive')" style="text-align:center;padding:10px 8px">
-            <div style="font-size:16px;margin-bottom:4px">🚀</div>
-            <div style="font-size:12px;font-weight:800">공격적</div>
-            <div style="font-size:10px;color:var(--t2);margin-top:2px">입찰가 +30%</div>
+          <button class="pill active" onclick="setBidStrat(this,'aggressive')" style="text-align:center;padding:12px 8px">
+            <div style="font-size:18px;margin-bottom:4px">🚀</div>
+            <div style="font-size:13px;font-weight:800">공격적</div>
+            <div style="font-size:11px;color:var(--t1);margin-top:3px">입찰가 +30%</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:4px;line-height:1.4">노출·클릭 극대화<br>ROAS 높을 때 추천</div>
           </button>
-          <button class="pill" onclick="setBidStrat(this,'standard')" style="text-align:center;padding:10px 8px">
-            <div style="font-size:16px;margin-bottom:4px">⚖️</div>
-            <div style="font-size:12px;font-weight:800">기본</div>
-            <div style="font-size:10px;color:var(--t2);margin-top:2px">현행 유지</div>
+          <button class="pill" onclick="setBidStrat(this,'standard')" style="text-align:center;padding:12px 8px">
+            <div style="font-size:18px;margin-bottom:4px">⚖️</div>
+            <div style="font-size:13px;font-weight:800">기본</div>
+            <div style="font-size:11px;color:var(--t1);margin-top:3px">현행 유지</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:4px;line-height:1.4">안정적 운영<br>현재 성과 유지</div>
           </button>
-          <button class="pill" onclick="setBidStrat(this,'balanced')" style="text-align:center;padding:10px 8px">
-            <div style="font-size:16px;margin-bottom:4px">🎯</div>
-            <div style="font-size:12px;font-weight:800">균형적</div>
-            <div style="font-size:10px;color:var(--t2);margin-top:2px">ROAS 기반</div>
+          <button class="pill" onclick="setBidStrat(this,'balanced')" style="text-align:center;padding:12px 8px">
+            <div style="font-size:18px;margin-bottom:4px">🎯</div>
+            <div style="font-size:13px;font-weight:800">균형적</div>
+            <div style="font-size:11px;color:var(--t1);margin-top:3px">ROAS 기반</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:4px;line-height:1.4">효율 좋은 곳만 증액<br>낭비 최소화</div>
           </button>
-          <button class="pill" onclick="setBidStrat(this,'conservative')" style="text-align:center;padding:10px 8px">
-            <div style="font-size:16px;margin-bottom:4px">🛡️</div>
-            <div style="font-size:12px;font-weight:800">보수적</div>
-            <div style="font-size:10px;color:var(--t2);margin-top:2px">입찰가 -20%</div>
+          <button class="pill" onclick="setBidStrat(this,'conservative')" style="text-align:center;padding:12px 8px">
+            <div style="font-size:18px;margin-bottom:4px">🛡️</div>
+            <div style="font-size:13px;font-weight:800">보수적</div>
+            <div style="font-size:11px;color:var(--t1);margin-top:3px">입찰가 -20%</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:4px;line-height:1.4">비용 절감 우선<br>ROAS 낮을 때 추천</div>
           </button>
         </div>
+        <div id="bidExpected" style="margin-top:10px;padding:10px 14px;background:var(--sf2);border-radius:var(--rsm);font-size:12px;color:var(--t1);line-height:1.6;display:none"></div>
       </div>
       <!-- AI 분석 버튼 (전략 선택 영역 안에 통합) -->
       <div class="ai-trig" id="aiTrig" style="margin-top:12px">
@@ -957,7 +979,7 @@ function updateHeaderDate(){
   document.getElementById('updTxt').textContent=`${fmtDK(DS.to)} 기준 · 실시간 데이터`;
   // 각 섹션 날짜 배지 업데이트
   const dateStr=`${fmtD(DS.from)} ~ ${fmtD(DS.to)}`;
-  ['pDate1','pDate2','pDate3','pDate4'].forEach(id=>{
+  ['pDate1','pDate2','pDate3','pDate4','pDate5','pDateKpi'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.textContent=dateStr;
   });
@@ -1832,7 +1854,7 @@ function initTrend(){
           type:'linear',position:'left',display:hasL,
           grid:{color:'rgba(11,29,52,.05)',drawBorder:false},
           ticks:{
-            maxTicksLimit:8,
+            maxTicksLimit:12,
             color:'#4A5568',font:{size:12,family:'Pretendard'},padding:8,
             callback(v){return fTick(v,fmtL);}
           }
@@ -1841,7 +1863,7 @@ function initTrend(){
           type:'linear',position:'right',display:hasR,
           grid:{drawOnChartArea:false,drawBorder:false},
           ticks:{
-            maxTicksLimit:8,
+            maxTicksLimit:12,
             color:'#4A5568',font:{size:12,family:'Pretendard'},padding:8,
             callback(v){return fTick(v,fmtR);}
           }
@@ -1868,7 +1890,7 @@ function initTrend(){
       const fmtTotal=MF[m]==='cur'?fC(total):MF[m]==='pct'?Math.round(total/Math.max(1,pData.labels.length))+'%':fN(total);
       return`<div class="tl-item"><div class="tl-dot" style="background:${MC[m]}"></div><span>${ML[m]}</span><span style="font-weight:800;color:${MC[m]}">${fmtTotal}</span></div>`;
     }).join('');
-    html+=`<div class="tl-item" style="color:var(--t3);font-size:12px">━ 추세선 (이동평균)</div>`;
+    html+=`<div class="tl-item" style="color:var(--t2);font-size:12px"><div class="tip-wrap"><span style="cursor:help">━ 추세선 (이동평균)</span><div class="tip-box" style="width:280px;white-space:normal;line-height:1.6"><b>추세선이란?</b><br>일별 데이터의 단기 변동을 제거하고 전체적인 흐름(상승/하락/유지)을 파악하기 위한 선입니다.<br><br>최근 3~5일간의 평균값을 연결하여, 하루하루의 급등/급락에 흔들리지 않고 <b>실제 추세 방향</b>을 판단할 수 있습니다.</div></div></div>`;
     leg.innerHTML=html;
   }
 
@@ -2056,7 +2078,12 @@ function showHmTip(e,day,hour,roas,cvr,spend,clicks){
 function hideHmTip(){document.getElementById('hmTip').style.display='none'}
 function setHmMetric(m){
   ST.hmMetric=m;
-  document.querySelectorAll('#hmMetricBtns .cmp-opt').forEach(b=>b.classList.toggle('active',b.dataset.hm===m));
+  document.querySelectorAll('#hmMetricBtns .mchk').forEach(b=>{
+    const isOn=b.dataset.hm===m;
+    b.classList.toggle('on',isOn);
+    const box=b.querySelector('.mchk-box');
+    if(box){box.textContent=isOn?'✓':'';if(isOn){box.style.background=box.style.borderColor}else{box.style.background='transparent'}}
+  });
   renderHm();
 }
 // 히트맵 유형 탭
@@ -2183,7 +2210,16 @@ function renderCmp(){
 function cmpGoPage(p){const pages=Math.ceil(getCmpF().length/ST.cmpPS)||1;if(p<1||p>pages)return;ST.cmpPage=p;renderCmp()}
 function onSearch(){ST.cmpSearch=document.getElementById('cmpSearch').value;ST.cmpPage=1;renderCmp()}
 function onFilter(){ST.cmpTypeF=document.getElementById('cmpTypeF').value;ST.cmpPage=1;renderCmp()}
-function toggleOnOff(m){ST.cmpOnOff=ST.cmpOnOff===m?'all':m;document.getElementById('btnOn').classList.toggle('active',ST.cmpOnOff==='on');document.getElementById('btnOff').classList.toggle('active',ST.cmpOnOff==='off');ST.cmpPage=1;renderCmp()}
+function toggleOnOff(m){
+  if(!ST.cmpOnOffSet)ST.cmpOnOffSet=new Set(['on','off']);
+  if(ST.cmpOnOffSet.has(m)){
+    if(ST.cmpOnOffSet.size>1)ST.cmpOnOffSet.delete(m);
+  }else{ST.cmpOnOffSet.add(m)}
+  document.getElementById('btnOn').classList.toggle('active',ST.cmpOnOffSet.has('on'));
+  document.getElementById('btnOff').classList.toggle('active',ST.cmpOnOffSet.has('off'));
+  ST.cmpOnOff=ST.cmpOnOffSet.size===2?'all':ST.cmpOnOffSet.values().next().value;
+  ST.cmpPage=1;renderCmp();
+}
 function toggleAlo(){ST.cmpAlo=!ST.cmpAlo;document.getElementById('aloBtn').classList.toggle('active',ST.cmpAlo);ST.cmpPage=1;renderCmp()}
 document.querySelectorAll('th[data-col]').forEach(th=>{th.classList.add('sort');th.addEventListener('click',()=>{const c=th.dataset.col;if(ST.cmpSort===c)ST.cmpDir=ST.cmpDir==='desc'?'asc':'desc';else{ST.cmpSort=c;ST.cmpDir='desc'}document.querySelectorAll('th[data-col]').forEach(t=>t.classList.remove('sasc','sdesc'));th.classList.add(ST.cmpDir==='asc'?'sasc':'sdesc');renderCmp()})});
 
@@ -2337,6 +2373,20 @@ function setBidStrat(btn,type){
   // 전략 변경 시 재분석 가능하도록 트리거 버튼 복원
   const trig=document.getElementById('aiTrig');
   if(trig&&ST.aiShown){trig.style.display='flex';ST.aiShown=false;document.getElementById('aiRes').classList.remove('show')}
+  // 예상 결과 표시
+  const exp=document.getElementById('bidExpected');
+  if(exp){
+    const kd=getKpiData('전체');
+    const spend=kd.adSpend||0,roas=kd.roas||0;
+    const msgs={
+      aggressive:`예상: 광고비 약 ${fC(Math.round(spend*1.3))} (+30%), 노출·클릭 대폭 증가 예상. ROAS ${fN(roas)}% 기준 전환매출 증가 기대.`,
+      standard:`예상: 현재 광고비 ${fC(spend)} 유지, ROAS ${fN(roas)}% 수준 지속. 안정적 운영에 적합합니다.`,
+      balanced:`예상: 고효율 캠페인 증액 + 저효율 감액으로 총 광고비 유사, ROAS 개선 기대.`,
+      conservative:`예상: 광고비 약 ${fC(Math.round(spend*0.8))} (-20%), 비용 절감 우선. 노출·클릭 감소 가능.`
+    };
+    exp.textContent=msgs[type]||'';
+    exp.style.display='block';
+  }
 }
 
 /* ================================================================ LOG */
@@ -2430,7 +2480,17 @@ function ansQ(q){
 function showToast(msg){const el=document.createElement('div');el.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0B1D34;color:#fff;padding:10px 20px;border-radius:9px;font-size:12.5px;font-weight:700;box-shadow:0 6px 20px rgba(11,29,52,.3);z-index:600';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2300)}
 
 /* ================================================================ RELOAD */
-function reloadAll(){renderAlerts();renderKpi();initTrend();initHmMonthSel();renderHm();renderKw();renderCmp()}
+function reloadAll(){renderAlerts();renderKpi();initTrend();initHmMonthSel();renderHm();renderKw();renderCmp();updateBidRecommend()}
+function updateBidRecommend(){
+  const el=document.getElementById('bidRecommend');
+  if(!el)return;
+  const kd=getKpiData('전체');
+  const roas=kd.roas||0;
+  if(roas>=500)el.textContent='→ 현재 ROAS '+fN(roas)+'%로 우수합니다. 공격적 전략을 추천합니다.';
+  else if(roas>=300)el.textContent='→ 현재 ROAS '+fN(roas)+'%로 양호합니다. 균형적 전략을 추천합니다.';
+  else if(roas>0)el.textContent='→ 현재 ROAS '+fN(roas)+'%로 개선이 필요합니다. 보수적 전략을 추천합니다.';
+  else el.textContent='';
+}
 
 /* ================================================================ 접기/펴기 */
 function toggleCard(bodyId, togId){
