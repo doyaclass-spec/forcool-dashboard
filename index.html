@@ -468,9 +468,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <!-- ⑥ 가로 3개 경고 -->
 <div style="margin-bottom:14px">
   <div class="alert-hd" id="alertHd" onclick="toggleAlert()">
-    <div class="ah-l">🚨 <span>즉시 확인 필요한 경고</span><span class="acnt" id="alertCnt">0건</span></div>
+    <div class="ah-l">🚨 <span>즉시 확인 필요한 경고</span><span class="acnt" id="alertCnt">0건</span><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);margin-left:12px">⚙ 경고 설정에서 기준을 직접 설정할 수 있습니다</span></div>
     <div class="ah-r">
-      <!-- ⑦ 설정 버튼 -->
       <button class="alert-cfg-btn" onclick="event.stopPropagation();openAlertCfg()">⚙ 경고 설정</button>
       <span class="ah-tog r" id="ahTog">▲</span>
     </div>
@@ -1399,19 +1398,21 @@ function renderAlerts(){
       <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${fieldName}가 ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${dirWord}하였습니다.</div>
     </div>`;
   }).join('');
-  // 키워드 낭비/주의 경고 추가
+  // 키워드 낭비/주의 경고 (구분선으로 분리)
   const kws=getKwData();
   const highKw=kws.filter(k=>k.adSpend>=50000&&(k.conversions||0)===0);
   const midKw=kws.filter(k=>{const r=k.adSpend>0?Math.round((k.convRevenue||0)/k.adSpend*100):0;return r>0&&r<300});
+  if(highKw.length>0||midKw.length>0){
+    container.innerHTML+=`<div style="padding:8px 16px;font-size:12px;font-weight:700;color:var(--t2);border-top:2px dashed var(--bd);margin-top:6px">📊 키워드 성과 경고</div>`;
+  }
   if(highKw.length>0){
-    container.innerHTML+=`<div class="alert-card ac-orange"><div class="ac-inline"><span class="ac-badge-i">🔴 낭비</span>광고비를 사용했으나 전환이 없는 키워드가 <b>${highKw.length}개</b> 있습니다. 총 ${fC(highKw.reduce((a,k)=>a+k.adSpend,0))}이 낭비되고 있습니다.</div></div>`;
+    container.innerHTML+=`<div class="alert-card" style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:6px"><div class="ac-inline"><span class="ac-badge-i" style="background:#dc2626;color:#fff">🔴 낭비</span>광고비를 사용했으나 전환이 없는 키워드가 <b>${highKw.length}개</b> 있습니다. 총 ${fC(highKw.reduce((a,k)=>a+k.adSpend,0))}이 낭비되고 있습니다.</div></div>`;
   }
   if(midKw.length>0){
-    container.innerHTML+=`<div class="alert-card ac-blue"><div class="ac-inline"><span class="ac-badge-i">🟡 주의</span>ROAS 300% 미만인 키워드가 <b>${midKw.length}개</b> 있습니다. 입찰가 조정을 검토해주세요.</div></div>`;
+    container.innerHTML+=`<div class="alert-card" style="background:#fff7ed;border-left:4px solid #ea580c;border-radius:6px"><div class="ac-inline"><span class="ac-badge-i" style="background:#ea580c;color:#fff">🟡 주의</span>ROAS 300% 미만인 키워드가 <b>${midKw.length}개</b> 있습니다. 입찰가 조정을 검토해주세요.</div></div>`;
   }
-  // 경고 설정 안내
   const ruleEl=document.getElementById('alertRuleSummary');
-  if(ruleEl) ruleEl.innerHTML=`<div style="font-size:12px;color:var(--t2);padding:8px 0">💡 우측 상단의 <b>⚙ 경고 설정</b> 버튼에서 경고 기준을 직접 설정할 수 있습니다.</div>`;
+  if(ruleEl) ruleEl.innerHTML='';
 }
 function toggleAlert(){
   const b=document.getElementById('alertBody'),c=b.classList.toggle('coll');
