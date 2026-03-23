@@ -542,6 +542,12 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
         <button class="mchk" data-m="clicks" onclick="toggleMetricSel('clicks')">
           <div class="mchk-box"></div>클릭수<span class="mchk-axis">좌</span>
         </button>
+        <button class="mchk" data-m="ctr" onclick="toggleMetricSel('ctr')">
+          <div class="mchk-box"></div>클릭률<span class="mchk-axis">좌</span>
+        </button>
+        <button class="mchk" data-m="cpc" onclick="toggleMetricSel('cpc')">
+          <div class="mchk-box"></div>평균CPC<span class="mchk-axis">우</span>
+        </button>
         <button class="mchk" data-m="adSpend" onclick="toggleMetricSel('adSpend')">
           <div class="mchk-box"></div>광고비<span class="mchk-axis">우</span>
         </button>
@@ -552,15 +558,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
           <div class="mchk-box"></div>전환매출<span class="mchk-axis">우</span>
         </button>
       </div>
-      <!-- 기간 옵션: 1주일 / 1개월 / 1년 -->
-      <div style="display:flex;align-items:center;gap:5px">
-        <span style="font-size:13px;font-weight:800;color:var(--t1);margin-right:4px">기간</span>
-        <div id="cmpOptGrp" style="display:flex;gap:5px">
-          <button class="cmp-opt active" data-cmp="week" onclick="setTrendPeriod('week')">1주일</button>
-          <button class="cmp-opt" data-cmp="month" onclick="setTrendPeriod('month')">1개월</button>
-          <button class="cmp-opt" data-cmp="year" onclick="setTrendPeriod('year')">1년</button>
-        </div>
-      </div>
+      <!-- 기간 옵션 삭제: 상단 날짜선택기 기간을 따름 -->
     </div>
     <!-- 인사이트 요약 -->
     <div id="trendInsight" style="display:none"></div>
@@ -598,11 +596,14 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
           <button class="cmp-opt active" data-iv="2" onclick="setHmInterval(2)">2시간</button>
         </div>
       </div>
-      <div id="hmMetricBtns" style="display:flex;gap:3px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:7px;padding:3px">
-        <button class="cmp-opt active" data-hm="roas" onclick="setHmMetric('roas')">ROAS</button>
-        <button class="cmp-opt" data-hm="cvr" onclick="setHmMetric('cvr')">전환율</button>
-        <button class="cmp-opt" data-hm="spend" onclick="setHmMetric('spend')">광고비</button>
-        <button class="cmp-opt" data-hm="clicks" onclick="setHmMetric('clicks')">클릭</button>
+      <div id="hmMetricBtns" style="display:flex;gap:3px;flex-wrap:wrap;background:var(--sf2);border:1.5px solid var(--bd);border-radius:7px;padding:3px">
+        <button class="cmp-opt" data-hm="impressions" onclick="setHmMetric('impressions')" style="color:#EF4444">노출수</button>
+        <button class="cmp-opt" data-hm="clicks" onclick="setHmMetric('clicks')" style="color:#F97316">클릭수</button>
+        <button class="cmp-opt" data-hm="cvr" onclick="setHmMetric('cvr')" style="color:#22C55E">전환율</button>
+        <button class="cmp-opt" data-hm="spend" onclick="setHmMetric('spend')" style="color:#EAB308">광고비</button>
+        <button class="cmp-opt active" data-hm="roas" onclick="setHmMetric('roas')" style="color:#3B82F6">ROAS</button>
+        <button class="cmp-opt" data-hm="conversions" onclick="setHmMetric('conversions')" style="color:#6366F1">전환수</button>
+        <button class="cmp-opt" data-hm="cpc" onclick="setHmMetric('cpc')" style="color:#A855F7">CPC</button>
       </div>
     </div>
     <!-- 그라데이션 띠 (최저~최고 색상 범례 + 정보) -->
@@ -768,25 +769,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   </div>
 </div>
 
-<!-- 키워드 추천: 전체 폭 -->
-<div class="card" style="margin-bottom:14px">
-  <div class="card-head" onclick="toggleCard('kwSuggestBody','kwSuggestTog')">
-    <div class="card-title"><div class="card-ico">🔍</div> 키워드 추천/발굴</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="card-sub">연관 키워드 + 월간 검색량 + 경쟁도</span>
-      <div class="ctog open" id="kwSuggestTog">▼</div>
-    </div>
-  </div>
-  <div class="card-body" id="kwSuggestBody" style="max-height:600px">
-    <div style="padding:14px">
-      <div style="display:flex;gap:7px;margin-bottom:12px">
-        <input class="linp" id="kwSuggestInput" style="flex:1" placeholder="키워드 입력 (예: 업소용냉장고)" onkeydown="if(event.key==='Enter')searchKwSuggest()">
-        <button class="bsm bnavy" onclick="searchKwSuggest()">🔍 검색</button>
-      </div>
-      <div id="kwSuggestResult" style="font-size:13px;color:var(--t2)">키워드를 입력하면 네이버 연관 키워드 + 월간 검색량을 조회합니다.</div>
-    </div>
-  </div>
-</div>
+<!-- 키워드 추천 삭제됨 -->
 
 <!-- ⑧ 변경이력 + 채팅: 1행 2열 -->
 <div class="strat-bottom">
@@ -852,9 +835,9 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <script>
 /* ================================================================ CONSTANTS */
-const MC={impressions:'#2E86DE',clicks:'#00A07A',adSpend:'#FF7043',conversions:'#7C3AED',convRevenue:'#0891B2'};
-const MF={impressions:'num',clicks:'num',adSpend:'cur',conversions:'num',convRevenue:'cur'};
-const ML={impressions:'노출수',clicks:'클릭수',adSpend:'광고비',conversions:'전환수',convRevenue:'전환매출'};
+const MC={impressions:'#EF4444',clicks:'#F97316',adSpend:'#EAB308',conversions:'#22C55E',convRevenue:'#3B82F6',ctr:'#6366F1',cpc:'#A855F7'};
+const MF={impressions:'num',clicks:'num',adSpend:'cur',conversions:'num',convRevenue:'cur',ctr:'pct',cpc:'cur'};
+const ML={impressions:'노출수',clicks:'클릭수',adSpend:'광고비',conversions:'전환수',convRevenue:'전환매출',ctr:'클릭률',cpc:'평균CPC'};
 const MA={impressions:'yL',clicks:'yL',adSpend:'yR',conversions:'yL',convRevenue:'yR'};
 const DAYS=['월','화','수','목','금','토','일'];
 const HOURS=['0시','2시','4시','6시','8시','10시','12시','14시','16시','18시','20시','22시'];
@@ -1195,7 +1178,7 @@ function getCampData(){
 }
 function getKwData(){
   if(LIVE_DATA&&LIVE_DATA.keywords&&LIVE_DATA.keywords.length>0){
-    return LIVE_DATA.keywords.map(k=>({
+    return LIVE_DATA.keywords.filter(k=>k.type!=='쇼핑검색').map(k=>({
       ...k,
       get cpc(){return this.clicks>0?Math.round(this.adSpend/this.clicks):0},
       get roas(){return this.adSpend>0?Math.round(this.convRevenue/this.adSpend*100):0},
@@ -1708,10 +1691,10 @@ function getTrendPeriodData(type){
     ['impressions','clicks','adSpend','conversions','convRevenue'].forEach(m=>{
       data[m]=(curData[m]||[]).slice(start);
     });
-    return{labels,data};
+    return addDerivedMetrics({labels,data});
   }
   if(p==='month'){
-    return{labels:td.labels,data:{impressions:curData.impressions||[],clicks:curData.clicks||[],adSpend:curData.adSpend||[],conversions:curData.conversions||[],convRevenue:curData.convRevenue||[]}};
+    return addDerivedMetrics({labels:td.labels,data:{impressions:curData.impressions||[],clicks:curData.clicks||[],adSpend:curData.adSpend||[],conversions:curData.conversions||[],convRevenue:curData.convRevenue||[]}});
   }
   if(p==='year'){
     // 1년 = 일별 데이터를 월별로 집계
@@ -1729,9 +1712,20 @@ function getTrendPeriodData(type){
         data[m].push(monthMap[mm][m]);
       });
     });
-    return{labels:monthOrder,data};
+    return addDerivedMetrics({labels:monthOrder,data});
   }
-  return{labels:td.labels,data:curData};
+  return addDerivedMetrics({labels:td.labels,data:curData});
+}
+function addDerivedMetrics(result){
+  const d=result.data;
+  if(!d||!d.impressions)return result;
+  const len=d.impressions.length;
+  d.ctr=[];d.cpc=[];
+  for(let i=0;i<len;i++){
+    d.ctr.push(d.impressions[i]>0?Math.round(d.clicks[i]/d.impressions[i]*10000)/100:0);
+    d.cpc.push(d.clicks[i]>0?Math.round(d.adSpend[i]/d.clicks[i]):0);
+  }
+  return result;
 }
 
 // 이동평균 추세선 계산
@@ -1946,7 +1940,7 @@ const HM_DATA={
   '콘텐츠': makeHm([0.75,0.9,0.85,0.88,0.82,1.1,1.0],HW24_CT,{roas:220,cvr:1.2,spend:640,clicks:2}),
   '브랜드':  makeHm([0.85,1.05,1.1,1.1,1.0,0.9,0.8],HW24_BR,{roas:880,cvr:5.5,spend:450,clicks:2}),
 };
-const HM_SCH={roas:{lo:'#eff6ff',hi:'#2563eb'},cvr:{lo:'#dcfce7',hi:'#15803d'},spend:{lo:'#fff7ed',hi:'#ea580c'},clicks:{lo:'#dcfce7',hi:'#16a34a'}};
+const HM_SCH={roas:{lo:'#eff6ff',hi:'#3B82F6'},cvr:{lo:'#dcfce7',hi:'#22C55E'},spend:{lo:'#fefce8',hi:'#EAB308'},clicks:{lo:'#fff7ed',hi:'#F97316'},impressions:{lo:'#fef2f2',hi:'#EF4444'},conversions:{lo:'#eef2ff',hi:'#6366F1'},cpc:{lo:'#faf5ff',hi:'#A855F7'}};
 
 function setHmInterval(iv){
   ST.hmInterval=iv;
