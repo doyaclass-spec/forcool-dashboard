@@ -672,7 +672,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="tw"><table><thead><tr>
     <th style="min-width:140px">키워드</th><th>광고유형</th><th>캠페인</th>
     <th class="sort" data-kw="impressions">노출 <span class="si2"></span></th>
-    <th>변화</th>
+    <th><div class="tip-wrap"><span style="cursor:help">변화</span><div class="tip-box" style="width:220px;white-space:normal;line-height:1.5"><b>변화율 기준</b><br>이전 동일 기간 대비 노출수 증감률입니다.<br>예: 7일 조회 시 → 그 이전 7일과 비교</div></div></th>
     <th class="sort" data-kw="clicks">클릭 <span class="si2"></span></th>
     <th class="sort" data-kw="adSpend">광고비 <span class="si2"></span></th>
     <th class="sort" data-kw="cpc">CPC <span class="si2"></span></th>
@@ -2482,9 +2482,9 @@ function ansQ(q){
   const kw=getKwData();
   if(t.includes('낭비 키워드')||t.includes('낭비키워드')){const w=kw.filter(k=>getWaste(k)==='high');return`🔴 낭비 키워드 <b>${w.length}개</b><br>${w.map(k=>`· ${k.kw} [${k.type}] ${fC(k.adSpend)} 전환0`).join('<br>')}`}
   if(t.includes('roas 0')||t.includes('전환없는')||t.includes('전환 없는')){const w=kw.filter(k=>k.conversions===0);return`⚠️ 전환 0건 키워드 <b>${w.length}개</b><br>${w.slice(0,5).map(k=>`· ${k.kw} [${k.type}]`).join('<br>')}`}
-  if(t.includes('총 광고비')||(t.includes('광고비')&&t.includes('얼마'))){return`📊 총 광고비 (${DS.days}일)<br>→ <b>${fC(cmp.reduce((a,c)=>a+c.adSpend,0))}</b>`}
-  if(t.includes('매출액')||t.includes('총 매출')){return`💰 총 매출액<br>→ <b>${fC(cmp.reduce((a,c)=>a+c.convRevenue,0))}</b>`}
-  if(t.includes('roas')&&t.includes('높')){const b=cmp.reduce((a,c)=>a.roas>c.roas?a:c);return`🏆 ROAS 최고: <b>${b.name}</b> (${b.roas}%)`}
+  if(t.includes('총 광고비')||(t.includes('광고비')&&t.includes('얼마'))){const fD=`${DS.from.getFullYear()}.${String(DS.from.getMonth()+1).padStart(2,'0')}.${String(DS.from.getDate()).padStart(2,'0')}`;const tD=`${DS.to.getFullYear()}.${String(DS.to.getMonth()+1).padStart(2,'0')}.${String(DS.to.getDate()).padStart(2,'0')}`;return`📊 <b>${fD} ~ ${tD}</b> (${DS.days}일) 기준<br>총 광고비: <b>${fC(cmp.reduce((a,c)=>a+c.adSpend,0))}</b><br>활성 캠페인: ${actC.length}개`}
+  if(t.includes('매출액')||t.includes('총 매출')){const fD=`${DS.from.getFullYear()}.${String(DS.from.getMonth()+1).padStart(2,'0')}.${String(DS.from.getDate()).padStart(2,'0')}`;const tD=`${DS.to.getFullYear()}.${String(DS.to.getMonth()+1).padStart(2,'0')}.${String(DS.to.getDate()).padStart(2,'0')}`;const rev=cmp.reduce((a,c)=>a+c.convRevenue,0);const spend=cmp.reduce((a,c)=>a+c.adSpend,0);return`💰 <b>${fD} ~ ${tD}</b> 기준<br>총 전환매출: <b>${fC(rev)}</b><br>총 광고비: ${fC(spend)}<br>ROAS: <b>${fN(spend>0?Math.round(rev/spend*100):0)}%</b>`}
+  if(t.includes('roas')&&t.includes('높')){const fD=`${DS.from.getFullYear()}.${String(DS.from.getMonth()+1).padStart(2,'0')}.${String(DS.from.getDate()).padStart(2,'0')}`;const tD=`${DS.to.getFullYear()}.${String(DS.to.getMonth()+1).padStart(2,'0')}.${String(DS.to.getDate()).padStart(2,'0')}`;const actOnly=cmp.filter(c=>c.adSpend>0);if(!actOnly.length)return'광고비가 0원인 캠페인만 있습니다.';const b=actOnly.reduce((a,c)=>a.roas>c.roas?a:c);return`🏆 <b>${fD} ~ ${tD}</b> 기간 기준<br>ROAS 최고 캠페인: <b>${b.name}</b><br>ROAS: <b>${fN(b.roas)}%</b> · 광고비: ${fC(b.adSpend)} · 전환매출: ${fC(b.convRevenue)}`}
   if(t.includes('활성')){return`✅ 활성 <b>${actC.length}개</b><br>${actC.map(c=>`· ${c.name}`).join('<br>')}`}
   if(t.includes('일시중지')){return`⏸ 일시중지 <b>${pauC.length}개</b><br>${pauC.map(c=>`· ${c.name}`).join('<br>')}`}
   if(t.includes('경고')){const a=cmp.filter(c=>c.alr);return`🚨 경고 <b>${a.length}개</b><br>${a.map(c=>`· ${c.name} (ROAS ${fN(c.roas)}%)`).join('<br>')}`}
