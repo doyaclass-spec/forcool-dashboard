@@ -223,10 +223,10 @@ input,select,textarea{font-family:inherit;outline:none}
 .hm-worst{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;background:var(--rbg);border:1px solid rgba(229,57,53,.18);border-radius:11px;font-size:12.5px;font-weight:700;color:var(--red)}
 .hm-wrap{padding:4px 16px 14px;overflow-x:auto}
 .hm-tbl{border-collapse:separate;border-spacing:2px;font-size:12.5px;width:100%}
-.hm-tbl .hm-th-day{padding:6px 8px;text-align:center;font-weight:800;font-size:14px;color:var(--t1);white-space:nowrap}
-.hm-tbl .hm-th-hour{padding:4px 8px 4px 2px;font-weight:700;font-size:13px;color:var(--t1);white-space:nowrap;text-align:right;min-width:50px}
-.hm-cell{height:32px;border-radius:5px;text-align:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;transition:transform .1s;vertical-align:middle}
-.hm-cell:hover{transform:scale(1.12);box-shadow:var(--s2);z-index:2;position:relative}
+.hm-tbl .hm-th-day{padding:8px 6px;text-align:center;font-weight:800;font-size:13px;color:var(--t1);white-space:nowrap}
+.hm-tbl .hm-th-hour{padding:6px 10px 6px 4px;font-weight:700;font-size:14px;color:var(--t1);white-space:nowrap;text-align:right;min-width:40px}
+.hm-cell{height:40px;min-width:48px;border-radius:5px;text-align:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;transition:transform .1s;vertical-align:middle}
+.hm-cell:hover{transform:scale(1.08);box-shadow:var(--s2);z-index:2;position:relative}
 /* 그라데이션 띠 */
 .hm-grad-bar{
   display:flex;align-items:stretch;
@@ -293,8 +293,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 .ai-body{padding:16px}
 .ai-trig{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;text-align:center}
 .ai-desc{color:var(--t2);font-size:14.5px;max-width:380px;line-height:1.6}
-.btn-ai{display:flex;align-items:center;gap:8px;padding:11px 24px;background:var(--navy);color:#fff;border-radius:9px;font-size:15px;font-weight:800;transition:transform .18s,box-shadow .18s}
-.btn-ai:hover{transform:translateY(-1px);box-shadow:var(--s2)}.btn-ai .ai-ico{width:20px;height:20px;background:var(--green);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12.5px}
+.btn-ai{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 32px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border-radius:12px;font-size:18px;font-weight:800;transition:transform .18s,box-shadow .18s;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.3)}
+.btn-ai:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,0.4)}.btn-ai .ai-ico{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .ai-ld{display:none;flex-direction:column;align-items:center;gap:12px;padding:28px}.ai-ld.show{display:flex}
 .spinner{width:32px;height:32px;border:3px solid var(--bd);border-top-color:var(--green);border-radius:50%;animation:spin .75s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -1910,8 +1910,13 @@ function initTrend(){
       const fmtTotal=MF[m]==='cur'?fC(total):MF[m]==='pct'?Math.round(total/Math.max(1,pData.labels.length))+'%':fN(total);
       return`<div class="tl-item"><div class="tl-dot" style="background:${MC[m]}"></div><span>${ML[m]}</span><span style="font-weight:800;color:${MC[m]}">${fmtTotal}</span></div>`;
     }).join('');
-    html+=`<div class="tl-item" style="color:var(--t1);font-size:14px;font-weight:600">━ 추세선 (이동평균)</div>`;
-    html+=`<div style="font-size:13px;color:var(--t2);margin-top:4px;line-height:1.5">최근 3~5일간의 평균값을 연결한 선으로, 일별 변동을 제거하고 전체적인 상승/하락 흐름을 보여줍니다.</div>`;
+    html+=`<div style="margin-top:12px;padding:12px 16px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;display:flex;align-items:flex-start;gap:12px">
+      <div style="font-size:24px;flex-shrink:0">〰️</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--t1);margin-bottom:4px">추세선 (이동평균)</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6">그래프에서 <b>흐린 곡선</b>이 추세선입니다. 최근 3~5일간의 평균값을 연결하여 <b>일별 급등/급락을 제거</b>하고, 실제로 성과가 오르고 있는지 내리고 있는지 <b>전체 흐름</b>을 보여줍니다.</div>
+      </div>
+    </div>`;
     leg.innerHTML=html;
   }
 
@@ -2078,7 +2083,7 @@ function renderHm(){
 
   // 테이블: 세로=요일(행), 가로=시간(열)
   let html=`<tr><th class="hm-th-hour"></th>`;
-  for(let h=0;h<24;h+=iv){html+=`<th class="hm-th-day" style="font-size:12px">${h}시</th>`}
+  for(let h=0;h<24;h+=iv){html+=`<th class="hm-th-day">${h}시</th>`}
   html+='</tr>';
 
   DAYS_FULL.forEach((dayName,di)=>{
@@ -2087,7 +2092,7 @@ function renderHm(){
       const cell=row[di];
       const v=cell[m],t=norm(v),bg=lerp(sch.lo,sch.hi,t),tc=t>0.55?'#fff':'#0B1D34';
       const disp=m==='roas'?fN(v)+'%':m==='cvr'?v+'%':m==='spend'?(v>=10000?(v/10000).toFixed(0)+'만':''):(v>=1000?(v/1000).toFixed(0)+'k':v||'');
-      html+=`<td class="hm-cell" style="background:${bg};color:${tc};font-size:12px;padding:6px 4px" onmouseenter="showHmTip(event,'${cell.day}','${cell.hour}',${cell.roas},${cell.cvr},${cell.spend},${cell.clicks})" onmouseleave="hideHmTip()">${disp}</td>`;
+      html+=`<td class="hm-cell" style="background:${bg};color:${tc}" onmouseenter="showHmTip(event,'${cell.day}','${cell.hour}',${cell.roas},${cell.cvr},${cell.spend},${cell.clicks})" onmouseleave="hideHmTip()">${disp}</td>`;
     });
     html+='</tr>';
   });
