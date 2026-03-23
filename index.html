@@ -25,7 +25,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'SUIT',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(180deg,#f0f4f8 0%,#f8fafc 50%,#f0f4f8 100%);color:var(--t1);font-size:15px;line-height:1.65;min-height:100vh;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+body{font-family:'SUIT',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(180deg,#f0f4f8 0%,#f8fafc 50%,#f0f4f8 100%);color:var(--t1);font-size:16px;line-height:1.65;min-height:100vh;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 button{cursor:pointer;font-family:inherit;border:none;outline:none}
 input,select,textarea{font-family:inherit;outline:none}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
@@ -108,9 +108,9 @@ input,select,textarea{font-family:inherit;outline:none}
 /* ─── CARD ─── */
 .card{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(226,232,240,0.6);box-shadow:0 2px 8px rgba(0,0,0,0.04),0 0 1px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:14px;transition:box-shadow .2s ease}
 .card-head{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.card-title{font-size:14.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
+.card-title{font-size:17px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
 .card-ico{width:22px;height:22px;background:var(--navy);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12.5px}
-.card-sub{font-size:12.5px;color:var(--t3)}
+.card-sub{font-size:14px;color:var(--t2);line-height:1.5}
 
 /* ─── PILL TABS ─── */
 .pill-grp{display:flex;gap:5px;flex-wrap:wrap;background:var(--sf2);padding:6px 10px;border-radius:8px;border:1px solid var(--bd)}
@@ -523,8 +523,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <!-- 트렌드: 전체 폭 카드 (two-col의 첫 컬럼 차지) -->
   <div class="card" style="margin-bottom:0">
     <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd)">
-      <div style="font-size:16px;font-weight:800;color:var(--t1)">📈 일별 추이 차트</div>
-      <div style="font-size:13px;color:var(--t2);margin-top:4px">선택한 기간의 일별 성과 변화를 확인합니다</div>
+      <div style="font-size:18px;font-weight:800;color:var(--t1)">📈 일별 추이 차트</div>
+      <div style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">노출수, 클릭수, 광고비 등 주요 지표의 일별 변화를 그래프로 보여줍니다. 최대 2개 지표를 선택해 좌/우 Y축으로 비교할 수 있습니다.</div>
     </div>
     <!-- 유형 탭 -->
     <div class="trend-type-tabs" id="trendTypeTabs">
@@ -575,8 +575,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="card" style="margin-bottom:0">
     <!-- 소제목 + 설명 -->
     <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd)">
-      <div style="font-size:16px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
-      <div id="hmDesc" style="font-size:13px;color:var(--t2);margin-top:4px">상단 기간 내 각 요일·시간대별 평균 성과를 나타냅니다</div>
+      <div style="font-size:18px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
+      <div id="hmDesc" style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">선택한 기간의 요일별·시간대별 평균 성과를 색상 농도로 보여줍니다. 색이 진할수록 해당 시간대의 성과가 높습니다.</div>
     </div>
     <!-- 히트맵 유형 탭 (소제목 아래) -->
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -631,7 +631,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="card-head" onclick="toggleCard('kwCardBody','kwCardTog')">
     <div class="card-title"><div class="card-ico">🔑</div> 키워드별 성과 분석</div>
     <div style="display:flex;align-items:center;gap:8px">
-      <span class="card-sub">낭비 키워드 발견 시 하단 변경 이력에 기록</span>
+      <span class="card-sub">파워링크·콘텐츠 캠페인의 개별 키워드 성과를 분석합니다. 광고비 대비 전환이 없는 낭비 키워드를 자동으로 감지합니다.</span>
       <div class="ctog open" id="kwCardTog">▼</div>
     </div>
   </div>
@@ -680,7 +680,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="card-head" onclick="toggleCard('cmpCardBody','cmpCardTog')">
     <div class="card-title"><div class="card-ico">📋</div> 캠페인별 상세 성과</div>
     <div style="display:flex;align-items:center;gap:8px">
-      <span class="card-sub">컬럼 클릭으로 정렬</span>
+      <span class="card-sub">전체 160개 캠페인의 광고비, 노출, 클릭, 전환, ROAS를 한눈에 비교합니다. 컬럼 클릭으로 정렬 가능합니다.</span>
       <div class="ctog open" id="cmpCardTog">▼</div>
     </div>
   </div>
@@ -743,7 +743,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <div class="card-title"><div class="card-ico">🤖</div> AI 광고 전략 분석</div>
     <div style="display:flex;align-items:center;gap:8px">
       <span class="p-date" id="pDate5" style="font-size:13px;font-weight:700;color:var(--t1);background:var(--sf2);padding:3px 10px;border-radius:6px"></span>
-      <span class="card-sub">실시간 데이터 기반 · 위험 진단 + 전략 자동 생성</span>
+      <span class="card-sub">현재 광고 데이터를 분석하여 위험 요소를 진단하고, 선택한 입찰 전략에 맞는 실행 가능한 전략을 자동으로 생성합니다.</span>
       <div class="ctog open" id="aiCardTog">▼</div>
     </div>
   </div>
@@ -802,7 +802,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <!-- 텍스트 변경: 데이터 즉시 문의 → 광고 데이터 확인하기 -->
       <div class="card-title"><div class="card-ico">💬</div> 광고 데이터 확인하기</div>
       <div style="display:flex;align-items:center;gap:8px">
-        <span class="card-sub">자연어로 질문 → 수치 즉시 답변</span>
+        <span class="card-sub">궁금한 광고 데이터를 자연어로 질문하면 즉시 수치로 답변합니다. 예: "총 광고비 얼마야?", "ROAS 가장 높은 캠페인?"</span>
         <div class="ctog open" id="chatCardTog">▼</div>
       </div>
     </div>
@@ -1910,8 +1910,8 @@ function initTrend(){
       const fmtTotal=MF[m]==='cur'?fC(total):MF[m]==='pct'?Math.round(total/Math.max(1,pData.labels.length))+'%':fN(total);
       return`<div class="tl-item"><div class="tl-dot" style="background:${MC[m]}"></div><span>${ML[m]}</span><span style="font-weight:800;color:${MC[m]}">${fmtTotal}</span></div>`;
     }).join('');
-    html+=`<div class="tl-item" style="color:var(--t2);font-size:12px">━ 추세선 (이동평균)</div>`;
-    html+=`<div style="font-size:11px;color:var(--t2);margin-top:4px;line-height:1.5">최근 3~5일간의 평균값을 연결한 선으로, 일별 변동을 제거하고 전체적인 상승/하락 흐름을 보여줍니다.</div>`;
+    html+=`<div class="tl-item" style="color:var(--t1);font-size:14px;font-weight:600">━ 추세선 (이동평균)</div>`;
+    html+=`<div style="font-size:13px;color:var(--t2);margin-top:4px;line-height:1.5">최근 3~5일간의 평균값을 연결한 선으로, 일별 변동을 제거하고 전체적인 상승/하락 흐름을 보여줍니다.</div>`;
     leg.innerHTML=html;
   }
 
@@ -2078,7 +2078,7 @@ function renderHm(){
 
   // 테이블: 세로=요일(행), 가로=시간(열)
   let html=`<tr><th class="hm-th-hour"></th>`;
-  for(let h=0;h<24;h+=iv){html+=`<th class="hm-th-day" style="font-size:11px">${h}시</th>`}
+  for(let h=0;h<24;h+=iv){html+=`<th class="hm-th-day" style="font-size:12px">${h}시</th>`}
   html+='</tr>';
 
   DAYS_FULL.forEach((dayName,di)=>{
@@ -2087,7 +2087,7 @@ function renderHm(){
       const cell=row[di];
       const v=cell[m],t=norm(v),bg=lerp(sch.lo,sch.hi,t),tc=t>0.55?'#fff':'#0B1D34';
       const disp=m==='roas'?fN(v)+'%':m==='cvr'?v+'%':m==='spend'?(v>=10000?(v/10000).toFixed(0)+'만':''):(v>=1000?(v/1000).toFixed(0)+'k':v||'');
-      html+=`<td class="hm-cell" style="background:${bg};color:${tc};font-size:11px;padding:6px 4px" onmouseenter="showHmTip(event,'${cell.day}','${cell.hour}',${cell.roas},${cell.cvr},${cell.spend},${cell.clicks})" onmouseleave="hideHmTip()">${disp}</td>`;
+      html+=`<td class="hm-cell" style="background:${bg};color:${tc};font-size:12px;padding:6px 4px" onmouseenter="showHmTip(event,'${cell.day}','${cell.hour}',${cell.roas},${cell.cvr},${cell.spend},${cell.clicks})" onmouseleave="hideHmTip()">${disp}</td>`;
     });
     html+='</tr>';
   });
