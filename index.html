@@ -115,7 +115,7 @@ input,select,textarea{font-family:inherit;outline:none}
 /* ─── PILL TABS ─── */
 .pill-grp{display:flex;gap:5px;flex-wrap:wrap}
 .pill{padding:6px 16px;border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,0.7);border:1px solid rgba(226,232,240,0.6);color:#64748b;transition:all .2s ease;backdrop-filter:blur(4px)}
-.pill:hover{background:rgba(241,245,249,0.9);color:#0f172a;border-color:#cbd5e1;transform:translateY(-1px)}.pill.active{background:linear-gradient(135deg,#0f172a,#334155);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(15,23,42,.2)}
+.pill:hover{background:rgba(241,245,249,0.9);color:#0f172a;border-color:#cbd5e1;transform:translateY(-1px)}.pill.active{background:#eff6ff;border-color:#2563eb;color:#0f172a;box-shadow:0 2px 8px rgba(37,99,235,.15)}
 
 /* ─── ALERTS (⑥ 가로 3개) ─── */
 .alert-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:linear-gradient(135deg,#dc2626,#ef4444);border-radius:12px 12px 0 0;cursor:pointer;user-select:none}
@@ -767,30 +767,30 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <div style="margin-bottom:14px">
         <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px">📌 입찰 전략 선택</div>
         <div style="font-size:12px;color:var(--t2);margin-bottom:10px">현재 ROAS와 광고비 추이를 기반으로 전략을 선택하세요. <span id="bidRecommend" style="font-weight:800;color:var(--green)"></span></div>
-        <div id="bidStratBody" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-          <button class="pill active" onclick="setBidStrat(this,'aggressive')" style="text-align:center;padding:12px 8px">
-            <div style="font-size:18px;margin-bottom:4px">🚀</div>
-            <div style="font-size:13px;font-weight:800">공격적</div>
-            <div style="font-size:11px;color:var(--t1);margin-top:3px">입찰가 +30%</div>
-            <div style="font-size:10px;color:var(--t2);margin-top:4px;line-height:1.4">노출·클릭 극대화<br>ROAS 높을 때 추천</div>
+        <div id="bidStratBody" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <button class="pill active" onclick="setBidStrat(this,'aggressive')" style="text-align:center;padding:18px 12px;border-radius:12px">
+            <div style="font-size:28px;margin-bottom:8px">🚀</div>
+            <div style="font-size:16px;font-weight:900">공격적</div>
+            <div style="font-size:14px;font-weight:700;color:var(--t1);margin-top:6px">입찰가 +30%</div>
+            <div style="font-size:13px;color:var(--t2);margin-top:6px;line-height:1.5">노출·클릭 극대화<br>ROAS 높을 때 추천</div>
           </button>
-          <button class="pill" onclick="setBidStrat(this,'standard')" style="text-align:center;padding:12px 8px">
-            <div style="font-size:18px;margin-bottom:4px">⚖️</div>
-            <div style="font-size:13px;font-weight:800">기본</div>
-            <div style="font-size:11px;color:var(--t1);margin-top:3px">현행 유지</div>
-            <div style="font-size:10px;color:var(--t2);margin-top:4px;line-height:1.4">안정적 운영<br>현재 성과 유지</div>
+          <button class="pill" onclick="setBidStrat(this,'standard')" style="text-align:center;padding:18px 12px;border-radius:12px">
+            <div style="font-size:28px;margin-bottom:8px">⚖️</div>
+            <div style="font-size:16px;font-weight:900">기본</div>
+            <div style="font-size:14px;font-weight:700;color:var(--t1);margin-top:6px">현행 유지</div>
+            <div style="font-size:13px;color:var(--t2);margin-top:6px;line-height:1.5">안정적 운영<br>현재 성과 유지</div>
           </button>
-          <button class="pill" onclick="setBidStrat(this,'balanced')" style="text-align:center;padding:12px 8px">
-            <div style="font-size:18px;margin-bottom:4px">🎯</div>
-            <div style="font-size:13px;font-weight:800">균형적</div>
-            <div style="font-size:11px;color:var(--t1);margin-top:3px">ROAS 기반</div>
-            <div style="font-size:10px;color:var(--t2);margin-top:4px;line-height:1.4">효율 좋은 곳만 증액<br>낭비 최소화</div>
+          <button class="pill" onclick="setBidStrat(this,'balanced')" style="text-align:center;padding:18px 12px;border-radius:12px">
+            <div style="font-size:28px;margin-bottom:8px">🎯</div>
+            <div style="font-size:16px;font-weight:900">균형적</div>
+            <div style="font-size:14px;font-weight:700;color:var(--t1);margin-top:6px">ROAS 기반</div>
+            <div style="font-size:13px;color:var(--t2);margin-top:6px;line-height:1.5">효율 좋은 곳만 증액<br>낭비 최소화</div>
           </button>
-          <button class="pill" onclick="setBidStrat(this,'conservative')" style="text-align:center;padding:12px 8px">
-            <div style="font-size:18px;margin-bottom:4px">🛡️</div>
-            <div style="font-size:13px;font-weight:800">보수적</div>
-            <div style="font-size:11px;color:var(--t1);margin-top:3px">입찰가 -20%</div>
-            <div style="font-size:10px;color:var(--t2);margin-top:4px;line-height:1.4">비용 절감 우선<br>ROAS 낮을 때 추천</div>
+          <button class="pill" onclick="setBidStrat(this,'conservative')" style="text-align:center;padding:18px 12px;border-radius:12px">
+            <div style="font-size:28px;margin-bottom:8px">🛡️</div>
+            <div style="font-size:16px;font-weight:900">보수적</div>
+            <div style="font-size:14px;font-weight:700;color:var(--t1);margin-top:6px">입찰가 -20%</div>
+            <div style="font-size:13px;color:var(--t2);margin-top:6px;line-height:1.5">비용 절감 우선<br>ROAS 낮을 때 추천</div>
           </button>
         </div>
         <div id="bidExpected" style="margin-top:10px;padding:10px 14px;background:var(--sf2);border-radius:var(--rsm);font-size:12px;color:var(--t1);line-height:1.6;display:none"></div>
@@ -2099,11 +2099,22 @@ function showHmTip(e,day,hour,roas,cvr,spend,clicks){
 function hideHmTip(){document.getElementById('hmTip').style.display='none'}
 function setHmMetric(m){
   ST.hmMetric=m;
+  const HMC={impressions:'#EF4444',clicks:'#F97316',cvr:'#22C55E',spend:'#EAB308',roas:'#3B82F6',conversions:'#6366F1',cpc:'#A855F7'};
   document.querySelectorAll('#hmMetricBtns .mchk').forEach(b=>{
-    const isOn=b.dataset.hm===m;
+    const hm=b.dataset.hm;
+    const isOn=hm===m;
+    const col=HMC[hm]||'#333';
     b.classList.toggle('on',isOn);
+    b.style.borderColor=col;
+    b.style.color=isOn?col:'#475569';
+    b.style.background=isOn?col+'18':'transparent';
     const box=b.querySelector('.mchk-box');
-    if(box){box.textContent=isOn?'✓':'';if(isOn){box.style.background=box.style.borderColor}else{box.style.background='transparent'}}
+    if(box){
+      box.textContent=isOn?'✓':'';
+      box.style.borderColor=col;
+      box.style.background=isOn?col:'transparent';
+      box.style.color=isOn?'#fff':'transparent';
+    }
   });
   renderHm();
 }
