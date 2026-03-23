@@ -113,7 +113,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .card-sub{font-size:12.5px;color:var(--t3)}
 
 /* ─── PILL TABS ─── */
-.pill-grp{display:flex;gap:5px;flex-wrap:wrap}
+.pill-grp{display:flex;gap:5px;flex-wrap:wrap;background:var(--sf2);padding:6px 10px;border-radius:8px;border:1px solid var(--bd)}
 .pill{padding:6px 16px;border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,0.7);border:1px solid rgba(226,232,240,0.6);color:#64748b;transition:all .2s ease;backdrop-filter:blur(4px)}
 .pill:hover{background:rgba(241,245,249,0.9);color:#0f172a;border-color:#cbd5e1;transform:translateY(-1px)}.pill.active{background:#eff6ff;border-color:#2563eb;color:#0f172a;box-shadow:0 2px 8px rgba(37,99,235,.15)}
 
@@ -185,7 +185,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .trend-type-tab.active{color:#fff;background:var(--navy);border-color:var(--navy)}
 /* 지표 선택 행 */
 .metric-row{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:8px;background:var(--sf)}
-.metric-chk-grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.metric-chk-grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:var(--sf2);padding:8px 12px;border-radius:8px;border:1px solid var(--bd)}
 /* 체크박스 칩 */
 .mchk{display:flex;align-items:center;gap:7px;padding:7px 14px 7px 10px;font-size:14.5px;font-weight:700;border-radius:7px;cursor:pointer;transition:var(--tr);background:var(--sf2);border:1.5px solid var(--bd);color:var(--t3);user-select:none;position:relative}
 .mchk:hover{border-color:var(--bd2);color:var(--t2);background:#fff;box-shadow:var(--s1)}
@@ -1380,7 +1380,11 @@ function evalAlerts(){
 }
 function renderAlerts(){
   const alerts=evalAlerts();
-  document.getElementById('alertCnt').textContent=`${alerts.length}건`;
+  const kwsForCount=getKwData();
+  const hwCount=kwsForCount.filter(k=>k.adSpend>=50000&&(k.conversions||0)===0).length;
+  const mwCount=kwsForCount.filter(k=>{const r=k.adSpend>0?Math.round((k.convRevenue||0)/k.adSpend*100):0;return r>0&&r<300}).length;
+  const totalAlerts=alerts.length+(hwCount>0?1:0)+(mwCount>0?1:0);
+  document.getElementById('alertCnt').textContent=`${totalAlerts}건`;
   const container=document.getElementById('alertCards');
   if(!alerts.length){
     container.innerHTML=`<div style="padding:20px 16px;color:var(--t3);font-size:13px;grid-column:1/-1">✅ 현재 설정된 경고 조건에 해당하는 항목이 없습니다.</div>`;
@@ -1399,9 +1403,19 @@ function renderAlerts(){
       <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${fieldName}가 ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${dirWord}하였습니다.</div>
     </div>`;
   }).join('');
-  // 경고 설정 기준은 표시하지 않음 — 해당되는 경고만 위에 서술형으로 표시
+  // 키워드 낭비/주의 경고 추가
+  const kws=getKwData();
+  const highKw=kws.filter(k=>k.adSpend>=50000&&(k.conversions||0)===0);
+  const midKw=kws.filter(k=>{const r=k.adSpend>0?Math.round((k.convRevenue||0)/k.adSpend*100):0;return r>0&&r<300});
+  if(highKw.length>0){
+    container.innerHTML+=`<div class="alert-card ac-orange"><div class="ac-inline"><span class="ac-badge-i">🔴 낭비</span>광고비를 사용했으나 전환이 없는 키워드가 <b>${highKw.length}개</b> 있습니다. 총 ${fC(highKw.reduce((a,k)=>a+k.adSpend,0))}이 낭비되고 있습니다.</div></div>`;
+  }
+  if(midKw.length>0){
+    container.innerHTML+=`<div class="alert-card ac-blue"><div class="ac-inline"><span class="ac-badge-i">🟡 주의</span>ROAS 300% 미만인 키워드가 <b>${midKw.length}개</b> 있습니다. 입찰가 조정을 검토해주세요.</div></div>`;
+  }
+  // 경고 설정 안내
   const ruleEl=document.getElementById('alertRuleSummary');
-  if(ruleEl) ruleEl.innerHTML='';
+  if(ruleEl) ruleEl.innerHTML=`<div style="font-size:12px;color:var(--t2);padding:8px 0">💡 우측 상단의 <b>⚙ 경고 설정</b> 버튼에서 경고 기준을 직접 설정할 수 있습니다.</div>`;
 }
 function toggleAlert(){
   const b=document.getElementById('alertBody'),c=b.classList.toggle('coll');
