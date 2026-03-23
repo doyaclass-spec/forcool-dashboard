@@ -1399,18 +1399,9 @@ function renderAlerts(){
       <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${fieldName}가 ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${dirWord}하였습니다.</div>
     </div>`;
   }).join('');
-  // 경고 설정 기준 요약
+  // 경고 설정 기준은 표시하지 않음 — 해당되는 경고만 위에 서술형으로 표시
   const ruleEl=document.getElementById('alertRuleSummary');
-  if(ruleEl){
-    const activeRules=ALERT_RULES.filter(r=>r.enabled);
-    if(activeRules.length){
-      const BL_LABEL={week:'저번 주',yesterday:'어제',month:'저번 달'};
-      ruleEl.innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:6px">📋 현재 경고 설정 기준</div>`+
-        activeRules.map(r=>`<div style="font-size:12px;color:var(--t2);padding:3px 0">${r.ico} ${r.name}: ${BL_LABEL[r.baseline]||'저번 주'} 대비 ${r.threshold}% 이상 ${r.dir==='up'?'증가':'감소'} 시 경고</div>`).join('');
-    } else {
-      ruleEl.innerHTML=`<div style="font-size:12px;color:var(--t2);padding:4px 0">활성화된 경고 규칙이 없습니다. ⚙ 경고 설정에서 추가하세요.</div>`;
-    }
-  }
+  if(ruleEl) ruleEl.innerHTML='';
 }
 function toggleAlert(){
   const b=document.getElementById('alertBody'),c=b.classList.toggle('coll');
