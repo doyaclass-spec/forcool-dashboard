@@ -107,8 +107,9 @@ input,select,textarea{font-family:inherit;outline:none}
 
 /* ─── CARD ─── */
 .card{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(226,232,240,0.6);box-shadow:0 2px 8px rgba(0,0,0,0.04),0 0 1px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:14px;transition:box-shadow .2s ease}
-.card-head{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.card-title{font-size:17px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
+.card-head{padding:14px 18px 10px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-title{font-size:18px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
+.card-desc{font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6}
 .card-ico{width:22px;height:22px;background:var(--navy);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12.5px}
 .card-sub{font-size:14px;color:var(--t2);line-height:1.5}
 
@@ -629,11 +630,11 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <!-- 키워드 -->
 <div class="card">
   <div class="card-head" onclick="toggleCard('kwCardBody','kwCardTog')">
-    <div class="card-title"><div class="card-ico">🔑</div> 키워드별 성과 분석</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="card-sub">파워링크·콘텐츠 캠페인의 개별 키워드 성과를 분석합니다. 광고비 대비 전환이 없는 낭비 키워드를 자동으로 감지합니다.</span>
-      <div class="ctog open" id="kwCardTog">▼</div>
+    <div>
+      <div class="card-title">🔑 키워드별 성과 분석</div>
+      <div class="card-desc">파워링크·콘텐츠 캠페인의 개별 키워드 성과를 분석합니다. 광고비 대비 전환이 없는 낭비 키워드를 자동으로 감지합니다.</div>
     </div>
+    <div class="ctog open" id="kwCardTog">▼</div>
   </div>
   <div class="card-body" id="kwCardBody" style="max-height:2000px">
   <div id="kwSummaryCards" style="display:flex;gap:10px;padding:12px 16px;flex-wrap:wrap"></div>
@@ -678,11 +679,11 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <!-- 캠페인 -->
 <div class="card">
   <div class="card-head" onclick="toggleCard('cmpCardBody','cmpCardTog')">
-    <div class="card-title"><div class="card-ico">📋</div> 캠페인별 상세 성과</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="card-sub">전체 160개 캠페인의 광고비, 노출, 클릭, 전환, ROAS를 한눈에 비교합니다. 컬럼 클릭으로 정렬 가능합니다.</span>
-      <div class="ctog open" id="cmpCardTog">▼</div>
+    <div>
+      <div class="card-title">📋 캠페인별 상세 성과</div>
+      <div class="card-desc">전체 160개 캠페인의 광고비, 노출, 클릭, 전환, ROAS를 한눈에 비교합니다. 컬럼 클릭으로 정렬 가능합니다.</div>
     </div>
+    <div class="ctog open" id="cmpCardTog">▼</div>
   </div>
   <div class="card-body" id="cmpCardBody" style="max-height:2000px">
   <div class="tbl-bar">
@@ -740,12 +741,11 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <!-- ⑧ AI 전략 분석 (통합) -->
 <div class="card strat-ai">
   <div class="card-head" onclick="toggleCard('aiBody','aiCardTog')">
-    <div class="card-title"><div class="card-ico">🤖</div> AI 광고 전략 분석</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="p-date" id="pDate5" style="font-size:13px;font-weight:700;color:var(--t1);background:var(--sf2);padding:3px 10px;border-radius:6px"></span>
-      <span class="card-sub">현재 광고 데이터를 분석하여 위험 요소를 진단하고, 선택한 입찰 전략에 맞는 실행 가능한 전략을 자동으로 생성합니다.</span>
-      <div class="ctog open" id="aiCardTog">▼</div>
+    <div>
+      <div class="card-title">🤖 AI 광고 전략 분석 <span class="p-date" id="pDate5" style="font-size:13px;font-weight:700;color:var(--t1);background:var(--sf2);padding:3px 10px;border-radius:6px;margin-left:6px"></span></div>
+      <div class="card-desc">현재 광고 데이터를 분석하여 위험 요소를 진단하고, 선택한 입찰 전략에 맞는 실행 가능한 전략을 자동으로 생성합니다.</div>
     </div>
+    <div class="ctog open" id="aiCardTog">▼</div>
   </div>
   <div class="card-body" id="aiBody" style="max-height:1200px">
     <div style="padding:16px">
@@ -799,12 +799,11 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <div id="logCnt" style="display:none"></div>
 <div class="card" style="margin-bottom:14px">
     <div class="card-head" onclick="toggleCard('chatCardBody','chatCardTog')">
-      <!-- 텍스트 변경: 데이터 즉시 문의 → 광고 데이터 확인하기 -->
-      <div class="card-title"><div class="card-ico">💬</div> 광고 데이터 확인하기</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="card-sub">궁금한 광고 데이터를 자연어로 질문하면 즉시 수치로 답변합니다. 예: "총 광고비 얼마야?", "ROAS 가장 높은 캠페인?"</span>
-        <div class="ctog open" id="chatCardTog">▼</div>
+      <div>
+        <div class="card-title">💬 광고 데이터 확인하기</div>
+        <div class="card-desc">궁금한 광고 데이터를 자연어로 질문하면 즉시 수치로 답변합니다. 예: "총 광고비 얼마야?", "ROAS 가장 높은 캠페인?"</div>
       </div>
+      <div class="ctog open" id="chatCardTog">▼</div>
     </div>
     <div class="card-body" id="chatCardBody" style="max-height:500px">
     <div class="chat-inner">
