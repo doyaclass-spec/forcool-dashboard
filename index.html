@@ -185,7 +185,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .trend-type-tab.active{color:#fff;background:var(--navy);border-color:var(--navy)}
 /* 지표 선택 행 */
 .metric-row{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:8px;background:var(--sf)}
-.metric-chk-grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:var(--sf2);padding:8px 12px;border-radius:8px;border:1px solid var(--bd)}
+.metric-chk-grp{display:flex;gap:6px;flex-wrap:nowrap;align-items:center;background:var(--sf2);padding:8px 12px;border-radius:8px;border:1px solid var(--bd);overflow-x:auto}
 /* 체크박스 칩 */
 .mchk{display:flex;align-items:center;gap:7px;padding:7px 14px 7px 10px;font-size:14.5px;font-weight:700;border-radius:7px;cursor:pointer;transition:var(--tr);background:var(--sf2);border:1.5px solid var(--bd);color:var(--t3);user-select:none;position:relative}
 .mchk:hover{border-color:var(--bd2);color:var(--t2);background:#fff;box-shadow:var(--s1)}
@@ -487,7 +487,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <span style="font-size:20px;font-weight:800;color:var(--t1);letter-spacing:.04em">📊 핵심 성과 지표 (KPI)</span>
       <span class="p-date" id="pDateKpi" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
-      <span style="font-size:11px;color:var(--t2)">· 당일 데이터는 정산 전 수치로 0.1% 이내 오차 가능</span>
+      <span style="font-size:13px;color:var(--t1);font-weight:500">· 당일 데이터는 정산 전 수치로 0.1% 이내 오차 가능</span>
     </div>
     <button onclick="event.stopPropagation();openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer" title="표시할 지표 선택">👁 표시 설정</button>
   </div>
@@ -1402,7 +1402,7 @@ function renderAlerts(){
   const highKw=kws.filter(k=>k.adSpend>=50000&&(k.conversions||0)===0);
   const midKw=kws.filter(k=>{const r=k.adSpend>0?Math.round((k.convRevenue||0)/k.adSpend*100):0;return r>0&&r<300});
   if(highKw.length>0||midKw.length>0){
-    container.innerHTML+=`<div style="padding:8px 16px;font-size:12px;font-weight:700;color:var(--t2);border-top:2px dashed var(--bd);margin-top:6px">📊 키워드 성과 경고</div>`;
+    container.innerHTML+=`<div style="padding:10px 16px;font-size:15px;font-weight:800;color:var(--t1);border-top:2px dashed var(--bd);margin-top:8px">📊 키워드 성과 경고</div>`;
   }
   if(highKw.length>0){
     container.innerHTML+=`<div class="alert-card" style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:6px"><div class="ac-inline"><span class="ac-badge-i" style="background:#dc2626;color:#fff">🔴 낭비</span>광고비를 사용했으나 전환이 없는 키워드가 <b>${highKw.length}개</b> 있습니다. 총 ${fC(highKw.reduce((a,k)=>a+k.adSpend,0))}이 낭비되고 있습니다.</div></div>`;
