@@ -1370,8 +1370,8 @@ function evalAlerts(){
 function renderAlerts(){
   const alerts=evalAlerts();
   const kwsForCount=getKwData().filter(k=>k.type!=='쇼핑검색');
-  const hwCount=kwsForCount.filter(k=>k.adSpend>=50000&&(k.conversions||0)===0).length;
-  const mwCount=kwsForCount.filter(k=>{const r=k.adSpend>0?Math.round((k.convRevenue||0)/k.adSpend*100):0;return r>0&&r<300}).length;
+  const hwCount=kwsForCount.filter(k=>getWaste(k)==='high').length;
+  const mwCount=kwsForCount.filter(k=>getWaste(k)==='mid').length;
   const totalAlerts=alerts.length+(hwCount>0?1:0)+(mwCount>0?1:0);
   document.getElementById('alertCnt').textContent=`${totalAlerts}건`;
   const container=document.getElementById('alertCards');
@@ -1393,10 +1393,10 @@ function renderAlerts(){
       <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${fieldName}가 ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${dirWord}하였습니다.</div>
     </div>`;
   }).join('');
-  // 키워드 낭비/주의 경고 (구분선으로 분리, 쇼핑검색 제외)
+  // 키워드 낭비/주의 경고 (구분선으로 분리, 쇼핑검색 제외, getWaste 기준 통일)
   const kws=getKwData().filter(k=>k.type!=='쇼핑검색');
-  const highKw=kws.filter(k=>k.adSpend>=50000&&(k.conversions||0)===0);
-  const midKw=kws.filter(k=>{const r=k.adSpend>0?Math.round((k.convRevenue||0)/k.adSpend*100):0;return r>0&&r<300});
+  const highKw=kws.filter(k=>getWaste(k)==='high');
+  const midKw=kws.filter(k=>getWaste(k)==='mid');
   if(highKw.length>0||midKw.length>0){
     container.innerHTML+=`<div style="padding:10px 16px;font-size:15px;font-weight:800;color:var(--t1);border-top:2px dashed var(--bd);margin-top:8px">📊 키워드 성과 경고</div>`;
   }
