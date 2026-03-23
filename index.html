@@ -1018,8 +1018,10 @@ async function fetchDashboardData() {
     if (!dashRes.ok) throw new Error(`HTTP ${dashRes.status}`);
     LIVE_DATA = await dashRes.json();
     if (LIVE_DATA.error) throw new Error(LIVE_DATA.error);
-    // 키워드 데이터는 비동기로 나중에 로드 (대시보드 먼저 표시)
-    fetchKeywordsAsync(from, to);
+    // 키워드: fast API에 포함되어 있으면 사용, 없으면 별도 로드
+    if (!LIVE_DATA.keywords || LIVE_DATA.keywords.length === 0) {
+      fetchKeywordsAsync(from, to);
+    }
     const fc = LIVE_DATA?._meta?.failCount || 0;
     const statusTxt = fc > 0 ? `실시간 데이터 (${fc}건 누락)` : '실시간 데이터';
     document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · ${statusTxt}`;
