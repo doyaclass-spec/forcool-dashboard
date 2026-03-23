@@ -1673,15 +1673,21 @@ function updateMetricChkUI(){
     btn.classList.toggle('on',isOn);
     btn.classList.toggle('axis-L',isOn&&side==='L');
     btn.classList.toggle('axis-R',isOn&&side==='R');
+    const col=MC[m]||'#333';
+    // 버튼 테두리+텍스트 색상 통일
+    btn.style.borderColor=col;
+    btn.style.color=isOn?col:'#475569';
+    if(isOn){btn.style.background=col+'18';btn.style.borderColor=col}
+    else{btn.style.background='transparent'}
     const box=btn.querySelector('.mchk-box');
     if(box){
       box.textContent=isOn?'✓':'';
-      const col=MC[m]||'#333';
-      if(isOn){box.style.background=col;box.style.borderColor=col}
-      else{box.style.background='transparent';box.style.borderColor=col}
+      box.style.borderColor=col;
+      if(isOn){box.style.background=col;box.style.color='#fff'}
+      else{box.style.background='transparent';box.style.color='transparent'}
     }
     const axbadge=btn.querySelector('.mchk-axis');
-    if(axbadge)axbadge.textContent=side==='L'?'좌':'우';
+    if(axbadge){axbadge.textContent=side==='L'?'좌':'우';if(isOn)axbadge.style.background=col+'30'}
     // 최대 2개 초과 시 비활성
     btn.style.opacity=(!isOn&&ord.length>=2)?'0.4':'';
     btn.style.pointerEvents=(!isOn&&ord.length>=2)?'none':'';
@@ -1780,6 +1786,7 @@ function movingAverage(arr,window){
 }
 
 function initTrend(){
+  updateMetricChkUI();
   const pData=getTrendPeriodData(ST.trendType);
   const ctx=document.getElementById('trendChart');
   if(trendCh){trendCh.destroy();trendCh=null}
