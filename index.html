@@ -527,7 +527,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <div style="font-size:18px;font-weight:800;color:var(--t1)">📈 일별 추이 차트</div>
       <div style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">노출수, 클릭수, 광고비 등 주요 지표의 일별 변화를 그래프로 보여줍니다. 최대 2개 지표를 선택해 좌/우 Y축으로 비교할 수 있습니다.</div>
     </div>
-    <!-- 유형 탭 -->
+    <!-- 유형 탭 (1줄) -->
     <div class="trend-type-tabs" id="trendTypeTabs">
       <button class="trend-type-tab active" data-type="전체">전체</button>
       <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
@@ -535,8 +535,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
       <button class="trend-type-tab" data-type="브랜드">브랜드</button>
     </div>
-    <!-- 지표 선택 (체크박스 멀티셀렉트, 최대 2개) -->
-    <div class="metric-row">
+    <!-- 지표 선택 (2줄) -->
+    <div style="padding:8px 18px;border-bottom:1px solid var(--bd);background:var(--sf)">
       <div class="metric-chk-grp" id="metricChkGrp">
         <button class="mchk on axis-L" data-m="impressions" onclick="toggleMetricSel('impressions')">
           <div class="mchk-box">✓</div>노출수<span class="mchk-axis">좌</span>
@@ -560,7 +560,6 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
           <div class="mchk-box"></div>전환율<span class="mchk-axis">좌</span>
         </button>
       </div>
-      <!-- 기간 옵션 삭제: 상단 날짜선택기 기간을 따름 -->
     </div>
     <!-- 인사이트 요약 -->
     <div id="trendInsight" style="display:none"></div>
@@ -579,20 +578,17 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <div style="font-size:18px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
       <div id="hmDesc" style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">선택한 기간의 요일별·시간대별 평균 성과를 색상 농도로 보여줍니다. 색이 진할수록 해당 시간대의 성과가 높습니다.</div>
     </div>
-    <!-- 히트맵 유형 탭 (소제목 아래) -->
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <div class="trend-type-tabs" id="hmTypeTabs" style="margin-bottom:0">
-        <button class="trend-type-tab active" data-type="전체">전체</button>
-        <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
-        <button class="trend-type-tab" data-type="파워링크">파워링크</button>
-        <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
-        <button class="trend-type-tab" data-type="브랜드">브랜드</button>
-      </div>
-      <!-- 1시간 고정, 옵션 삭제 -->
-    </div>
-    <!-- 컨트롤 행: 지표 선택 (체크박스 스타일) -->
+    <!-- 유형 탭 (1줄) -->
     <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="display:none"></select>
-    <div class="metric-row">
+    <div class="trend-type-tabs" id="hmTypeTabs">
+      <button class="trend-type-tab active" data-type="전체">전체</button>
+      <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
+      <button class="trend-type-tab" data-type="파워링크">파워링크</button>
+      <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
+      <button class="trend-type-tab" data-type="브랜드">브랜드</button>
+    </div>
+    <!-- 지표 선택 (2줄) -->
+    <div style="padding:8px 18px;border-bottom:1px solid var(--bd);background:var(--sf)">
       <div id="hmMetricBtns" class="metric-chk-grp">
         <button class="mchk" data-hm="clicks" onclick="setHmMetric('clicks')">
           <div class="mchk-box"></div>클릭수
@@ -606,6 +602,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
         <button class="mchk on" data-hm="roas" onclick="setHmMetric('roas')">
           <div class="mchk-box">✓</div>ROAS
         </button>
+      </div>
       </div>
     </div>
     <!-- 그라데이션 띠 (최저~최고 색상 범례 + 정보) -->
