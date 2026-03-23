@@ -1392,9 +1392,11 @@ function renderAlerts(){
     const cc=FIELD_COLOR[a.field]||'ac-orange';
     const lvEmoji=a.lv==='danger'?'🔴':a.lv==='warning'?'🟡':'🔵';
     const lvLabel=a.lv==='danger'?'위험':a.lv==='warning'?'경고':'안내';
+    const FIELD_NAME={adSpend:'광고비',roas:'ROAS',cpc:'클릭당 비용(CPC)',ctr:'클릭률',impressions:'노출수',clicks:'클릭수',crto:'전환율',conversions:'전환수',convRevenue:'전환매출',cpConv:'전환당비용'};
+    const fieldName=FIELD_NAME[a.field]||a.name;
     const dirWord=a.dir==='up'?'증가':'감소';
     return`<div class="alert-card ${cc}">
-      <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${a.name}이(가) ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${dirWord}하였습니다.</div>
+      <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${fieldName}가 ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${dirWord}하였습니다.</div>
     </div>`;
   }).join('');
   // 경고 설정 기준 요약
