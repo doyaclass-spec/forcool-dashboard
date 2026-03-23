@@ -175,7 +175,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .btn-goal{display:flex;align-items:center;gap:4px;padding:5px 11px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;font-size:13px;font-weight:700;color:var(--t2);transition:var(--tr)}.btn-goal:hover{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
 
 /* ─── 2-COL ─── */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;align-items:stretch}
+.two-col{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
 @media(max-width:900px){.two-col{grid-template-columns:1fr}}
 
 /* ─── TREND (전체 폭, 큰 차트) ─── */
@@ -525,7 +525,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="card" style="margin-bottom:0">
     <div style="padding:14px 18px 0">
       <div style="font-size:15px;font-weight:800;color:var(--t1)">📈 일별 추이 차트</div>
-      <div style="font-size:12px;color:var(--t3);margin-top:2px">선택한 기간의 일별 성과 변화를 확인합니다</div>
+      <div style="font-size:13px;color:var(--t1);margin-top:4px;font-weight:500">선택한 기간의 일별 성과 변화를 확인합니다</div>
     </div>
     <!-- 유형 탭 -->
     <div class="trend-type-tabs" id="trendTypeTabs">
@@ -577,8 +577,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <!-- 소제목 + 설명 -->
     <div style="padding:14px 18px 8px">
       <div style="font-size:15px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
-      <div id="hmDesc" style="font-size:12px;color:var(--t3);margin-top:2px">상단 기간 내 각 요일·시간대별 평균 성과를 나타냅니다</div>
-      <div style="font-size:12px;color:var(--t3);margin-top:2px">시간대별 광고 효율을 한눈에 파악합니다</div>
+      <div id="hmDesc" style="font-size:13px;color:var(--t1);margin-top:4px;font-weight:500">상단 기간 내 각 요일·시간대별 평균 성과를 나타냅니다</div>
+      <div style="font-size:13px;color:var(--t1);margin-top:4px;font-weight:500">시간대별 광고 효율을 한눈에 파악합니다</div>
     </div>
     <!-- 히트맵 유형 탭 (소제목 아래) -->
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -589,11 +589,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
         <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
         <button class="trend-type-tab" data-type="브랜드">브랜드</button>
       </div>
-      <div style="border-left:2px solid var(--bd);height:20px;margin:0 4px"></div>
-      <div style="display:flex;gap:5px">
-        <button class="cmp-opt" data-iv="1" onclick="setHmInterval(1)">1시간</button>
-        <button class="cmp-opt active" data-iv="2" onclick="setHmInterval(2)">2시간</button>
-      </div>
+      <!-- 1시간 고정, 옵션 삭제 -->
     </div>
     <!-- 컨트롤 행: 지표 선택 (체크박스 스타일) -->
     <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="display:none"></select>
@@ -1292,7 +1288,7 @@ const ST={
   cmpOption:'week',
   activeMetrics:new Set(['impressions']),
   metricOrder:['impressions'], // 선택 순서 추적: [0]=좌축, [1]=우축
-  hmType:'전체',hmMetric:'roas',hmInterval:2, // 히트맵 시간 단위 (1 or 2)
+  hmType:'전체',hmMetric:'roas',hmInterval:1, // 히트맵 1시간 고정
   kwSort:{col:'adSpend',dir:'desc'},kwPage:1,kwPS:10,
   cmpSort:null,cmpDir:'desc',cmpTypeF:'all',cmpOnOff:'all',cmpAlo:false,cmpSearch:'',cmpPage:1,cmpPS:10,
   aiShown:false,
@@ -1731,46 +1727,36 @@ function setTrendPeriod(p){
   }).catch(()=>initTrend());
 }
 
-// 기간별 트렌드 데이터 생성
+// 트렌드 데이터: 상단 날짜 선택기 기간 전체를 사용
 function getTrendPeriodData(type){
-  const p=ST.trendPeriod;
   // TREND_DATA가 있으면 해당 기간의 데이터 사용
   const src=window.TREND_DATA||LIVE_DATA;
   const td=src&&src.daily&&src.daily[type]?src.daily[type]:getDailyData(type);
   if(!td||!td.labels)return{labels:[],data:{}};
   const curData=td.cur||td;
-  if(p==='week'){
-    const len=td.labels.length;
-    const start=Math.max(0,len-7);
-    const labels=td.labels.slice(start);
-    const data={};
-    ['impressions','clicks','adSpend','conversions','convRevenue'].forEach(m=>{
-      data[m]=(curData[m]||[]).slice(start);
-    });
-    return addDerivedMetrics({labels,data});
-  }
-  if(p==='month'){
-    return addDerivedMetrics({labels:td.labels,data:{impressions:curData.impressions||[],clicks:curData.clicks||[],adSpend:curData.adSpend||[],conversions:curData.conversions||[],convRevenue:curData.convRevenue||[]}});
-  }
-  if(p==='year'){
-    // 1년 = 일별 데이터를 월별로 집계
+  // 30일 이상이면 월별 집계
+  if(td.labels.length>31){
     const monthMap={};const monthOrder=[];
     td.labels.forEach((l,i)=>{
-      const mm=l.slice(0,5); // "26-03" from "26-03-15"
-      if(!monthMap[mm]){monthMap[mm]={impressions:0,clicks:0,adSpend:0,conversions:0,convRevenue:0};monthOrder.push(mm);}
+      const mm=l.slice(0,5);
+      if(!monthMap[mm]){monthMap[mm]={impressions:0,clicks:0,adSpend:0,conversions:0,convRevenue:0};monthOrder.push(mm)}
       ['impressions','clicks','adSpend','conversions','convRevenue'].forEach(m=>{
         monthMap[mm][m]+=(curData[m]||[])[i]||0;
       });
     });
     const data={impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]};
-    monthOrder.forEach(mm=>{
-      ['impressions','clicks','adSpend','conversions','convRevenue'].forEach(m=>{
-        data[m].push(monthMap[mm][m]);
-      });
-    });
+    monthOrder.forEach(mm=>['impressions','clicks','adSpend','conversions','convRevenue'].forEach(m=>data[m].push(monthMap[mm][m])));
     return addDerivedMetrics({labels:monthOrder,data});
   }
-  return addDerivedMetrics({labels:td.labels,data:curData});
+  // 전체 기간 그대로 사용
+  {
+    const labels=td.labels;
+    const data={};
+    ['impressions','clicks','adSpend','conversions','convRevenue'].forEach(m=>{
+      data[m]=curData[m]||[];
+    });
+    return addDerivedMetrics({labels,data});
+  }
 }
 function addDerivedMetrics(result){
   const d=result.data;
@@ -2090,18 +2076,18 @@ function renderHm(){
       </div>`;
   }
 
-  // 테이블: 세로=시간(행), 가로=요일(열)
+  // 테이블: 세로=요일(행), 가로=시간(열)
   let html=`<tr><th class="hm-th-hour"></th>`;
-  DAYS_FULL.forEach(d=>html+=`<th class="hm-th-day">${d}</th>`);
+  for(let h=0;h<24;h+=iv){html+=`<th class="hm-th-day" style="font-size:11px">${h}시</th>`}
   html+='</tr>';
 
-  grouped.forEach((row,hi)=>{
-    const hourLabel=iv===1?`${hi*iv}시`:`${hi*iv}~${hi*iv+iv-1}시`;
-    html+=`<tr><td class="hm-th-hour">${hourLabel}</td>`;
-    row.forEach((cell,di)=>{
+  DAYS_FULL.forEach((dayName,di)=>{
+    html+=`<tr><td class="hm-th-hour">${dayName}</td>`;
+    grouped.forEach((row,hi)=>{
+      const cell=row[di];
       const v=cell[m],t=norm(v),bg=lerp(sch.lo,sch.hi,t),tc=t>0.55?'#fff':'#0B1D34';
       const disp=m==='roas'?fN(v)+'%':m==='cvr'?v+'%':m==='spend'?(v>=10000?(v/10000).toFixed(0)+'만':''):(v>=1000?(v/1000).toFixed(0)+'k':v||'');
-      html+=`<td class="hm-cell" style="background:${bg};color:${tc}" onmouseenter="showHmTip(event,'${cell.day}','${cell.hour}',${cell.roas},${cell.cvr},${cell.spend},${cell.clicks})" onmouseleave="hideHmTip()">${disp}</td>`;
+      html+=`<td class="hm-cell" style="background:${bg};color:${tc};font-size:11px;padding:6px 4px" onmouseenter="showHmTip(event,'${cell.day}','${cell.hour}',${cell.roas},${cell.cvr},${cell.spend},${cell.clicks})" onmouseleave="hideHmTip()">${disp}</td>`;
     });
     html+='</tr>';
   });
