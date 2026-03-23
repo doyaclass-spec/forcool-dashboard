@@ -1375,11 +1375,12 @@ function renderAlerts(){
   const totalAlerts=alerts.length+(hwCount>0?1:0)+(mwCount>0?1:0);
   document.getElementById('alertCnt').textContent=`${totalAlerts}건`;
   const container=document.getElementById('alertCards');
-  if(!alerts.length){
-    container.innerHTML=`<div style="padding:20px 16px;color:var(--t3);font-size:13px;grid-column:1/-1">✅ 현재 설정된 경고 조건에 해당하는 항목이 없습니다.</div>`;
+  if(!alerts.length&&hwCount===0&&mwCount===0){
+    container.innerHTML=`<div style="padding:20px 16px;color:var(--t2);font-size:14px;grid-column:1/-1">✅ 현재 설정된 경고 조건에 해당하는 항목이 없습니다.</div>`;
     return;
   }
-  container.innerHTML=alerts.map(a=>{
+  container.innerHTML='';
+  container.innerHTML+=alerts.map(a=>{
     const sign=a.pct>0?'+':'';
     const FIELD_COLOR={adSpend:'ac-green',roas:'ac-green',cpc:'ac-orange',ctr:'ac-orange',impressions:'ac-orange',clicks:'ac-orange',crto:'ac-blue',conversions:'ac-blue',convRevenue:'ac-blue',cpConv:'ac-blue'};
     const cc=FIELD_COLOR[a.field]||'ac-orange';
