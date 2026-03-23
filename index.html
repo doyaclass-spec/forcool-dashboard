@@ -1102,15 +1102,7 @@ function updateKwCampFilter(keywords) {
 }
 
 /* ================================================================ DATA */
-function seed(d,i){const s=(d.getFullYear()*1000+d.getMonth()*30+d.getDate())*13+i;return(Math.sin(s*7.3)*43758.5453%1+1)%1*0.5+0.75}
-function periodMult(){const d=DS.days;return d<=1?0.16:d<=3?0.45:d<=7?1.0:d<=14?1.92:d<=30?4.0:d<=90?11.5:d<=180?22:45}
-const B7={
-  '전체':   {impressions:500284,clicks:15247,adSpend:8500000,conversions:320,convRevenue:45000000,roas:529,ctr:3.06,crto:2.09,cpc:557},
-  '쇼핑검색':{impressions:282000,clicks:11390,adSpend:5980000,conversions:200,convRevenue:25206000,roas:422,ctr:2.84,crto:1.75,cpc:525},
-  '파워링크':{impressions:109100,clicks:4110, adSpend:1990000,conversions:98, convRevenue:10032000,roas:504,ctr:3.77,crto:2.38,cpc:484},
-  '콘텐츠': {impressions:89700, clicks:890,  adSpend:310000, conversions:12, convRevenue:680000,  roas:219,ctr:0.99,crto:1.35,cpc:348},
-  '브랜드':  {impressions:49200, clicks:853,  adSpend:220000, conversions:50, convRevenue:1960000, roas:891,ctr:1.73,crto:5.86,cpc:258},
-};
+// 샘플 데이터 생성 함수 제거 — API 실데이터만 사용
 // ① 비교 기간 설명 텍스트
 let KPI_BASELINE='auto';
 function changeKpiBaseline(v){KPI_BASELINE=v;renderKpi();}
@@ -1134,39 +1126,13 @@ function getPeriodStr(){const p=getPeriodDesc();return`${p.label} (${p.range})`;
 
 function getKpiData(type){
   if(LIVE_DATA&&LIVE_DATA.kpi&&LIVE_DATA.kpi[type]) return LIVE_DATA.kpi[type];
-  const base=B7[type]||B7['전체'],m=periodMult();
-  const r={};
-  ['impressions','clicks','adSpend','conversions','convRevenue'].forEach((k,i)=>{
-    r[k]=Math.round(base[k]*m*seed(DS.from,i+10));
-    r['p_'+k]=Math.round(base[k]*m*seed(DS.from,i+20)*0.93);
-  });
-  r.roas=r.adSpend>0?Math.round(r.convRevenue/r.adSpend*100):0;
-  r.p_roas=r.p_adSpend>0?Math.round(r.p_convRevenue/r.p_adSpend*100):0;
-  r.ctr=r.impressions>0?parseFloat((r.clicks/r.impressions*100).toFixed(2)):0;
-  r.p_ctr=r.p_impressions>0?parseFloat((r.p_clicks/r.p_impressions*100).toFixed(2)):0;
-  r.cpc=r.clicks>0?Math.round(r.adSpend/r.clicks):0;
-  r.p_cpc=r.p_clicks>0?Math.round(r.p_adSpend/r.p_clicks):0;
-  r.crto=r.clicks>0?parseFloat((r.conversions/r.clicks*100).toFixed(2)):0;
-  r.p_crto=r.p_clicks>0?parseFloat((r.p_conversions/r.p_clicks*100).toFixed(2)):0;
-  r.cpConv=r.conversions>0?Math.round(r.adSpend/r.conversions):0;
-  r.p_cpConv=r.p_conversions>0?Math.round(r.p_adSpend/r.p_conversions):0;
-  return r;
+  // API 데이터 없으면 빈 값 반환
+  return {impressions:0,clicks:0,adSpend:0,conversions:0,convRevenue:0,roas:0,ctr:0,cpc:0,crto:0,cpConv:0,p_impressions:0,p_clicks:0,p_adSpend:0,p_conversions:0,p_convRevenue:0,p_roas:0,p_ctr:0,p_cpc:0,p_crto:0,p_cpConv:0};
 }
 function getDailyData(type){
   if(LIVE_DATA&&LIVE_DATA.daily&&LIVE_DATA.daily[type]) return LIVE_DATA.daily[type];
-  const base=B7[type]||B7['전체'],d=Math.min(DS.days,30);
-  const labels=[],cur={impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]};
-  const prv={impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]};
-  for(let i=d-1;i>=0;i--){
-    const dt=new Date(DS.to);dt.setDate(dt.getDate()-i);
-    labels.push(`${String(dt.getFullYear()).slice(2)}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`);
-    const pdt=new Date(dt);pdt.setDate(pdt.getDate()-d);
-    ['impressions','clicks','adSpend','conversions','convRevenue'].forEach((k,ki)=>{
-      cur[k].push(Math.round(base[k]/7*seed(dt,ki+1)));
-      prv[k].push(Math.round(base[k]/7*seed(pdt,ki+2)*0.93));
-    });
-  }
-  return{labels,cur,prv};
+  // API 데이터 없으면 빈 차트
+  return{labels:[],cur:{impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]},prv:{impressions:[],clicks:[],adSpend:[],conversions:[],convRevenue:[]}};
 }
 function getCampData(){
   if(LIVE_DATA&&LIVE_DATA.campaigns&&LIVE_DATA.campaigns.length>0){
@@ -1176,20 +1142,8 @@ function getCampData(){
       get cpConv(){return this.conversions>0?Math.round(this.adSpend/this.conversions):0},
     }));
   }
-  const m=periodMult();
-  return CAMPS_BASE.map((c,i)=>({
-    ...c,
-    impressions:Math.round(c.impressions*m*seed(DS.from,i+30)),
-    clicks:     Math.round(c.clicks*m*seed(DS.from,i+40)),
-    adSpend:    Math.round(c.adSpend*m*seed(DS.from,i+50)),
-    conversions:Math.round(c.conversions*m*seed(DS.from,i+60)),
-    convRevenue:Math.round(c.convRevenue*m*seed(DS.from,i+70)),
-    prevAdSpend:Math.round(c.adSpend*m*seed(DS.from,i+80)*0.9),
-    ctr:parseFloat((c.ctr*seed(DS.from,i+90)).toFixed(2)),
-    crto:parseFloat((c.crto*seed(DS.from,i+91)).toFixed(2)),
-    get roas(){return this.adSpend>0?Math.round(this.convRevenue/this.adSpend*100):0},
-    get cpConv(){return this.conversions>0?Math.round(this.adSpend/this.conversions):0},
-  }));
+  // API 데이터 없으면 빈 배열
+  return [];
 }
 function getKwData(){
   if(LIVE_DATA&&LIVE_DATA.keywords&&LIVE_DATA.keywords.length>0){
@@ -1200,69 +1154,13 @@ function getKwData(){
       get cpConv(){return this.conversions>0?Math.round(this.adSpend/this.conversions):0},
     }));
   }
-  const m=periodMult();
-  return KW_BASE.map((k,i)=>({
-    ...k,
-    impressions:Math.round(k.impressions*m*seed(DS.from,i+100)),
-    clicks:     Math.round(k.clicks*m*seed(DS.from,i+110)),
-    adSpend:    Math.round(k.adSpend*m*seed(DS.from,i+120)),
-    conversions:Math.round(k.conversions*m*seed(DS.from,i+130)),
-    convRevenue:Math.round(k.convRevenue*m*seed(DS.from,i+140)),
-    get cpc(){return this.clicks>0?Math.round(this.adSpend/this.clicks):0},
-    get roas(){return this.adSpend>0?Math.round(this.convRevenue/this.adSpend*100):0},
-    get cpConv(){return this.conversions>0?Math.round(this.adSpend/this.conversions):0},
-  }));
+  // API 데이터 없으면 빈 배열
+  return [];
 }
 
-const CAMPS_BASE=[
-  {id:1,name:'스타리온 업소용냉장고',type:'쇼핑검색',status:'활성',  impressions:125400,clicks:3840,adSpend:2150000,conversions:82,convRevenue:12300000,prevAdSpend:1287000,ctr:3.06,crto:2.13,alr:'danger'},
-  {id:2,name:'라셀르 카페냉장고',    type:'쇼핑검색',status:'활성',  impressions:89300, clicks:2540,adSpend:1420000,conversions:54,convRevenue:5980000, prevAdSpend:1385000,ctr:2.84,crto:2.12,alr:null},
-  {id:3,name:'업소용냉장고 파워링크',type:'파워링크',status:'활성',  impressions:48200, clicks:1820,adSpend:1050000,conversions:38,convRevenue:3990000, prevAdSpend:990000, ctr:3.77,crto:2.09,alr:null},
-  {id:4,name:'라셀르 냉장쇼케이스',  type:'쇼핑검색',status:'활성',  impressions:72100, clicks:2180,adSpend:980000, conversions:28,convRevenue:2840000, prevAdSpend:920000, ctr:3.02,crto:1.28,alr:null},
-  {id:5,name:'스타리온냉장고 브랜드',type:'파워링크',status:'일시중지',impressions:31500,clicks:1240,adSpend:520000, conversions:42,convRevenue:4620000, prevAdSpend:510000, ctr:3.94,crto:3.39,alr:null},
-  {id:6,name:'업소용 냉동고',        type:'쇼핑검색',status:'활성',  impressions:56800, clicks:1650,adSpend:890000, conversions:14,convRevenue:1602000, prevAdSpend:810000, ctr:2.90,crto:0.85,alr:'danger'},
-  {id:7,name:'냉장고추천 콘텐츠광고',type:'콘텐츠', status:'활성',  impressions:122000,clicks:890, adSpend:310000, conversions:12,convRevenue:680000,  prevAdSpend:290000, ctr:0.73,crto:1.35,alr:null},
-  {id:8,name:'라셀르 와인냉장고',    type:'쇼핑검색',status:'활성',  impressions:38700, clicks:1180,adSpend:540000, conversions:22,convRevenue:2484000, prevAdSpend:520000, ctr:3.05,crto:1.86,alr:null},
-  {id:9,name:'카페용냉장고 파워링크',type:'파워링크',status:'일시중지',impressions:29400,clicks:1050,adSpend:420000, conversions:18,convRevenue:1422000, prevAdSpend:400000, ctr:3.57,crto:1.71,alr:null},
-  {id:10,name:'포쿨 브랜드검색',     type:'브랜드', status:'활성',  impressions:66984, clicks:853, adSpend:220000, conversions:50,convRevenue:1960000, prevAdSpend:179000, ctr:1.27,crto:5.86,alr:null},
-];
-const KW_BASE=[
-  {kw:'업소용냉장고',    type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:28400,clicks:920,adSpend:520000,conversions:22,convRevenue:3080000},
-  {kw:'소형업소냉장고',  type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:18200,clicks:640,adSpend:380000,conversions:18,convRevenue:2520000},
-  {kw:'업소용냉동냉장고',type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:12600,clicks:580,adSpend:420000,conversions:14,convRevenue:1820000},
-  {kw:'스탠드형냉장고',  type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:8900, clicks:210,adSpend:145000,conversions:3, convRevenue:270000},
-  {kw:'업소용냉장고추천',type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:6400, clicks:380,adSpend:260000,conversions:0, convRevenue:0},
-  {kw:'냉장고가격',      type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:15200,clicks:240,adSpend:180000,conversions:1, convRevenue:98000},
-  {kw:'카페냉장고',      type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:22100,clicks:820,adSpend:460000,conversions:26,convRevenue:2860000},
-  {kw:'카페쇼케이스냉장고',type:'쇼핑검색',campaign:'라셀르 카페냉장고',  impressions:14500,clicks:540,adSpend:310000,conversions:16,convRevenue:1760000},
-  {kw:'라셀르냉장고',    type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:9800, clicks:390,adSpend:220000,conversions:12,convRevenue:1320000},
-  {kw:'음료냉장고',      type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:18600,clicks:420,adSpend:290000,conversions:8, convRevenue:720000},
-  {kw:'쇼케이스냉장고가격',type:'쇼핑검색',campaign:'라셀르 카페냉장고',  impressions:7200, clicks:180,adSpend:140000,conversions:0, convRevenue:0},
-  {kw:'업소용냉장고구매',type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:11400,clicks:620,adSpend:350000,conversions:18,convRevenue:1980000},
-  {kw:'냉장고렌탈',      type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:8600, clicks:340,adSpend:210000,conversions:6, convRevenue:660000},
-  {kw:'중고업소냉장고',  type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:12400,clicks:280,adSpend:195000,conversions:2, convRevenue:176000},
-  {kw:'냉장고임대',      type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:4200, clicks:120,adSpend:88000, conversions:0, convRevenue:0},
-  {kw:'포쿨냉장고',      type:'브랜드',  campaign:'포쿨 브랜드검색',       impressions:18200,clicks:380,adSpend:76000, conversions:24,convRevenue:1080000},
-  {kw:'포쿨스타리온',    type:'브랜드',  campaign:'포쿨 브랜드검색',       impressions:12400,clicks:260,adSpend:52000, conversions:16,convRevenue:720000},
-  {kw:'포쿨라셀르',      type:'브랜드',  campaign:'포쿨 브랜드검색',       impressions:8800, clicks:180,adSpend:36000, conversions:10,convRevenue:450000},
-  {kw:'냉장고추천',      type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:24000,clicks:360,adSpend:252000,conversions:3, convRevenue:270000},
-  {kw:'소상공인냉장고',  type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:4800, clicks:180,adSpend:144000,conversions:6, convRevenue:660000},
-  {kw:'카운터냉장고',    type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:5400, clicks:160,adSpend:112000,conversions:0, convRevenue:0},
-  {kw:'냉장고구매',      type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:16200,clicks:480,adSpend:336000,conversions:8, convRevenue:720000},
-  {kw:'업소용냉장고가격',type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:11000,clicks:310,adSpend:232500,conversions:4, convRevenue:440000},
-  {kw:'라셀르쇼케이스',  type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:7200, clicks:310,adSpend:217000,conversions:4, convRevenue:360000},
-  {kw:'업무용냉장고',    type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:8200, clicks:260,adSpend:195000,conversions:3, convRevenue:270000},
-  {kw:'300리터냉장고',   type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:5100, clicks:160,adSpend:120000,conversions:0, convRevenue:0},
-  {kw:'스타리온냉장고',  type:'쇼핑검색',campaign:'스타리온 업소용냉장고',impressions:9200, clicks:310,adSpend:217000,conversions:9, convRevenue:990000},
-  {kw:'냉장고비교',      type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:9800, clicks:200,adSpend:150000,conversions:1, convRevenue:110000},
-  {kw:'냉장고임대단기',  type:'파워링크',campaign:'업소용냉장고 파워링크',impressions:3800, clicks:120,adSpend:90000, conversions:0, convRevenue:0},
-  {kw:'카페업소냉장고',  type:'쇼핑검색',campaign:'라셀르 카페냉장고',    impressions:6800, clicks:290,adSpend:203000,conversions:7, convRevenue:630000},
-];
-const MO_DATA={
-  '2026-01':{쇼핑검색:{adSpend:28500000,convRevenue:142500000,conversions:1050},파워링크:{adSpend:9200000,convRevenue:38640000,conversions:342},콘텐츠:{adSpend:3100000,convRevenue:9610000,conversions:86},브랜드:{adSpend:1800000,convRevenue:16200000,conversions:180}},
-  '2025-12':{쇼핑검색:{adSpend:24100000,convRevenue:118000000,conversions:880},파워링크:{adSpend:7800000,convRevenue:31200000,conversions:289},콘텐츠:{adSpend:2600000,convRevenue:7540000,conversions:72},브랜드:{adSpend:1500000,convRevenue:13000000,conversions:152}},
-  '2025-03':{쇼핑검색:{adSpend:8500000,convRevenue:45000000,conversions:320},파워링크:{adSpend:2100000,convRevenue:9100000,conversions:98},콘텐츠:{adSpend:310000,convRevenue:680000,conversions:12},브랜드:{adSpend:220000,convRevenue:1960000,conversions:50}},
-};
+const CAMPS_BASE=[]; // 샘플 데이터 제거 — API 실데이터만 사용
+const KW_BASE=[]; // 샘플 데이터 제거 — API 실데이터만 사용
+const MO_DATA={}; // 샘플 데이터 제거 — KV 백업에서 실데이터 사용
 const GOALS={
   '전체':   {impressions:600000,clicks:18000,adSpend:10000000,conversions:400,convRevenue:55000000,roas:600,ctr:3.5,cpc:500,crto:2.5,cpConv:25000},
   '쇼핑검색':{impressions:350000,clicks:13000,adSpend:7000000, conversions:240,convRevenue:32000000,roas:450,ctr:3.2,cpc:480,crto:2.0,cpConv:28000},
