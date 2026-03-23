@@ -477,6 +477,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   </div>
   <div class="alert-body" id="alertBody">
     <div class="alert-cards" id="alertCards"></div>
+    <div id="alertRuleSummary" style="padding:10px 16px;border-top:1px solid rgba(255,255,255,0.15)"></div>
   </div>
 </div>
 
@@ -879,8 +880,9 @@ const BASELINE_LABELS={week:'저번 주',yesterday:'어제',month:'저번 달',y
 try{const s=localStorage.getItem('fc_alert_rules2');if(s)ALERT_RULES=JSON.parse(s)}catch(e){}
 
 /* ================================================================ DATE STATE */
-let DS={from:new Date(2026,2,15),to:new Date(2026,2,21),days:7,preset:'최근 7일(오늘 포함)'};
-let DP={open:false,startYM:{y:2026,m:2},endYM:{y:2026,m:2},selFrom:new Date(2026,2,15),selTo:new Date(2026,2,21),picking:'from'};
+const _initTo=new Date();_initTo.setDate(_initTo.getDate()-1);const _initFrom=new Date(_initTo);_initFrom.setDate(_initFrom.getDate()-6);
+let DS={from:_initFrom,to:_initTo,days:7,preset:'최근 7일(오늘 제외)'};
+let DP={open:false,startYM:{y:_initFrom.getFullYear(),m:_initFrom.getMonth()},endYM:{y:_initTo.getFullYear(),m:_initTo.getMonth()},selFrom:new Date(_initFrom),selTo:new Date(_initTo),picking:'from'};
 const PRESETS=[
   {l:'오늘',fn:()=>range(0,0)},{l:'어제',fn:()=>range(-1,-1)},
   {l:'최근 7일(오늘 포함)',fn:()=>range(-6,0)},{l:'최근 7일(오늘 제외)',fn:()=>range(-7,-1)},
@@ -1395,6 +1397,18 @@ function renderAlerts(){
       <div class="ac-inline"><span class="ac-badge-i">${lvEmoji} ${lvLabel}</span>${a.name}이(가) ${a.blLabel} 대비 <span class="ac-pct">${sign}${a.pct}%</span> ${dirWord}하였습니다.</div>
     </div>`;
   }).join('');
+  // 경고 설정 기준 요약
+  const ruleEl=document.getElementById('alertRuleSummary');
+  if(ruleEl){
+    const activeRules=ALERT_RULES.filter(r=>r.enabled);
+    if(activeRules.length){
+      const BL_LABEL={week:'저번 주',yesterday:'어제',month:'저번 달'};
+      ruleEl.innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:6px">📋 현재 경고 설정 기준</div>`+
+        activeRules.map(r=>`<div style="font-size:12px;color:var(--t2);padding:3px 0">${r.ico} ${r.name}: ${BL_LABEL[r.baseline]||'저번 주'} 대비 ${r.threshold}% 이상 ${r.dir==='up'?'증가':'감소'} 시 경고</div>`).join('');
+    } else {
+      ruleEl.innerHTML=`<div style="font-size:12px;color:var(--t2);padding:4px 0">활성화된 경고 규칙이 없습니다. ⚙ 경고 설정에서 추가하세요.</div>`;
+    }
+  }
 }
 function toggleAlert(){
   const b=document.getElementById('alertBody'),c=b.classList.toggle('coll');
