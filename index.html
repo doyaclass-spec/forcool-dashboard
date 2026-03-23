@@ -2030,6 +2030,8 @@ function setHmMonth(val){
 }
 
 function renderHm(){
+  // 히트맵 체크박스 색상 초기화
+  updateHmChkUI();
   // 히트맵 기간 설명 업데이트
   const hmDescEl=document.getElementById('hmDesc');
   if(hmDescEl){
@@ -2106,9 +2108,9 @@ function showHmTip(e,day,hour,roas,cvr,spend,clicks){
   tip.style.cssText=`display:block;left:${e.clientX+14}px;top:${e.clientY-10}px`;
 }
 function hideHmTip(){document.getElementById('hmTip').style.display='none'}
-function setHmMetric(m){
-  ST.hmMetric=m;
-  const HMC={impressions:'#EF4444',clicks:'#F97316',cvr:'#22C55E',spend:'#EAB308',roas:'#3B82F6',conversions:'#6366F1',cpc:'#A855F7'};
+const HMC={clicks:'#F97316',cvr:'#22C55E',spend:'#EAB308',roas:'#3B82F6'};
+function updateHmChkUI(){
+  const m=ST.hmMetric;
   document.querySelectorAll('#hmMetricBtns .mchk').forEach(b=>{
     const hm=b.dataset.hm;
     const isOn=hm===m;
@@ -2125,6 +2127,10 @@ function setHmMetric(m){
       box.style.color=isOn?'#fff':'transparent';
     }
   });
+}
+function setHmMetric(m){
+  ST.hmMetric=m;
+  updateHmChkUI();
   renderHm();
 }
 // 히트맵 유형 탭
