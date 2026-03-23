@@ -537,26 +537,26 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <!-- 지표 선택 (체크박스 멀티셀렉트, 최대 2개) -->
     <div class="metric-row">
       <div class="metric-chk-grp" id="metricChkGrp">
-        <button class="mchk on axis-L" data-m="impressions" onclick="toggleMetricSel('impressions')" style="border-color:#EF4444;color:#EF4444">
-          <div class="mchk-box" style="border-color:#EF4444;background:#EF4444">✓</div>노출수<span class="mchk-axis">좌</span>
+        <button class="mchk on axis-L" data-m="impressions" onclick="toggleMetricSel('impressions')">
+          <div class="mchk-box">✓</div>노출수<span class="mchk-axis">좌</span>
         </button>
-        <button class="mchk" data-m="clicks" onclick="toggleMetricSel('clicks')" style="border-color:#F97316;color:#F97316">
-          <div class="mchk-box" style="border-color:#F97316"></div>클릭수<span class="mchk-axis">좌</span>
+        <button class="mchk" data-m="clicks" onclick="toggleMetricSel('clicks')">
+          <div class="mchk-box"></div>클릭수<span class="mchk-axis">좌</span>
         </button>
-        <button class="mchk" data-m="ctr" onclick="toggleMetricSel('ctr')" style="border-color:#22C55E;color:#22C55E">
-          <div class="mchk-box" style="border-color:#22C55E"></div>클릭률<span class="mchk-axis">좌</span>
+        <button class="mchk" data-m="ctr" onclick="toggleMetricSel('ctr')">
+          <div class="mchk-box"></div>클릭률<span class="mchk-axis">좌</span>
         </button>
-        <button class="mchk" data-m="cpc" onclick="toggleMetricSel('cpc')" style="border-color:#EAB308;color:#EAB308">
-          <div class="mchk-box" style="border-color:#EAB308"></div>평균CPC<span class="mchk-axis">우</span>
+        <button class="mchk" data-m="cpc" onclick="toggleMetricSel('cpc')">
+          <div class="mchk-box"></div>평균CPC<span class="mchk-axis">우</span>
         </button>
-        <button class="mchk" data-m="adSpend" onclick="toggleMetricSel('adSpend')" style="border-color:#3B82F6;color:#3B82F6">
-          <div class="mchk-box" style="border-color:#3B82F6"></div>광고비<span class="mchk-axis">우</span>
+        <button class="mchk" data-m="adSpend" onclick="toggleMetricSel('adSpend')">
+          <div class="mchk-box"></div>광고비<span class="mchk-axis">우</span>
         </button>
-        <button class="mchk" data-m="conversions" onclick="toggleMetricSel('conversions')" style="border-color:#6366F1;color:#6366F1">
-          <div class="mchk-box" style="border-color:#6366F1"></div>전환수<span class="mchk-axis">좌</span>
+        <button class="mchk" data-m="conversions" onclick="toggleMetricSel('conversions')">
+          <div class="mchk-box"></div>전환수<span class="mchk-axis">좌</span>
         </button>
-        <button class="mchk" data-m="convRevenue" onclick="toggleMetricSel('convRevenue')" style="border-color:#A855F7;color:#A855F7">
-          <div class="mchk-box" style="border-color:#A855F7"></div>전환매출<span class="mchk-axis">우</span>
+        <button class="mchk" data-m="crto" onclick="toggleMetricSel('crto')">
+          <div class="mchk-box"></div>전환율<span class="mchk-axis">좌</span>
         </button>
       </div>
       <!-- 기간 옵션 삭제: 상단 날짜선택기 기간을 따름 -->
@@ -598,26 +598,17 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="display:none"></select>
     <div class="metric-row">
       <div id="hmMetricBtns" class="metric-chk-grp">
-        <button class="mchk" data-hm="impressions" onclick="setHmMetric('impressions')" style="border-color:#EF4444;color:#EF4444">
-          <div class="mchk-box" style="border-color:#EF4444"></div>노출수
+        <button class="mchk" data-hm="clicks" onclick="setHmMetric('clicks')">
+          <div class="mchk-box"></div>클릭수
         </button>
-        <button class="mchk" data-hm="clicks" onclick="setHmMetric('clicks')" style="border-color:#F97316;color:#F97316">
-          <div class="mchk-box" style="border-color:#F97316"></div>클릭수
+        <button class="mchk" data-hm="cvr" onclick="setHmMetric('cvr')">
+          <div class="mchk-box"></div>전환율
         </button>
-        <button class="mchk" data-hm="cvr" onclick="setHmMetric('cvr')" style="border-color:#22C55E;color:#22C55E">
-          <div class="mchk-box" style="border-color:#22C55E"></div>전환율
+        <button class="mchk" data-hm="spend" onclick="setHmMetric('spend')">
+          <div class="mchk-box"></div>광고비
         </button>
-        <button class="mchk" data-hm="spend" onclick="setHmMetric('spend')" style="border-color:#EAB308;color:#EAB308">
-          <div class="mchk-box" style="border-color:#EAB308"></div>광고비
-        </button>
-        <button class="mchk on" data-hm="roas" onclick="setHmMetric('roas')" style="border-color:#3B82F6;color:#3B82F6">
-          <div class="mchk-box" style="border-color:#3B82F6;background:#3B82F6">✓</div>ROAS
-        </button>
-        <button class="mchk" data-hm="conversions" onclick="setHmMetric('conversions')" style="border-color:#6366F1;color:#6366F1">
-          <div class="mchk-box" style="border-color:#6366F1"></div>전환수
-        </button>
-        <button class="mchk" data-hm="cpc" onclick="setHmMetric('cpc')" style="border-color:#A855F7;color:#A855F7">
-          <div class="mchk-box" style="border-color:#A855F7"></div>CPC
+        <button class="mchk on" data-hm="roas" onclick="setHmMetric('roas')">
+          <div class="mchk-box">✓</div>ROAS
         </button>
       </div>
     </div>
@@ -866,9 +857,9 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <script>
 /* ================================================================ CONSTANTS */
-const MC={impressions:'#EF4444',clicks:'#F97316',adSpend:'#EAB308',conversions:'#22C55E',convRevenue:'#3B82F6',ctr:'#6366F1',cpc:'#A855F7'};
-const MF={impressions:'num',clicks:'num',adSpend:'cur',conversions:'num',convRevenue:'cur',ctr:'pct',cpc:'cur'};
-const ML={impressions:'노출수',clicks:'클릭수',adSpend:'광고비',conversions:'전환수',convRevenue:'전환매출',ctr:'클릭률',cpc:'평균CPC'};
+const MC={impressions:'#EF4444',clicks:'#F97316',ctr:'#EAB308',cpc:'#22C55E',adSpend:'#3B82F6',conversions:'#6366F1',crto:'#A855F7',convRevenue:'#3B82F6'};
+const MF={impressions:'num',clicks:'num',adSpend:'cur',conversions:'num',convRevenue:'cur',ctr:'pct',cpc:'cur',crto:'pct'};
+const ML={impressions:'노출수',clicks:'클릭수',adSpend:'광고비',conversions:'전환수',convRevenue:'전환매출',ctr:'클릭률',cpc:'평균CPC',crto:'전환율'};
 const MA={impressions:'yL',clicks:'yL',adSpend:'yR',conversions:'yL',convRevenue:'yR'};
 const DAYS=['월','화','수','목','금','토','일'];
 const HOURS=['0시','2시','4시','6시','8시','10시','12시','14시','16시','18시','20시','22시'];
@@ -1764,10 +1755,11 @@ function addDerivedMetrics(result){
   const d=result.data;
   if(!d||!d.impressions)return result;
   const len=d.impressions.length;
-  d.ctr=[];d.cpc=[];
+  d.ctr=[];d.cpc=[];d.crto=[];
   for(let i=0;i<len;i++){
     d.ctr.push(d.impressions[i]>0?Math.round(d.clicks[i]/d.impressions[i]*10000)/100:0);
     d.cpc.push(d.clicks[i]>0?Math.round(d.adSpend[i]/d.clicks[i]):0);
+    d.crto.push(d.clicks[i]>0?Math.round((d.conversions[i]||0)/d.clicks[i]*10000)/100:0);
   }
   return result;
 }
@@ -1911,7 +1903,8 @@ function initTrend(){
       const fmtTotal=MF[m]==='cur'?fC(total):MF[m]==='pct'?Math.round(total/Math.max(1,pData.labels.length))+'%':fN(total);
       return`<div class="tl-item"><div class="tl-dot" style="background:${MC[m]}"></div><span>${ML[m]}</span><span style="font-weight:800;color:${MC[m]}">${fmtTotal}</span></div>`;
     }).join('');
-    html+=`<div class="tl-item" style="color:var(--t2);font-size:12px"><div class="tip-wrap"><span style="cursor:help">━ 추세선 (이동평균)</span><div class="tip-box" style="width:280px;white-space:normal;line-height:1.6"><b>추세선이란?</b><br>일별 데이터의 단기 변동을 제거하고 전체적인 흐름(상승/하락/유지)을 파악하기 위한 선입니다.<br><br>최근 3~5일간의 평균값을 연결하여, 하루하루의 급등/급락에 흔들리지 않고 <b>실제 추세 방향</b>을 판단할 수 있습니다.</div></div></div>`;
+    html+=`<div class="tl-item" style="color:var(--t2);font-size:12px">━ 추세선 (이동평균)</div>`;
+    html+=`<div style="font-size:11px;color:var(--t2);margin-top:4px;line-height:1.5">최근 3~5일간의 평균값을 연결한 선으로, 일별 변동을 제거하고 전체적인 상승/하락 흐름을 보여줍니다.</div>`;
     leg.innerHTML=html;
   }
 
@@ -2150,7 +2143,7 @@ function kwChgLbl(cur,prev){
   return'<span class="chg ne">0%</span>';
 }
 function getKwF(){
-  let list=getKwData();
+  let list=getKwData().filter(k=>k.type!=='쇼핑검색');
   const q=document.getElementById('kwSearch').value.toLowerCase();if(q)list=list.filter(k=>k.kw.toLowerCase().includes(q)||k.campaign.toLowerCase().includes(q));
   const tf=document.getElementById('kwTypeF').value;if(tf!=='all')list=list.filter(k=>k.type===tf);
   const cf=document.getElementById('kwCampF').value;if(cf!=='all')list=list.filter(k=>k.campaign===cf);
