@@ -484,12 +484,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <div class="card" style="margin-bottom:0">
   <!-- 소제목 행 -->
   <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;background:var(--sf);border-bottom:1px solid var(--bd)">
-    <div style="display:flex;align-items:center;gap:8px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <span style="font-size:20px;font-weight:800;color:var(--t1);letter-spacing:.04em">📊 핵심 성과 지표 (KPI)</span>
       <span class="p-date" id="pDateKpi" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:12px;color:var(--t2)">당일 데이터는 네이버 정산 전 수치로 최종 확정값과 미세한 차이(0.1% 이내)가 있을 수 있습니다</span>
+      <span style="font-size:11px;color:var(--t2)">· 당일 데이터는 정산 전 수치로 0.1% 이내 오차 가능</span>
     </div>
     <button onclick="event.stopPropagation();openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer" title="표시할 지표 선택">👁 표시 설정</button>
   </div>
@@ -658,6 +656,14 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <select class="fsel" id="kwTypeF" onchange="renderKw()"><option value="all">전체 유형</option><option value="파워링크">파워링크</option><option value="콘텐츠">콘텐츠</option></select>
     <select class="fsel" id="kwCampF" onchange="renderKw()"><option value="all">전체 캠페인</option><option value="스타리온 업소용냉장고">스타리온 업소용냉장고</option><option value="라셀르 카페냉장고">라셀르 카페냉장고</option><option value="업소용냉장고 파워링크">업소용냉장고 파워링크</option><option value="포쿨 브랜드검색">포쿨 브랜드검색</option></select>
     <select class="fsel" id="kwWasteF" onchange="renderKw()"><option value="all">전체 낭비지수</option><option value="high">🔴 낭비높음</option><option value="mid">🟡 낭비중간</option><option value="low">🟢 효율좋음</option></select>
+    <select class="fsel" id="kwSpendF" onchange="renderKw()">
+      <option value="all">전체 광고비</option>
+      <option value="100">100만원 이상</option>
+      <option value="50">50만원 이상</option>
+      <option value="10">10만원 이상</option>
+      <option value="5">5만원 이상</option>
+      <option value="0-10">10만원 미만</option>
+    </select>
     <span class="tcnt" id="kwCnt"></span>
     <select class="ps-sel" id="kwPsSel" onchange="ST.kwPS=parseInt(this.value);ST.kwPage=1;renderKw()">
       <option value="10">10개씩</option><option value="20">20개씩</option>
@@ -698,6 +704,13 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <select class="fsel" id="cmpTypeF" onchange="onFilter()"><option value="all">전체 유형</option><option value="쇼핑검색">쇼핑검색</option><option value="파워링크">파워링크</option><option value="콘텐츠">콘텐츠</option><option value="브랜드">브랜드</option></select>
     <div class="onoff-grp"><button class="onoff-btn on" id="btnOn" onclick="toggleOnOff('on')"><div class="od"></div>ON</button><button class="onoff-btn off" id="btnOff" onclick="toggleOnOff('off')"><div class="od"></div>OFF</button></div>
     <button class="alo-btn" id="aloBtn" onclick="toggleAlo()"><div class="dot"></div>경고만</button>
+    <select class="fsel" id="cmpSpendF" onchange="ST.cmpPage=1;renderCmp()">
+      <option value="all">전체 광고비</option>
+      <option value="100">100만원 이상</option>
+      <option value="50">50만원 이상</option>
+      <option value="10">10만원 이상</option>
+      <option value="0-10">10만원 미만</option>
+    </select>
     <span class="tcnt" id="cmpCnt"></span>
     <select class="ps-sel" id="cmpPsSel" onchange="ST.cmpPS=parseInt(this.value);ST.cmpPage=1;renderCmp()">
       <option value="10">10개씩</option><option value="20">20개씩</option>
@@ -794,16 +807,11 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <!-- 키워드 추천 삭제됨 -->
 
-<!-- ⑧ 변경이력 + 채팅: 1행 2열 -->
-<div class="strat-bottom">
-  <div class="card" style="margin-bottom:0">
-    <!-- 변경 이력 카드 삭제됨 (수동 기록 → 불필요) -->
-    <div id="logCardBody" style="display:none"></div>
-    <div id="logTl" style="display:none"></div>
-    <div id="logCnt" style="display:none"></div>
-  </div>
-
-  <div class="card" style="margin-bottom:0">
+<!-- ⑧ 채팅: 전체 폭 1칸 -->
+<div id="logCardBody" style="display:none"></div>
+<div id="logTl" style="display:none"></div>
+<div id="logCnt" style="display:none"></div>
+<div class="card" style="margin-bottom:14px">
     <div class="card-head" onclick="toggleCard('chatCardBody','chatCardTog')">
       <!-- 텍스트 변경: 데이터 즉시 문의 → 광고 데이터 확인하기 -->
       <div class="card-title"><div class="card-ico">💬</div> 광고 데이터 확인하기</div>
@@ -2123,6 +2131,8 @@ function getKwF(){
   const tf=document.getElementById('kwTypeF').value;if(tf!=='all')list=list.filter(k=>k.type===tf);
   const cf=document.getElementById('kwCampF').value;if(cf!=='all')list=list.filter(k=>k.campaign===cf);
   const wf=document.getElementById('kwWasteF').value;if(wf!=='all')list=list.filter(k=>getWaste(k)===wf);
+  const sf=document.getElementById('kwSpendF');
+  if(sf){const sv=sf.value;if(sv==='100')list=list.filter(k=>k.adSpend>=1000000);else if(sv==='50')list=list.filter(k=>k.adSpend>=500000);else if(sv==='10')list=list.filter(k=>k.adSpend>=100000);else if(sv==='5')list=list.filter(k=>k.adSpend>=50000);else if(sv==='0-10')list=list.filter(k=>k.adSpend<100000)}
   list.sort((a,b)=>{const av=a[ST.kwSort.col]??0,bv=b[ST.kwSort.col]??0;return ST.kwSort.dir==='asc'?av-bv:bv-av});
   return list;
 }
@@ -2139,17 +2149,17 @@ function renderKw(){
   const sc=document.getElementById('kwSummaryCards');
   if(sc)sc.innerHTML=`
     <div onclick="document.getElementById('kwWasteF').value='high';renderKw()" style="flex:1;min-width:200px;padding:14px 18px;background:rgba(254,242,242,0.7);border:1px solid rgba(220,38,38,0.2);border-radius:12px;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px)">
-      <div style="font-size:13px;font-weight:800;color:#dc2626;margin-bottom:6px">🔴 낭비 높음</div>
+      <div class="tip-wrap" style="font-size:13px;font-weight:800;color:#dc2626;margin-bottom:6px"><span style="cursor:help">🔴 낭비 높음</span><div class="tip-box" style="width:250px;white-space:normal;line-height:1.5"><b>낭비 높음 기준</b><br>광고비 5만원 이상 소진했으나 전환이 0건인 키워드<br>→ 즉시 입찰 중지 또는 하향 검토</div></div>
       <div style="font-size:24px;font-weight:900;color:#0f172a">${highKw.length}개</div>
       <div style="font-size:12px;color:#334155;margin-top:4px">광고비 ${fC(highSpend)} · 전환 0</div>
     </div>
     <div onclick="document.getElementById('kwWasteF').value='mid';renderKw()" style="flex:1;min-width:200px;padding:14px 18px;background:rgba(255,247,237,0.7);border:1px solid rgba(234,88,12,0.2);border-radius:12px;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px)">
-      <div style="font-size:13px;font-weight:800;color:#ea580c;margin-bottom:6px">🟡 주의</div>
+      <div class="tip-wrap" style="font-size:13px;font-weight:800;color:#ea580c;margin-bottom:6px"><span style="cursor:help">🟡 주의</span><div class="tip-box" style="width:250px;white-space:normal;line-height:1.5"><b>주의 기준</b><br>ROAS 300% 미만이거나 전환당비용이 목표 대비 높은 키워드<br>→ 입찰가 하향 또는 소재 개선 검토</div></div>
       <div style="font-size:24px;font-weight:900;color:#0f172a">${midKw.length}개</div>
       <div style="font-size:12px;color:#334155;margin-top:4px">광고비 ${fC(midSpend)} · 입찰 조정 필요</div>
     </div>
     <div onclick="document.getElementById('kwWasteF').value='low';renderKw()" style="flex:1;min-width:200px;padding:14px 18px;background:rgba(220,252,231,0.7);border:1px solid rgba(22,163,74,0.2);border-radius:12px;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px)">
-      <div style="font-size:13px;font-weight:800;color:#16a34a;margin-bottom:6px">🟢 효율 좋음</div>
+      <div class="tip-wrap" style="font-size:13px;font-weight:800;color:#16a34a;margin-bottom:6px"><span style="cursor:help">🟢 효율 좋음</span><div class="tip-box" style="width:250px;white-space:normal;line-height:1.5"><b>효율 좋음 기준</b><br>ROAS 300% 이상이고 전환이 1건 이상 발생한 키워드<br>→ 예산 증액 또는 입찰가 상향 권장</div></div>
       <div style="font-size:24px;font-weight:900;color:#0f172a">${lowKw.length}개</div>
       <div style="font-size:12px;color:#334155;margin-top:4px">평균 ROAS ${fN(avgRoasLow)}%</div>
     </div>`;
@@ -2184,6 +2194,8 @@ function getCmpF(){
   if(ST.cmpOnOff==='on')list=list.filter(c=>c.status==='활성');
   if(ST.cmpOnOff==='off')list=list.filter(c=>c.status==='일시중지');
   if(ST.cmpAlo)list=list.filter(c=>c.alr);
+  const csf=document.getElementById('cmpSpendF');
+  if(csf){const sv=csf.value;if(sv==='100')list=list.filter(c=>c.adSpend>=1000000);else if(sv==='50')list=list.filter(c=>c.adSpend>=500000);else if(sv==='10')list=list.filter(c=>c.adSpend>=100000);else if(sv==='0-10')list=list.filter(c=>c.adSpend<100000)}
   if(ST.cmpSort)list.sort((a,b)=>{const av=a[ST.cmpSort]??0,bv=b[ST.cmpSort]??0;return ST.cmpDir==='asc'?av-bv:bv-av});
   return list;
 }
@@ -2407,7 +2419,11 @@ function setLogFilter(type){
   renderLog();
 }
 function renderLog(){
-  const filtered=LOG_FILTER==='all'?LOG:LOG.filter(l=>l.type===LOG_FILTER);
+  // 일주일치만 표시
+  const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
+  const weekStr=weekAgo.toISOString().slice(0,10);
+  const recentLog=LOG.filter(l=>l.date>=weekStr);
+  const filtered=LOG_FILTER==='all'?recentLog:recentLog.filter(l=>l.type===LOG_FILTER);
   document.getElementById('logCnt').textContent=`${LOG.length}건`;
   const tl=document.getElementById('logTl');
   if(!filtered.length){
