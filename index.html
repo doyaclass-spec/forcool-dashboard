@@ -483,41 +483,40 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <!-- KPI -->
 <div class="card" style="margin-bottom:0">
-  <!-- 소제목 행 -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;background:var(--sf);border-bottom:1px solid var(--bd)">
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <span style="font-size:20px;font-weight:800;color:var(--t1);letter-spacing:.04em">📊 핵심 성과 지표 (KPI)</span>
-      <span class="p-date" id="pDateKpi" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
-      <span style="font-size:13px;color:var(--t1);font-weight:500">· 당일 데이터는 정산 전 수치로 0.1% 이내 오차 가능</span>
-    </div>
-    <button onclick="event.stopPropagation();openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer" title="표시할 지표 선택">👁 표시 설정</button>
-  </div>
-  <div class="kpi-bar" onclick="toggleCard('kpiGrid','kpiCardTog')" style="cursor:pointer">
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap" onclick="event.stopPropagation()">
-      <div class="pill-grp" id="kpiTypePills">
-        <button class="pill active" data-type="전체">전체</button>
-        <button class="pill" data-type="쇼핑검색">쇼핑검색</button>
-        <button class="pill" data-type="파워링크">파워링크</button>
-        <button class="pill" data-type="콘텐츠">콘텐츠</button>
-        <button class="pill" data-type="브랜드">브랜드</button>
+  <!-- 소제목 (다른 카드와 동일 디자인) -->
+  <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="toggleCard('kpiGrid','kpiCardTog')">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:18px;font-weight:800;color:var(--t1)">📊 핵심 성과 지표 (KPI)</span>
+        <span class="p-date" id="pDateKpi" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;padding:5px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px">
-        <span style="font-size:12px;font-weight:700;color:var(--t2)">📊 이전 동일 기간과 자동 비교</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn-goal" onclick="event.stopPropagation();openGoalModal()">🎯 월별 목표 설정</button>
+        <button onclick="event.stopPropagation();openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">👁 표시 설정</button>
+        <div class="sec-tog open" id="kpiCardTog">▼</div>
       </div>
-      <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="display:none">
-        <option value="auto" selected>자동 (동일 기간)</option>
-      </select>
     </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button class="btn-goal" onclick="event.stopPropagation();openGoalModal()">🎯 월별 목표 설정</button>
-      <div class="sec-tog open" id="kpiCardTog">▼</div>
-    </div>
+    <div style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">선택한 기간의 광고 성과를 한눈에 파악합니다. 이전 동일 기간과 자동 비교되며, 당일 데이터는 정산 전 수치로 0.1% 이내 오차가 있을 수 있습니다.</div>
   </div>
+  <!-- 유형 탭 -->
+  <div class="trend-type-tabs" id="kpiTypePills" onclick="event.stopPropagation()">
+    <button class="trend-type-tab active" data-type="전체">전체</button>
+    <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
+    <button class="trend-type-tab" data-type="파워링크">파워링크</button>
+    <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
+    <button class="trend-type-tab" data-type="브랜드">브랜드</button>
+  </div>
+  <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="display:none">
+    <option value="auto" selected>자동 (동일 기간)</option>
+  </select>
   <div class="card-body" id="kpiGrid" style="max-height:1600px"><div class="kpi-grid" id="kpiGridInner"></div></div>
 </div>
 
 <!-- 📈 트렌드 -->
-<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn2">📈</div><span class="p-title">트렌드 분석</span><span class="p-date" id="pDate2" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span></div></div>
+<div class="phase" onclick="toggleSec('secTrend','secTrendTog')" style="cursor:pointer">
+  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn2">📈</div><span class="p-title">트렌드 분석</span><span class="p-date" id="pDate2" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span></div>
+  <div class="sec-tog open" id="secTrendTog" style="margin-left:auto;flex-shrink:0">▼</div>
+</div>
 
 <div class="card-body" id="secTrend" style="max-height:3000px">
 <div class="two-col">
@@ -1616,9 +1615,9 @@ function initSparks(){
   });
 }
 document.getElementById('kpiTypePills').addEventListener('click',e=>{
-  if(!e.target.classList.contains('pill'))return;
-  ST.kpiType=e.target.dataset.type;
-  document.querySelectorAll('#kpiTypePills .pill').forEach(b=>b.classList.toggle('active',b.dataset.type===ST.kpiType));
+  const tab=e.target.closest('.trend-type-tab');if(!tab)return;
+  ST.kpiType=tab.dataset.type;
+  document.querySelectorAll('#kpiTypePills .trend-type-tab').forEach(b=>b.classList.toggle('active',b.dataset.type===ST.kpiType));
   renderKpi();
 });
 
