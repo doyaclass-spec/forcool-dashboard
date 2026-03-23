@@ -1318,7 +1318,8 @@ function chgBadge(pct,inv){
   const cls=chgCls(pct,inv),sym=pct>0?'▲':pct<0?'▼':'—';
   const p=getPeriodDesc();
   const valSign=pct>0?'+':'';
-  const tipContent=`<b>${p.label} 대비 ${valSign}${pct}%</b><span class="tip-line">${p.range}</span>`;
+  const tipColor=pct>0?'#16a34a':'#dc2626';
+  const tipContent=`<b style="color:${tipColor}">${p.label} 대비 ${valSign}${pct}%</b><span class="tip-line">${p.range}</span>`;
   return`<div class="tip-wrap"><span class="cb ${cls}">${sym} ${Math.abs(pct)}%</span><div class="tip-box">${tipContent}</div></div>`;
 }
 function chgLbl(p,inv){const c=chgCls(p,inv),s=p>0?'▲':'▼';return`<span class="chg ${c}">${s} ${Math.abs(p)}%</span>`}
@@ -1673,7 +1674,12 @@ function updateMetricChkUI(){
     btn.classList.toggle('axis-L',isOn&&side==='L');
     btn.classList.toggle('axis-R',isOn&&side==='R');
     const box=btn.querySelector('.mchk-box');
-    if(box)box.textContent=isOn?'✓':'';
+    if(box){
+      box.textContent=isOn?'✓':'';
+      const col=MC[m]||'#333';
+      if(isOn){box.style.background=col;box.style.borderColor=col}
+      else{box.style.background='transparent';box.style.borderColor=col}
+    }
     const axbadge=btn.querySelector('.mchk-axis');
     if(axbadge)axbadge.textContent=side==='L'?'좌':'우';
     // 최대 2개 초과 시 비활성
