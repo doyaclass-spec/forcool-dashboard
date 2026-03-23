@@ -2167,8 +2167,8 @@ function getKwF(){
   return list;
 }
 function renderKw(){
-  // 요약 카드 렌더링
-  const allKw=getKwData();
+  // 요약 카드 렌더링 (쇼핑검색 제외)
+  const allKw=getKwData().filter(k=>k.type!=='쇼핑검색');
   const highKw=allKw.filter(k=>getWaste(k)==='high');
   const midKw=allKw.filter(k=>getWaste(k)==='mid');
   const lowKw=allKw.filter(k=>getWaste(k)==='low');
