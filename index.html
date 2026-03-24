@@ -618,45 +618,29 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     </div>
   </div>
 
-  <!-- 히트맵 -->
+  <!-- 월간 일별 성과 히트맵 (실데이터) -->
   <div class="card" style="margin-bottom:0">
-    <!-- 소제목 + 설명 -->
     <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="toggleCard('hmBody','hmTog')">
       <div style="display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:22px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
+        <div style="font-size:22px;font-weight:800;color:var(--t1)">📅 월간 일별 성과 히트맵</div>
         <div class="sec-tog open" id="hmTog">▲</div>
       </div>
-      <div id="hmDesc" style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">선택한 기간의 요일별·시간대별 성과를 색상 농도로 보여줍니다. 색이 진할수록 해당 시간대의 성과가 높습니다. ※ 네이버 API 시간대별 데이터 제한으로, 전체 성과를 업종 평균 시간대 패턴으로 분배한 추정치입니다.</div>
+      <div style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">선택한 기간의 일별 성과를 지표별로 색상으로 표현합니다. 진한 초록일수록 성과가 좋고, 진한 빨강일수록 성과가 낮습니다. 모든 수치는 네이버 API 실데이터입니다.</div>
     </div>
-    <div id="hmBody" style="max-height:2000px;overflow:hidden;transition:max-height .3s ease">
-    <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="padding:5px 10px;border:1px solid var(--bd);border-radius:6px;font-size:13px;font-weight:700;color:var(--t1);background:var(--sf);cursor:pointer"></select>
-    <div style="display:flex;align-items:center;gap:4px;padding:8px 18px;border-bottom:1px solid var(--bd);background:var(--sf);overflow-x:auto;flex-wrap:nowrap">
-      <div id="hmTypeTabs" style="display:flex;gap:3px;flex-shrink:0">
-        <button class="trend-type-tab active" data-type="전체">전체</button>
-        <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
-        <button class="trend-type-tab" data-type="파워링크">파워링크</button>
-        <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
-        <button class="trend-type-tab" data-type="브랜드">브랜드</button>
+    <div id="hmBody" style="max-height:3000px;overflow:hidden;transition:max-height .3s ease">
+      <div style="display:flex;align-items:center;gap:4px;padding:8px 18px;border-bottom:1px solid var(--bd);background:var(--sf);overflow-x:auto;flex-wrap:nowrap">
+        <div id="hmTypeTabs" style="display:flex;gap:3px;flex-shrink:0">
+          <button class="trend-type-tab active" data-type="전체">전체</button>
+          <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
+          <button class="trend-type-tab" data-type="파워링크">파워링크</button>
+          <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
+          <button class="trend-type-tab" data-type="브랜드">브랜드</button>
+        </div>
       </div>
-      <div style="border-left:2px solid var(--bd);height:20px;flex-shrink:0;margin:0 4px"></div>
-      <div id="hmMetricBtns" class="metric-chk-grp" style="border:none;background:transparent;padding:0;flex-shrink:0">
-        <button class="mchk" data-hm="clicks" onclick="setHmMetric('clicks')">
-          <div class="mchk-box"></div>클릭수
-        </button>
-        <button class="mchk" data-hm="cvr" onclick="setHmMetric('cvr')">
-          <div class="mchk-box"></div>전환율
-        </button>
-        <button class="mchk" data-hm="spend" onclick="setHmMetric('spend')">
-          <div class="mchk-box"></div>광고비
-        </button>
-        <button class="mchk on" data-hm="roas" onclick="setHmMetric('roas')">
-          <div class="mchk-box">✓</div>ROAS
-        </button>
-      </div>
-    </div>
-    <!-- 그라데이션 띠 (최저~최고 색상 범례 + 정보) -->
-    <div id="hmGradBar" style="padding:6px 16px 4px"></div>
-    <div class="hm-wrap"><table class="hm-tbl" id="hmTbl"></table></div>
+      <!-- TOP3 최고/최저 -->
+      <div id="hmTop3" style="padding:10px 18px"></div>
+      <!-- 히트맵 테이블 -->
+      <div class="hm-wrap"><table class="hm-tbl" id="hmTbl"></table></div>
     </div>
   </div>
 </div><!-- /two-col -->
@@ -1954,20 +1938,106 @@ function setHmMonth(val){
 }
 
 function renderHm(){
-  // 히트맵 체크박스 색상 초기화
-  updateHmChkUI();
-  // 히트맵 기간 설명 업데이트
-  const hmDescEl=document.getElementById('hmDesc');
-  if(hmDescEl){
-    const f=DS.from,t=DS.to;
-    const fStr=`${f.getFullYear()}.${String(f.getMonth()+1).padStart(2,'0')}.${String(f.getDate()).padStart(2,'0')}`;
-    const tStr=`${t.getFullYear()}.${String(t.getMonth()+1).padStart(2,'0')}.${String(t.getDate()).padStart(2,'0')}`;
-    hmDescEl.textContent=`${fStr} ~ ${tStr} 기간 내 각 요일·시간대별 평균 성과를 나타냅니다`;
+  // 월간 일별 성과 히트맵 (실데이터)
+  const td=getDailyData(ST.hmType||'전체');
+  if(!td||!td.labels||!td.labels.length){
+    document.getElementById('hmTbl').innerHTML='<tr><td style="padding:40px;text-align:center;color:var(--t2)">데이터가 없습니다</td></tr>';
+    document.getElementById('hmTop3').innerHTML='';
+    return;
   }
-  const hmSource=(ST.hmMonth!=='current'&&ST._hmMonthData)?ST._hmMonthData:(LIVE_DATA&&LIVE_DATA.heatmap)?LIVE_DATA.heatmap:HM_DATA;
-  const rawData=hmSource[ST.hmType]||hmSource['전체']; // [24][7]
-  const m=ST.hmMetric, sch=HM_SCH[m];
-  const iv=ST.hmInterval||2; // 1 or 2 hours
+  const labels=td.labels; // ["26-03-17","26-03-18",...]
+  const cur=td.cur||td;
+  const days=labels.length;
+
+  // 지표 정의: [key, label, format함수, 높을수록 좋은지]
+  const METRICS=[
+    ['impressions','노출수',v=>fN(v),true],
+    ['clicks','클릭수',v=>fN(v),true],
+    ['ctr','클릭률',(_,i)=>{const imp=cur.impressions?.[i]||0,cl=cur.clicks?.[i]||0;return imp>0?(cl/imp*100).toFixed(2)+'%':'0%'},true],
+    ['cpc','평균CPC',(_,i)=>{const sp=cur.adSpend?.[i]||0,cl=cur.clicks?.[i]||0;return cl>0?fC(Math.round(sp/cl)):'₩0'},false],
+    ['adSpend','광고비',v=>fC(v),false],
+    ['conversions','전환수',v=>fN(v),true],
+    ['crto','전환율',(_,i)=>{const cl=cur.clicks?.[i]||0,cv=cur.conversions?.[i]||0;return cl>0?(cv/cl*100).toFixed(2)+'%':'0%'},true],
+    ['convRevenue','전환매출',v=>fC(v),true],
+    ['roas','ROAS',(_,i)=>{const sp=cur.adSpend?.[i]||0,rv=cur.convRevenue?.[i]||0;return sp>0?fN(Math.round(rv/sp*100))+'%':'0%'},true],
+    ['cpConv','전환당비용',(_,i)=>{const sp=cur.adSpend?.[i]||0,cv=cur.conversions?.[i]||0;return cv>0?fC(Math.round(sp/cv)):'₩0'},false]
+  ];
+
+  // 각 지표별 실수값 배열 생성
+  function getVals(key,idx){
+    if(key==='ctr'){const imp=cur.impressions?.[idx]||0,cl=cur.clicks?.[idx]||0;return imp>0?cl/imp*100:0}
+    if(key==='cpc'){const sp=cur.adSpend?.[idx]||0,cl=cur.clicks?.[idx]||0;return cl>0?sp/cl:0}
+    if(key==='crto'){const cl=cur.clicks?.[idx]||0,cv=cur.conversions?.[idx]||0;return cl>0?cv/cl*100:0}
+    if(key==='roas'){const sp=cur.adSpend?.[idx]||0,rv=cur.convRevenue?.[idx]||0;return sp>0?rv/sp*100:0}
+    if(key==='cpConv'){const sp=cur.adSpend?.[idx]||0,cv=cur.conversions?.[idx]||0;return cv>0?sp/cv:0}
+    return (cur[key]||[])[idx]||0;
+  }
+
+  // TOP3 최고/최저 계산 (ROAS 기준)
+  const roasArr=[];
+  for(let i=0;i<days;i++){
+    const sp=cur.adSpend?.[i]||0,rv=cur.convRevenue?.[i]||0;
+    roasArr.push({day:labels[i],roas:sp>0?Math.round(rv/sp*100):0,spend:sp,conv:cur.conversions?.[i]||0});
+  }
+  const sorted=[...roasArr].filter(d=>d.spend>0).sort((a,b)=>b.roas-a.roas);
+  const top3=sorted.slice(0,3);
+  const bot3=[...sorted].reverse().slice(0,3);
+
+  document.getElementById('hmTop3').innerHTML=`
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
+      <div style="flex:1;min-width:280px;padding:12px 16px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:10px">
+        <div style="font-size:15px;font-weight:800;color:#16a34a;margin-bottom:8px">🏆 ROAS 최고 TOP 3</div>
+        ${top3.map((d,i)=>`<div style="font-size:13px;color:var(--t1);padding:3px 0"><b>${i+1}.</b> ${d.day} — ROAS <b style="color:#16a34a">${fN(d.roas)}%</b> · 광고비 ${fC(d.spend)} · 전환 ${d.conv}건</div>`).join('')}
+      </div>
+      <div style="flex:1;min-width:280px;padding:12px 16px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:10px">
+        <div style="font-size:15px;font-weight:800;color:#dc2626;margin-bottom:8px">⚠️ ROAS 최저 TOP 3</div>
+        ${bot3.map((d,i)=>`<div style="font-size:13px;color:var(--t1);padding:3px 0"><b>${i+1}.</b> ${d.day} — ROAS <b style="color:#dc2626">${fN(d.roas)}%</b> · 광고비 ${fC(d.spend)} · 전환 ${d.conv}건</div>`).join('')}
+      </div>
+    </div>`;
+
+  // 테이블 생성: 가로=날짜, 세로=지표
+  let html='<tr><th class="hm-th-hour" style="min-width:90px;text-align:left;font-size:12px">지표</th>';
+  labels.forEach(l=>{
+    const short=l.length>5?l.slice(3):l; // "03-17" or "3/17"
+    html+=`<th class="hm-th-day" style="font-size:11px;min-width:55px">${short}</th>`;
+  });
+  html+='</tr>';
+
+  METRICS.forEach(([key,label,fmt,higherBetter])=>{
+    // 각 지표별 값 계산
+    const vals=[];
+    for(let i=0;i<days;i++) vals.push(getVals(key,i));
+    const nonZero=vals.filter(v=>v>0);
+    const minV=nonZero.length?Math.min(...nonZero):0;
+    const maxV=Math.max(...vals);
+    const norm=v=>(maxV===minV)?0.5:((v-minV)/(maxV-minV));
+
+    html+=`<tr><td class="hm-th-hour" style="font-size:12px;font-weight:700;text-align:left;white-space:nowrap;padding:6px 8px">${label}</td>`;
+    for(let i=0;i<days;i++){
+      const v=vals[i];
+      const t=v===0?0:norm(v);
+      // 색상: higherBetter면 높을수록 초록, 낮을수록 빨강. 반대면 반전
+      let r,g,b;
+      if(v===0){r=245;g=245;b=245}
+      else if(higherBetter){
+        r=Math.round(220-t*190);g=Math.round(80+t*120);b=Math.round(60-t*20);
+      }else{
+        // 비용 지표: 높을수록 빨강
+        r=Math.round(80+(1-t)*140);g=Math.round(200-t*140);b=Math.round(80-t*40);
+      }
+      // 비용 지표 반전
+      if(!higherBetter&&v>0){
+        const t2=1-t;
+        r=Math.round(220-t2*190);g=Math.round(80+t2*120);b=Math.round(60-t2*20);
+      }
+      const bg=`rgb(${r},${g},${b})`;
+      const tc=(r*0.299+g*0.587+b*0.114)>160?'#0f172a':'#fff';
+      const disp=fmt(v,i);
+      html+=`<td class="hm-cell" style="background:${bg};color:${tc};font-size:11px;padding:5px 3px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums">${disp}</td>`;
+    }
+    html+='</tr>';
+  });
+  document.getElementById('hmTbl').innerHTML=html;
   const fmt=v=>m==='roas'||m==='cvr'?fN(v)+'%':m==='spend'?fC(v):fN(v);
 
   // 시간 집계: iv=1이면 24행, iv=2이면 12행 (2시간 평균)
@@ -2026,37 +2096,7 @@ function renderHm(){
   });
   document.getElementById('hmTbl').innerHTML=html;
 }
-function showHmTip(e,day,hour,roas,cvr,spend,clicks){
-  const tip=document.getElementById('hmTip');
-  tip.innerHTML=`<b>${day}요일 ${hour}</b> · ${ST.hmType}<br>ROAS: <b>${fN(roas)}%</b><br>전환율: <b>${cvr}%</b><br>광고비: <b>${fC(spend)}</b><br>클릭: <b>${fN(clicks)}</b>`;
-  tip.style.cssText=`display:block;left:${e.clientX+14}px;top:${e.clientY-10}px`;
-}
-function hideHmTip(){document.getElementById('hmTip').style.display='none'}
-const HMC={clicks:'#F97316',cvr:'#22C55E',spend:'#EAB308',roas:'#3B82F6'};
-function updateHmChkUI(){
-  const m=ST.hmMetric;
-  document.querySelectorAll('#hmMetricBtns .mchk').forEach(b=>{
-    const hm=b.dataset.hm;
-    const isOn=hm===m;
-    const col=HMC[hm]||'#333';
-    b.classList.toggle('on',isOn);
-    b.style.borderColor=col;
-    b.style.color=isOn?col:'#475569';
-    b.style.background=isOn?col+'18':'transparent';
-    const box=b.querySelector('.mchk-box');
-    if(box){
-      box.textContent=isOn?'✓':'';
-      box.style.borderColor=col;
-      box.style.background=isOn?col:'transparent';
-      box.style.color=isOn?'#fff':'transparent';
-    }
-  });
-}
-function setHmMetric(m){
-  ST.hmMetric=m;
-  updateHmChkUI();
-  renderHm();
-}
+// 히트맵 관련 유틸 (월간 일별 성과용)
 // 히트맵 유형 탭
 document.getElementById('hmTypeTabs').addEventListener('click',e=>{
   const tab=e.target.closest('.trend-type-tab');if(!tab)return;
