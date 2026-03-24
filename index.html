@@ -1649,7 +1649,7 @@ function setTrendPeriod(p){
   const fStr=from.toISOString().slice(0,10);
   const tStr=to.toISOString().slice(0,10);
   // 트렌드 전용 데이터 로드
-  const url=API_BASE+'/api/dashboard-fast?from='+fStr+'&to='+tStr;
+  const url=WORKER_URL+'/api/dashboard-fast?from='+fStr+'&to='+tStr;
   fetch(url).then(r=>r.json()).then(d=>{
     window.TREND_DATA=d;
     initTrend();
@@ -2457,7 +2457,7 @@ function ansQ(q){
     const [yr,mn]=tm.split('-');
     const lastDay=new Date(parseInt(yr),parseInt(mn),0).getDate();
     const from=`${tm}-01`,to=`${tm}-${String(lastDay).padStart(2,'0')}`;
-    fetch(API_BASE+`/api/dashboard-fast?from=${from}&to=${to}`,{headers:{'Origin':location.origin}})
+    fetch(WORKER_URL+`/api/dashboard-fast?from=${from}&to=${to}`,{headers:{'Origin':location.origin}})
       .then(r=>r.json()).then(d=>{
         const types=['전체','쇼핑검색','파워링크','콘텐츠','브랜드'];
         if(ft&&d.kpi&&d.kpi[ft]){
@@ -2497,7 +2497,7 @@ function reloadAll(){renderAlerts();renderKpi();initTrend();initHmMonthSel();ren
 // 이번 달 누적 광고비
 async function fetchMonthlySpend(){
   try{
-    const r=await fetch(API_BASE+'/api/monthly-spend',{headers:{'Origin':location.origin}});
+    const r=await fetch(WORKER_URL+'/api/monthly-spend',{headers:{'Origin':location.origin}});
     const d=await r.json();
     const fC=v=>'₩'+Math.round(v).toLocaleString();
     document.getElementById('msDate').textContent=`${d.year}년 ${parseInt(d.month)}월 ${d.today.slice(8)}일 기준`;
