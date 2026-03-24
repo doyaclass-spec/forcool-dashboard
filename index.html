@@ -17,11 +17,11 @@
   --yellow:#d97706;--ybg:#fefce8;
   --purple:#7c3aed;--pbg:#f5f3ff;
   --teal:#0891b2;--tbg:#ecfeff;
-  --t1:#0f172a;--t2:#1e293b;--t3:#475569;
+  --t1:#0f172a;--t2:#1e293b;--t3:#334155;
   --bd:#e2e8f0;--bd2:#cbd5e1;
   --r:8px;--rsm:6px;--rlg:12px;
   --s1:0 1px 3px rgba(0,0,0,0.06);--s2:0 4px 6px rgba(0,0,0,0.05);--s3:0 4px 24px rgba(0,0,0,0.08);
-  --tr:all .15s ease;--hh:80px;
+  --tr:all .15s ease;--hh:100px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -101,14 +101,14 @@ input,select,textarea{font-family:inherit;outline:none}
 .phase::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--bd),transparent)}
 .p-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;flex-shrink:0}
 .pn1{background:var(--red)}.pn2{background:var(--blue)}.pn3{background:var(--purple)}.pn4{background:var(--g2)}
-.p-title{font-size:22px;font-weight:900;color:var(--t1);letter-spacing:-.01em}
+.p-title{font-size:28px;font-weight:900;color:var(--t1);letter-spacing:-.01em}
 .p-sub{font-size:15px;color:var(--t2);margin-left:8px;font-weight:500}
 .p-date{font-size:12px;font-weight:700;color:#334155;background:#e2e8f0;padding:3px 10px;border-radius:20px;margin-left:auto}
 
 /* ─── CARD ─── */
 .card{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(226,232,240,0.6);box-shadow:0 2px 8px rgba(0,0,0,0.04),0 0 1px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:14px;transition:box-shadow .2s ease}
 .card-head{padding:14px 18px 10px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.card-title{font-size:18px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
+.card-title{font-size:22px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
 .card-desc{font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6}
 .card-ico{width:22px;height:22px;background:var(--navy);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12.5px}
 .card-sub{font-size:14px;color:var(--t2);line-height:1.5}
@@ -210,7 +210,7 @@ input,select,textarea{font-family:inherit;outline:none}
 .tab-axis{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700}
 .tab-axis .ax-dot{width:9px;height:9px;border-radius:50%}
 /* 차트 높이 380px */
-.trend-body{height:450px;position:relative}
+.trend-body{height:550px;position:relative}
 /* 범례 */
 .trend-leg-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
 .tl-item{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--t1);padding:6px 14px;background:var(--sf2);border-radius:8px}
@@ -296,7 +296,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 .ai-body{padding:16px}
 .ai-trig{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;text-align:center}
 .ai-desc{color:var(--t2);font-size:14.5px;max-width:380px;line-height:1.6}
-.btn-ai{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 32px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border-radius:12px;font-size:18px;font-weight:800;transition:transform .18s,box-shadow .18s;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.3)}
+.btn-ai{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 32px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border-radius:12px;font-size:22px;font-weight:800;transition:transform .18s,box-shadow .18s;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.3)}
 .btn-ai:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,0.4)}.btn-ai .ai-ico{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .ai-ld{display:none;flex-direction:column;align-items:center;gap:12px;padding:28px}.ai-ld.show{display:flex}
 .spinner{width:32px;height:32px;border:3px solid var(--bd);border-top-color:var(--green);border-radius:50%;animation:spin .75s linear infinite}
@@ -489,7 +489,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="card" style="margin-bottom:16px" id="monthlySpendCard">
     <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd)">
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span style="font-size:18px;font-weight:800;color:var(--t1)">💰 이번 달 누적 광고비</span>
+        <span style="font-size:22px;font-weight:800;color:var(--t1)">💰 이번 달 누적 광고비</span>
         <span id="msDate" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
       </div>
       <div style="font-size:13px;color:var(--t2);margin-top:4px">이번 달 1일부터 오늘까지 광고 유형별 누적 지출 금액입니다. 매 1시간마다 자동 업데이트됩니다.</div>
@@ -501,19 +501,19 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       </div>
       <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px">
         <div style="font-size:13px;font-weight:700;color:var(--green)">쇼핑검색</div>
-        <div id="ms-shopping" style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+        <div id="ms-shopping" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
       </div>
       <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px">
         <div style="font-size:13px;font-weight:700;color:var(--blue)">파워링크</div>
-        <div id="ms-powerlink" style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+        <div id="ms-powerlink" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
       </div>
       <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px">
         <div style="font-size:13px;font-weight:700;color:var(--orange)">콘텐츠</div>
-        <div id="ms-content" style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+        <div id="ms-content" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
       </div>
       <div class="ms-item" style="padding:16px 18px">
         <div style="font-size:13px;font-weight:700;color:var(--purple)">브랜드</div>
-        <div id="ms-brand" style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+        <div id="ms-brand" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
       </div>
     </div>
   </div>
@@ -522,7 +522,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="toggleCard('kpiGrid','kpiCardTog')">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span style="font-size:18px;font-weight:800;color:var(--t1)">📊 핵심 성과 지표 (KPI)</span>
+        <span style="font-size:22px;font-weight:800;color:var(--t1)">📊 핵심 성과 지표 (KPI)</span>
         <span class="p-date" id="pDateKpi" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
@@ -558,7 +558,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <!-- 트렌드: 전체 폭 카드 (two-col의 첫 컬럼 차지) -->
   <div class="card" style="margin-bottom:0">
     <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd)">
-      <div style="font-size:18px;font-weight:800;color:var(--t1)">📈 일별 추이 차트</div>
+      <div style="font-size:22px;font-weight:800;color:var(--t1)">📈 일별 추이 차트</div>
       <div style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">노출수, 클릭수, 광고비 등 주요 지표의 일별 변화를 그래프로 보여줍니다. 최대 2개 지표를 선택해 좌/우 Y축으로 비교할 수 있습니다.</div>
     </div>
     <!-- 유형 탭 (1줄) -->
@@ -609,10 +609,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="card" style="margin-bottom:0">
     <!-- 소제목 + 설명 -->
     <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd)">
-      <div style="font-size:18px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
+      <div style="font-size:22px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
       <div id="hmDesc" style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">선택한 기간의 요일별·시간대별 성과를 색상 농도로 보여줍니다. 색이 진할수록 해당 시간대의 성과가 높습니다. ※ 네이버 API 시간대별 데이터 제한으로, 전체 성과를 업종 평균 시간대 패턴으로 분배한 추정치입니다.</div>
     </div>
-    <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="display:none"></select>
+    <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="padding:5px 10px;border:1px solid var(--bd);border-radius:6px;font-size:13px;font-weight:700;color:var(--t1);background:var(--sf);cursor:pointer"></select>
     <div style="display:flex;align-items:center;gap:4px;padding:8px 18px;border-bottom:1px solid var(--bd);background:var(--sf);overflow-x:auto;flex-wrap:nowrap">
       <div id="hmTypeTabs" style="display:flex;gap:3px;flex-shrink:0">
         <button class="trend-type-tab active" data-type="전체">전체</button>
