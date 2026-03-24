@@ -530,21 +530,23 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
         <span style="font-size:22px;font-weight:800;color:var(--t1)">📊 핵심 성과 지표 (KPI)</span>
         <span class="p-date" id="pDateKpi" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button class="btn-goal" onclick="event.stopPropagation();openGoalModal()">🎯 월별 목표 설정</button>
-        <button onclick="event.stopPropagation();openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">👁 표시 설정</button>
-        <div class="sec-tog open" id="kpiCardTog">▼</div>
-      </div>
+      <div class="sec-tog open" id="kpiCardTog">▲</div>
     </div>
     <div style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">선택한 기간의 광고 성과를 한눈에 파악합니다. 이전 동일 기간과 자동 비교되며, 당일 데이터는 정산 전 수치로 0.1% 이내 오차가 있을 수 있습니다.</div>
   </div>
   <!-- 유형 탭 -->
-  <div class="trend-type-tabs" id="kpiTypePills" onclick="event.stopPropagation()">
-    <button class="trend-type-tab active" data-type="전체">전체</button>
-    <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
-    <button class="trend-type-tab" data-type="파워링크">파워링크</button>
-    <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
-    <button class="trend-type-tab" data-type="브랜드">브랜드</button>
+  <div class="trend-type-tabs" id="kpiTypePills" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap">
+    <div style="display:flex;gap:3px">
+      <button class="trend-type-tab active" data-type="전체">전체</button>
+      <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
+      <button class="trend-type-tab" data-type="파워링크">파워링크</button>
+      <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
+      <button class="trend-type-tab" data-type="브랜드">브랜드</button>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn-goal" onclick="openGoalModal()">🎯 월별 목표 설정</button>
+      <button onclick="openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">👁 표시 설정</button>
+    </div>
   </div>
   <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="display:none">
     <option value="auto" selected>자동 (동일 기간)</option>
@@ -563,10 +565,14 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <div class="two-col">
   <!-- 트렌드: 전체 폭 카드 (two-col의 첫 컬럼 차지) -->
   <div class="card" style="margin-bottom:0">
-    <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd)">
-      <div style="font-size:22px;font-weight:800;color:var(--t1)">📈 일별 추이 차트</div>
+    <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="toggleCard('trendChartBody','trendChartTog')">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:22px;font-weight:800;color:var(--t1)">📈 일별 추이 차트</div>
+        <div class="sec-tog open" id="trendChartTog">▲</div>
+      </div>
       <div style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">노출수, 클릭수, 광고비 등 주요 지표의 일별 변화를 그래프로 보여줍니다. 최대 2개 지표를 선택해 좌/우 Y축으로 비교할 수 있습니다.</div>
     </div>
+    <div id="trendChartBody" style="max-height:2000px;overflow:hidden;transition:max-height .3s ease">
     <!-- 유형 탭 (1줄) -->
     <div style="display:flex;align-items:center;gap:4px;padding:8px 18px;border-bottom:1px solid var(--bd);background:var(--sf);overflow-x:auto;flex-wrap:nowrap">
       <div id="trendTypeTabs" style="display:flex;gap:3px;flex-shrink:0">
@@ -609,15 +615,20 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <div class="trend-body"><canvas id="trendChart"></canvas></div>
       <div class="trend-leg-row" id="trendLeg"></div>
     </div>
+    </div>
   </div>
 
   <!-- 히트맵 -->
   <div class="card" style="margin-bottom:0">
     <!-- 소제목 + 설명 -->
-    <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd)">
-      <div style="font-size:22px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
+    <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="toggleCard('hmBody','hmTog')">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:22px;font-weight:800;color:var(--t1)">🕐 요일·시간대 히트맵</div>
+        <div class="sec-tog open" id="hmTog">▲</div>
+      </div>
       <div id="hmDesc" style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">선택한 기간의 요일별·시간대별 성과를 색상 농도로 보여줍니다. 색이 진할수록 해당 시간대의 성과가 높습니다. ※ 네이버 API 시간대별 데이터 제한으로, 전체 성과를 업종 평균 시간대 패턴으로 분배한 추정치입니다.</div>
     </div>
+    <div id="hmBody" style="max-height:2000px;overflow:hidden;transition:max-height .3s ease">
     <select id="hmMonthSel" onchange="setHmMonth(this.value)" style="padding:5px 10px;border:1px solid var(--bd);border-radius:6px;font-size:13px;font-weight:700;color:var(--t1);background:var(--sf);cursor:pointer"></select>
     <div style="display:flex;align-items:center;gap:4px;padding:8px 18px;border-bottom:1px solid var(--bd);background:var(--sf);overflow-x:auto;flex-wrap:nowrap">
       <div id="hmTypeTabs" style="display:flex;gap:3px;flex-shrink:0">
@@ -646,6 +657,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <!-- 그라데이션 띠 (최저~최고 색상 범례 + 정보) -->
     <div id="hmGradBar" style="padding:6px 16px 4px"></div>
     <div class="hm-wrap"><table class="hm-tbl" id="hmTbl"></table></div>
+    </div>
   </div>
 </div><!-- /two-col -->
 </div><!-- /secTrend -->
