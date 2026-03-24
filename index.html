@@ -2149,7 +2149,7 @@ function renderKw(){
   document.getElementById('kwCnt').textContent=`${total}개 키워드`;
   const maxS=Math.max(...slice.map(k=>k.adSpend),1);
   document.getElementById('kwBody').innerHTML=slice.map(k=>`
-    <tr><td><b>${k.kw}</b></td><td>${tBadge(k.type)}</td>
+    <tr style="cursor:pointer" onclick="jumpToCampaign('${(k.campaign||'').replace(/'/g,"\\'")}')"><td><b>${k.kw}</b></td><td>${tBadge(k.type)}</td>
     <td style="font-size:11px;color:var(--t2);max-width:130px;white-space:normal"><div class="tip-wrap"><span style="cursor:help">${k.campaign}</span><div class="tip-box" style="font-size:14px;font-weight:600;white-space:nowrap">${k.campaign}</div></div></td>
     <td>${fN(k.impressions)}</td><td>${kwChgLbl(k.impressions,k.prevImpressions)}</td><td>${fN(k.clicks)}</td>
     <td><div class="kwbar-cell"><div class="kwbar" style="width:${Math.round(k.adSpend/maxS*65)}px;background:${getWaste(k)==='high'?'var(--red)':getWaste(k)==='mid'?'var(--orange)':'var(--green)'}"></div>${fC(k.adSpend)}</div></td>
@@ -2165,6 +2165,34 @@ function renderKw(){
 }
 document.querySelectorAll('th[data-kw]').forEach(th=>{th.classList.add('sort');th.addEventListener('click',()=>{const c=th.dataset.kw;if(ST.kwSort.col===c)ST.kwSort.dir=ST.kwSort.dir==='desc'?'asc':'desc';else{ST.kwSort.col=c;ST.kwSort.dir='desc'}document.querySelectorAll('th[data-kw]').forEach(t=>t.classList.remove('sasc','sdesc'));th.classList.add(ST.kwSort.dir==='asc'?'sasc':'sdesc');renderKw()})});
 function kwGoPage(p){const pages=Math.ceil(getKwF().length/ST.kwPS)||1;if(p<1||p>pages)return;ST.kwPage=p;renderKw()}
+
+// 키워드 클릭 → 캠페인 테이블로 이동 + 하이라이트
+function jumpToCampaign(campName){
+  if(!campName)return;
+  // 캠페인 섹션 펼치기
+  const secDetail=document.getElementById('secDetail');
+  if(secDetail&&secDetail.style.maxHeight==='0px'){
+    toggleSec('secDetail','secDetailTog');
+  }
+  // 캠페인 검색 필터에 이름 입력
+  const searchInput=document.getElementById('cmpSearch');
+  if(searchInput){searchInput.value=campName;ST.cmpSearch=campName;ST.cmpPage=1;renderCmp()}
+  // 캠페인 테이블로 스크롤
+  setTimeout(()=>{
+    const cmpTable=document.getElementById('cmpBody');
+    if(cmpTable){
+      cmpTable.scrollIntoView({behavior:'smooth',block:'center'});
+      // 하이라이트 효과
+      const rows=cmpTable.querySelectorAll('tr');
+      rows.forEach(r=>{
+        r.style.transition='background .3s';
+        r.style.background='rgba(37,99,235,0.15)';
+        setTimeout(()=>{r.style.background=''},2000);
+      });
+    }
+    showToast(`📋 "${campName}" 캠페인으로 이동`);
+  },300);
+}
 
 /* ================================================================ CAMP TABLE */
 function getCmpF(){
