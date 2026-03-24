@@ -485,16 +485,19 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <!-- KPI -->
 <div class="card" style="margin-bottom:0">
-  <!-- 이번 달 누적 광고비 카드 -->
+  <!-- 이번 달 누적 광고비 카드 (독립 카드) -->
   <div class="card" style="margin-bottom:16px" id="monthlySpendCard">
-    <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd)">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span style="font-size:22px;font-weight:800;color:var(--t1)">💰 이번 달 누적 광고비</span>
-        <span id="msDate" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
+    <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="toggleCard('msGrid','msTog')">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:22px;font-weight:800;color:var(--t1)">💰 이번 달 누적 광고비</span>
+          <span id="msDate" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
+        </div>
+        <div class="sec-tog open" id="msTog">▲</div>
       </div>
-      <div style="font-size:13px;color:var(--t2);margin-top:4px">이번 달 1일부터 오늘까지 광고 유형별 누적 지출 금액입니다. 매 1시간마다 자동 업데이트됩니다.</div>
+      <div style="font-size:14px;color:var(--t1);margin-top:4px">이번 달 1일부터 오늘까지 광고 유형별 누적 지출 금액입니다. 매 1시간마다 자동 업데이트됩니다.</div>
     </div>
-    <div id="msGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--bd)">
+    <div id="msGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--bd);max-height:200px;overflow:hidden;transition:max-height .3s ease">
       <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px">
         <div style="font-size:13px;font-weight:700;color:var(--t2)">총액</div>
         <div id="ms-total" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
@@ -518,7 +521,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     </div>
   </div>
 
-  <!-- 소제목 (다른 카드와 동일 디자인) -->
+  <!-- 핵심 성과 지표 카드 (독립 카드) -->
+  <div class="card" style="margin-bottom:16px">
   <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="toggleCard('kpiGrid','kpiCardTog')">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -545,6 +549,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <option value="auto" selected>자동 (동일 기간)</option>
   </select>
   <div class="card-body" id="kpiGrid" style="max-height:1600px"><div class="kpi-grid" id="kpiGridInner"></div></div>
+  </div>
 </div>
 
 <!-- 📈 트렌드 -->
