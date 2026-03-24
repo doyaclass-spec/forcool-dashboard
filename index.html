@@ -828,11 +828,16 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
         </div>
         <div id="bidExpected" style="margin-top:10px;padding:10px 14px;background:var(--sf2);border-radius:var(--rsm);font-size:12px;color:var(--t1);line-height:1.6;display:none"></div>
       </div>
-      <!-- AI 분석 버튼 (전략 선택 영역 안에 통합) -->
-      <div class="ai-trig" id="aiTrig" style="margin-top:12px">
-        <button class="btn-ai" onclick="runAi()" style="width:100%"><div class="ai-ico">✨</div>선택한 전략으로 AI 분석 실행</button>
+      <!-- 14일 제한 안내 -->
+      <div id="aiMinNotice" style="display:none;margin-top:12px;padding:14px 18px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:14px;color:#9a3412;font-weight:600">
+        ⚠️ 정확한 전략 분석을 위해 <b>14일 이상</b>의 기간을 설정해주세요. (현재 <span id="aiDayCnt">0</span>일)
       </div>
-      <div class="ai-ld" id="aiLd"><div class="spinner"></div><div style="color:var(--t2);font-size:13px">데이터 분석 + 전략 생성 중…</div></div>
+      <!-- AI 분석 버튼 -->
+      <div class="ai-trig" id="aiTrig" style="margin-top:12px">
+        <button class="btn-ai" id="aiRunBtn" onclick="runAi()" style="width:100%"><div class="ai-ico">✨</div>전략 보고서 생성</button>
+      </div>
+      <div class="ai-ld" id="aiLd"><div class="spinner"></div><div style="color:var(--t1);font-size:15px;font-weight:700">전문가 수준 전략 보고서 생성 중… (약 10~15초)</div></div>
+      <!-- 6개 카드 결과 -->
       <div class="ai-res" id="aiRes"></div>
     </div>
   </div>
@@ -2259,107 +2264,209 @@ function renderPgn(pgnId,pgiId,page,pages,total,ps,goFn){
 
 /* ================================================================ AI */
 let currentBidStrat = 'aggressive';
+function checkAiMinDays(){
+  const days=DS.days||7;
+  const notice=document.getElementById('aiMinNotice');
+  const btn=document.getElementById('aiRunBtn');
+  if(days<14){
+    notice.style.display='block';
+    document.getElementById('aiDayCnt').textContent=days;
+    if(btn){btn.disabled=true;btn.style.opacity='0.5';btn.style.cursor='not-allowed'}
+  } else {
+    notice.style.display='none';
+    if(btn){btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer'}
+  }
+}
 function runAi(){
+  if(DS.days<14){checkAiMinDays();return}
   const ab=document.getElementById('aiBody');
   if(ab&&ab.classList.contains('coll'))toggleCard('aiBody','aiCardTog');
   document.getElementById('aiTrig').style.display='none';
   document.getElementById('aiRes').classList.remove('show');
   document.getElementById('aiLd').classList.add('show');
 
-  setTimeout(()=>{
-    // 실제 데이터 기반 AI 분석
-    const kpi=getKpiData('전체');
-    const camps=getCampData();
-    const kws=getKwData().filter(k=>k.type!=='쇼핑검색');
+  // 데이터 수집
+  const kpi={};const types=['전체','쇼핑검색','파워링크','콘텐츠','브랜드'];
+  types.forEach(t=>{kpi[t]=getKpiData(t)});
+  const camps=getCampData();
+  const kws=getKwData().filter(k=>k.type!=='쇼핑검색');
+  const wastKws=kws.filter(k=>getWaste(k)==='high');
+  const midKws=kws.filter(k=>getWaste(k)==='mid');
+  const goodKws=kws.filter(k=>getWaste(k)==='low'&&k.adSpend>0);
 
-    // 현황 요약
-    const roas=kpi.roas||0;
-    const roasGoal=GOALS['전체']?.roas||600;
-    const chgSpend=kpi.p_adSpend>0?Math.round((kpi.adSpend-kpi.p_adSpend)/kpi.p_adSpend*100):0;
-    const chgConv=kpi.p_conversions>0?Math.round((kpi.conversions-kpi.p_conversions)/kpi.p_conversions*100):0;
-    const activeCamps=camps.filter(c=>c.status==='활성').length;
+  // ❶ 종합 진단 (코드 계산)
+  const k=kpi['전체'];
+  const efficiency=Math.min(100,Math.round((k.roas||0)/50));
+  const growth=k.p_conversions>0?Math.min(100,50+Math.round((k.conversions-k.p_conversions)/k.p_conversions*50)):50;
+  const wasteRatio=k.adSpend>0?wastKws.reduce((s,w)=>s+w.adSpend,0)/k.adSpend:0;
+  const stability=Math.max(0,Math.round(100-wasteRatio*200));
+  const score=Math.round(efficiency*0.4+growth*0.3+stability*0.3);
+  const grade=score>=80?'우수':score>=60?'양호':score>=40?'주의':'위험';
+  const gradeColor=score>=80?'var(--green)':score>=60?'var(--blue)':score>=40?'var(--orange)':'var(--red)';
 
-    let sumHtml=`<li>광고비 ${fC(kpi.adSpend)}, 전기간 대비 ${chgSpend>=0?'+':''}${chgSpend}%</li>`;
-    sumHtml+=`<li>ROAS ${roas}% — 목표(${roasGoal}%) ${roas>=roasGoal?'달성 ✅':'대비 '+(roasGoal-roas)+'%p 미달'}</li>`;
-    sumHtml+=`<li>전환수 ${fN(kpi.conversions)}건 (${chgConv>=0?'+':''}${chgConv}%), 전환매출 ${fC(kpi.convRevenue)}</li>`;
-    sumHtml+=`<li>CTR ${kpi.ctr}%, CPC ${fC(kpi.cpc)}, 활성 캠페인 ${activeCamps}개</li>`;
+  // ❷ 예산 분석
+  const typeSpend={};types.forEach(t=>{typeSpend[t]={spend:kpi[t]?.adSpend||0,roas:kpi[t]?.roas||0}});
+  const zeroCamps=camps.filter(c=>c.adSpend>0&&c.conversions===0).sort((a,b)=>b.adSpend-a.adSpend);
+  const totalWaste=wastKws.reduce((s,w)=>s+w.adSpend,0)+zeroCamps.reduce((s,c)=>s+c.adSpend,0);
 
-    // 위험 요인
-    const dangerCamps=camps.filter(c=>c.alr==='danger');
-    const wastKws=kws.filter(k=>getWaste(k)==='high');
-    const midKws=kws.filter(k=>getWaste(k)==='mid');
-    const overBudget=camps.filter(c=>c.adSpend>0&&c.prevAdSpend>0&&(c.adSpend/c.prevAdSpend)>1.5);
+  // ❸ 키워드 분석
+  const killList=wastKws.sort((a,b)=>b.adSpend-a.adSpend).slice(0,5);
+  const boostList=goodKws.sort((a,b)=>b.roas-a.roas).slice(0,5);
 
-    let riskHtml='';
-    dangerCamps.slice(0,2).forEach(c=>{
-      const cr=c.adSpend>0?Math.round(c.convRevenue/c.adSpend*100):0;
-      riskHtml+=`<li>[${c.name}] ROAS ${cr}% — 손익분기점 미달, 광고비 ${fC(c.adSpend)}</li>`;
-    });
-    if(wastKws.length>0)riskHtml+=`<li>낭비 키워드 ${wastKws.length}개 — 전환 없이 광고비 소진 중 (총 ${fC(wastKws.reduce((s,k)=>s+k.adSpend,0))})</li>`;
-    if(midKws.length>0)riskHtml+=`<li>주의 키워드 ${midKws.length}개 — ROAS 150% 미만 또는 전환 부족</li>`;
-    overBudget.slice(0,2).forEach(c=>{
-      riskHtml+=`<li>[${c.name}] 광고비 전기간 대비 ${Math.round(c.adSpend/c.prevAdSpend*100-100)}% 급증</li>`;
-    });
-    if(!riskHtml)riskHtml='<li>현재 특별한 위험 요인 없음 ✅</li>';
-
-    // 추천 전략
-    let stratHtml='';
-    // 낭비 키워드 대응
-    wastKws.slice(0,2).forEach(k=>{
-      stratHtml+=`<li>🔴 [${k.kw}] 입찰 중지 또는 50% 하향 → 광고비 ${fC(k.adSpend)} 절감 가능</li>`;
-    });
-    // ROAS 높은 캠페인 증액
-    const topRoas=camps.filter(c=>c.roas>500&&c.adSpend>10000).sort((a,b)=>b.roas-a.roas);
-    topRoas.slice(0,2).forEach(c=>{
-      stratHtml+=`<li>🟢 [${c.name}] ROAS ${fN(c.roas)}% 우수 — 예산 증액 권장</li>`;
-    });
-    // CTR 개선
-    const lowCtr=camps.filter(c=>c.clicks>10&&c.ctr<1).sort((a,b)=>a.ctr-b.ctr);
-    if(lowCtr.length>0)stratHtml+=`<li>📝 CTR 하위 캠페인 ${lowCtr.length}개 — A/B 소재 교체 권장</li>`;
-    // 전환율 개선
-    if(kpi.crto<2)stratHtml+=`<li>🎯 전체 전환율 ${kpi.crto}% — 랜딩페이지 최적화 검토</li>`;
-    // 예산 최적화
-    if(chgSpend>30)stratHtml+=`<li>💰 광고비 ${chgSpend}% 증가 — 비효율 캠페인 예산 재분배 검토</li>`;
-    if(!stratHtml)stratHtml='<li>현재 성과 양호, 기존 전략 유지 권장</li>';
-
-    // 선택된 입찰 전략에 따른 실행 계획
-    const stratNames = { aggressive:'🚀 공격적', standard:'⚖️ 기본', balanced:'🎯 균형적', conservative:'🛡️ 보수적' };
-    const stratName = stratNames[currentBidStrat] || '⚖️ 기본';
-    let planHtml = '';
-    if(currentBidStrat==='aggressive'){
-      const topCamps=camps.filter(c=>c.roas>500&&c.adSpend>5000).sort((a,b)=>b.roas-a.roas).slice(0,3);
-      planHtml+=`<li><b>적용 대상:</b> ROAS 500%↑ 캠페인 ${topCamps.length}개</li>`;
-      topCamps.forEach(c=>planHtml+=`<li>→ [${c.name}] 입찰가 30%↑ (ROAS ${fN(c.roas)}%)</li>`);
-      planHtml+=`<li><b>예상 효과:</b> 노출 +25~40%, 광고비 +30% 증가 예상</li>`;
-    } else if(currentBidStrat==='conservative'){
-      planHtml+=`<li><b>적용 대상:</b> 전체 활성 캠페인</li>`;
-      planHtml+=`<li>→ 전체 입찰가 20% 하향 적용</li>`;
-      const wastTotal=wastKws.reduce((s,k)=>s+k.adSpend,0);
-      planHtml+=`<li>→ 낭비 키워드 ${wastKws.length}개 즉시 중지 (${fC(wastTotal)} 절감)</li>`;
-      planHtml+=`<li><b>예상 효과:</b> 광고비 -20~30%, 노출 감소 감수</li>`;
-    } else if(currentBidStrat==='balanced'){
-      const goodCamps=camps.filter(c=>c.roas>300&&c.adSpend>5000).length;
-      const badCamps=camps.filter(c=>c.roas>0&&c.roas<300&&c.adSpend>5000).length;
-      planHtml+=`<li><b>ROAS 300%↑:</b> ${goodCamps}개 캠페인 → 입찰가 유지</li>`;
-      planHtml+=`<li><b>ROAS 300%↓:</b> ${badCamps}개 캠페인 → 입찰가 10% 하향</li>`;
-      planHtml+=`<li>→ 전환 없는 키워드 자동 일시중지 검토</li>`;
-      planHtml+=`<li><b>예상 효과:</b> ROAS 개선 + 광고비 최적화</li>`;
-    } else {
-      planHtml+=`<li><b>현행 유지:</b> 현재 입찰가와 예산 그대로 운영</li>`;
-      planHtml+=`<li>→ 주간 성과 모니터링 후 조정 판단</li>`;
-      planHtml+=`<li><b>예상 효과:</b> 안정적 운영, 리스크 없음</li>`;
+  // ❹ 시간대 분석
+  const hmData=(LIVE_DATA&&LIVE_DATA.heatmap)?LIVE_DATA.heatmap['전체']:null;
+  let offHours=[],boostHours=[];
+  if(hmData){
+    for(let h=0;h<24;h++){
+      const avgRoas=hmData[h].reduce((s,c)=>s+c.roas,0)/7;
+      if(avgRoas<100)offHours.push(h+'시');
+      if(avgRoas>500)boostHours.push(h+'시');
     }
+  }
 
-    document.getElementById('aiRes').innerHTML=`
-      <div class="ai-card sum"><div class="ai-ct">📊 현황 요약</div><ul>${sumHtml}</ul></div>
-      <div class="ai-card risk"><div class="ai-ct">⚠️ 위험 요인 (${dangerCamps.length+wastKws.length}건)</div><ul>${riskHtml}</ul></div>
-      <div class="ai-card strat"><div class="ai-ct">🎯 추천 전략</div><ul>${stratHtml}</ul></div>
-      <div class="ai-card" style="border-color:rgba(11,29,52,.2);background:var(--sf2);grid-column:1/-1"><div class="ai-ct" style="color:var(--navy)">📋 ${stratName} 전략 실행 계획</div><ul>${planHtml}</ul></div>`;
+  // ❺ 실행 계획 생성
+  const actions=[];
+  zeroCamps.slice(0,2).forEach(c=>{actions.push({p:'🔴 긴급',t:`"${c.name}" 캠페인 중지`,d:`전환 0, 광고비 ${fC(c.adSpend)} 낭비`,e:fC(c.adSpend)+' 절감'})});
+  killList.slice(0,3).forEach(k=>{actions.push({p:'🔴 긴급',t:`"${k.kw}" 키워드 중지`,d:`전환 0, 광고비 ${fC(k.adSpend)} 소진`,e:fC(k.adSpend)+' 절감'})});
+  if(offHours.length>0)actions.push({p:'🟠 이번 주',t:`${offHours.join(', ')} 입찰가 OFF`,d:'ROAS 100% 미만 시간대',e:'월 ~'+fC(Math.round(k.adSpend*0.03))+' 절감'});
+  boostList.slice(0,2).forEach(bk=>{actions.push({p:'🟢 이번 달',t:`"${bk.kw}" 입찰가 +20%`,d:`ROAS ${fN(bk.roas)}% 고효율`,e:'전환 증가 예상'})});
 
-    document.getElementById('aiLd').classList.remove('show');
-    document.getElementById('aiRes').classList.add('show');
-    ST.aiShown=true;
-  },1500);
+  // ❻ 예상 효과
+  const savingAmount=totalWaste;
+  const projSpend=Math.max(0,k.adSpend-Math.round(savingAmount*0.7));
+  const projConv=Math.round(k.conversions*1.05);
+  const projRoas=projSpend>0?Math.round(k.convRevenue*1.05/projSpend*100):0;
+
+  // 렌더링
+  const chgSpend=k.p_adSpend>0?Math.round((k.adSpend-k.p_adSpend)/k.p_adSpend*100):0;
+  const chgConv=k.p_conversions>0?Math.round((k.conversions-k.p_conversions)/k.p_conversions*100):0;
+
+  document.getElementById('aiRes').innerHTML=`
+  <div style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
+    <!-- ❶ 종합 진단 -->
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
+      <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">📊 종합 진단</div>
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div style="font-size:48px;font-weight:900;color:${gradeColor}">${score}</div>
+          <div style="font-size:14px;font-weight:700;color:${gradeColor}">/100 (${grade})</div>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <div style="margin-bottom:8px"><span style="font-size:13px;font-weight:700;color:var(--t1)">효율성 ${efficiency}</span><div style="height:8px;background:var(--sf2);border-radius:4px;margin-top:3px"><div style="height:100%;width:${efficiency}%;background:var(--green);border-radius:4px"></div></div></div>
+          <div style="margin-bottom:8px"><span style="font-size:13px;font-weight:700;color:var(--t1)">성장성 ${growth}</span><div style="height:8px;background:var(--sf2);border-radius:4px;margin-top:3px"><div style="height:100%;width:${growth}%;background:var(--blue);border-radius:4px"></div></div></div>
+          <div><span style="font-size:13px;font-weight:700;color:var(--t1)">안정성 ${stability}</span><div style="height:8px;background:var(--sf2);border-radius:4px;margin-top:3px"><div style="height:100%;width:${stability}%;background:var(--purple);border-radius:4px"></div></div></div>
+        </div>
+      </div>
+      <div style="margin-top:14px;padding:12px 16px;background:var(--sf2);border-radius:8px;font-size:14px;color:var(--t1);line-height:1.8">
+        • 광고비 ${fC(k.adSpend)}, 전기간 대비 ${chgSpend>=0?'<b style=color:var(--red)>+'+chgSpend+'%</b>':'<b style=color:var(--green)>'+chgSpend+'%</b>'}<br>
+        • ROAS ${fN(k.roas)}%, 전환 ${fN(k.conversions)}건 (${chgConv>=0?'+':''}${chgConv}%), 전환매출 ${fC(k.convRevenue)}<br>
+        • 파워링크 ROAS ${fN(kpi['파워링크']?.roas||0)}% vs 쇼핑검색 ROAS ${fN(kpi['쇼핑검색']?.roas||0)}%
+      </div>
+    </div>
+
+    <!-- ❷ 예산 효율 분석 -->
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
+      <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">💰 예산 효율 분석</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+        <div style="flex:1;min-width:160px;padding:14px;background:rgba(220,38,38,0.08);border-radius:8px;text-align:center">
+          <div style="font-size:13px;font-weight:700;color:var(--red)">월 낭비 추정액</div>
+          <div style="font-size:24px;font-weight:900;color:var(--red)">${fC(totalWaste)}</div>
+        </div>
+        ${types.filter(t=>t!=='전체').map(t=>`<div style="flex:1;min-width:120px;padding:14px;background:var(--sf2);border-radius:8px;text-align:center">
+          <div style="font-size:12px;font-weight:700;color:var(--t2)">${t}</div>
+          <div style="font-size:16px;font-weight:800;color:var(--t1)">${fC(typeSpend[t].spend)}</div>
+          <div style="font-size:12px;color:${typeSpend[t].roas>=300?'var(--green)':'var(--red)'}">ROAS ${fN(typeSpend[t].roas)}%</div>
+        </div>`).join('')}
+      </div>
+      ${zeroCamps.length>0?`<div style="padding:12px 16px;background:rgba(220,38,38,0.05);border-radius:8px;font-size:14px;color:var(--t1);line-height:1.8">
+        <b style="color:var(--red)">🔴 전환 0 캠페인 (${zeroCamps.length}개)</b><br>
+        ${zeroCamps.slice(0,3).map(c=>`• ${c.name} — 광고비 ${fC(c.adSpend)} 전액 낭비`).join('<br>')}
+      </div>`:''}
+    </div>
+
+    <!-- ❸ 키워드 최적화 -->
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
+      <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">🔑 키워드 최적화</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="padding:14px;background:rgba(220,38,38,0.05);border:1px solid rgba(220,38,38,0.15);border-radius:8px">
+          <div style="font-size:14px;font-weight:800;color:var(--red);margin-bottom:8px">🔴 즉시 중지 ${killList.length}개 (${fC(killList.reduce((s,k)=>s+k.adSpend,0))} 절감)</div>
+          ${killList.map(kw=>`<div style="font-size:13px;color:var(--t1);padding:4px 0;border-bottom:1px solid var(--bd)">
+            <b>${kw.kw}</b> <span style="color:var(--t2)">${fC(kw.adSpend)}</span> <span style="font-size:11px;color:var(--red)">전환0</span>
+          </div>`).join('')}
+        </div>
+        <div style="padding:14px;background:rgba(22,163,74,0.05);border:1px solid rgba(22,163,74,0.15);border-radius:8px">
+          <div style="font-size:14px;font-weight:800;color:var(--green);margin-bottom:8px">🟢 확대 투자 ${boostList.length}개</div>
+          ${boostList.map(kw=>`<div style="font-size:13px;color:var(--t1);padding:4px 0;border-bottom:1px solid var(--bd)">
+            <b>${kw.kw}</b> <span style="color:var(--green)">ROAS ${fN(kw.roas)}%</span> <span style="font-size:11px;color:var(--t2)">전환${kw.conversions}건</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- ❹ 시간대/요일 최적화 -->
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
+      <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">🕐 시간대/요일 최적화</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="padding:14px;background:rgba(220,38,38,0.05);border-radius:8px">
+          <div style="font-size:14px;font-weight:800;color:var(--red);margin-bottom:6px">🔴 OFF 권장</div>
+          <div style="font-size:14px;color:var(--t1)">${offHours.length>0?offHours.join(', '):'해당 없음'}</div>
+          <div style="font-size:12px;color:var(--t2);margin-top:4px">ROAS 100% 미만 시간대</div>
+        </div>
+        <div style="padding:14px;background:rgba(22,163,74,0.05);border-radius:8px">
+          <div style="font-size:14px;font-weight:800;color:var(--green);margin-bottom:6px">🟢 BOOST 권장</div>
+          <div style="font-size:14px;color:var(--t1)">${boostHours.length>0?boostHours.join(', '):'해당 없음'}</div>
+          <div style="font-size:12px;color:var(--t2);margin-top:4px">ROAS 500%↑ 고효율 시간대</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ❺ 실행 계획 -->
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
+      <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">📋 실행 계획 (${actions.length}건)</div>
+      ${actions.map(a=>`<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)">
+        <span style="font-size:13px;font-weight:800;white-space:nowrap;padding:3px 10px;border-radius:6px;background:${a.p.includes('긴급')?'rgba(220,38,38,0.1)':a.p.includes('이번 주')?'rgba(234,88,12,0.1)':'rgba(22,163,74,0.1)'};color:${a.p.includes('긴급')?'var(--red)':a.p.includes('이번 주')?'var(--orange)':'var(--green)'}">${a.p}</span>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700;color:var(--t1)">${a.t}</div>
+          <div style="font-size:13px;color:var(--t2)">${a.d}</div>
+        </div>
+        <span style="font-size:13px;font-weight:800;color:var(--green);white-space:nowrap">${a.e}</span>
+      </div>`).join('')}
+    </div>
+
+    <!-- ❻ 예상 효과 -->
+    <div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;padding:24px;color:#fff">
+      <div style="font-size:18px;font-weight:800;margin-bottom:16px">📈 전략 실행 시 예상 효과 (30일 후)</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px">
+        <div style="text-align:center">
+          <div style="font-size:12px;opacity:.7">광고비</div>
+          <div style="font-size:11px;text-decoration:line-through;opacity:.5">${fC(k.adSpend)}</div>
+          <div style="font-size:20px;font-weight:900">${fC(projSpend)}</div>
+          <div style="font-size:13px;color:#4ade80">▼ ${fN(Math.round((k.adSpend-projSpend)/k.adSpend*100))}%</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:12px;opacity:.7">전환수</div>
+          <div style="font-size:11px;text-decoration:line-through;opacity:.5">${fN(k.conversions)}건</div>
+          <div style="font-size:20px;font-weight:900">${fN(projConv)}건</div>
+          <div style="font-size:13px;color:#4ade80">▲ +${fN(projConv-k.conversions)}건</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:12px;opacity:.7">ROAS</div>
+          <div style="font-size:11px;text-decoration:line-through;opacity:.5">${fN(k.roas)}%</div>
+          <div style="font-size:20px;font-weight:900">${fN(projRoas)}%</div>
+          <div style="font-size:13px;color:#4ade80">▲ +${fN(projRoas-k.roas)}%p</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:12px;opacity:.7">월 절감액</div>
+          <div style="font-size:20px;font-weight:900;color:#fbbf24">${fC(Math.round(savingAmount*0.7))}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('aiLd').classList.remove('show');
+  document.getElementById('aiRes').classList.add('show');
+  document.getElementById('aiTrig').style.display='flex';
+  ST.aiShown=true;
 }
 
 /* ================================================================ KEYWORD SUGGEST */
@@ -2538,7 +2645,7 @@ function ansQ(q){
 function showToast(msg){const el=document.createElement('div');el.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0B1D34;color:#fff;padding:10px 20px;border-radius:9px;font-size:12.5px;font-weight:700;box-shadow:0 6px 20px rgba(11,29,52,.3);z-index:600';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2300)}
 
 /* ================================================================ RELOAD */
-function reloadAll(){renderAlerts();renderKpi();initTrend();initHmMonthSel();renderHm();renderKw();renderCmp();updateBidRecommend();fetchMonthlySpend()}
+function reloadAll(){renderAlerts();renderKpi();initTrend();initHmMonthSel();renderHm();renderKw();renderCmp();updateBidRecommend();fetchMonthlySpend();checkAiMinDays()}
 
 // 이번 달 누적 광고비
 async function fetchMonthlySpend(){
