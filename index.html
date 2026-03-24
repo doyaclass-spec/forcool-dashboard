@@ -227,9 +227,9 @@ input,select,textarea{font-family:inherit;outline:none}
 .hm-best{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;background:var(--gbg);border:1px solid rgba(0,200,150,.22);border-radius:11px;font-size:12.5px;font-weight:700;color:var(--g2)}
 .hm-worst{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;background:var(--rbg);border:1px solid rgba(229,57,53,.18);border-radius:11px;font-size:12.5px;font-weight:700;color:var(--red)}
 .hm-wrap{padding:4px 16px 14px;overflow-x:auto}
-.hm-tbl{border-collapse:separate;border-spacing:2px;font-size:12.5px;width:100%}
-.hm-tbl .hm-th-day{padding:8px 6px;text-align:center;font-weight:800;font-size:13px;color:var(--t1);white-space:nowrap}
-.hm-tbl .hm-th-hour{padding:6px 10px 6px 4px;font-weight:700;font-size:14px;color:var(--t1);white-space:nowrap;text-align:right;min-width:40px}
+.hm-tbl{border-collapse:separate;border-spacing:2px;font-size:12.5px;width:100%;table-layout:fixed}
+.hm-tbl .hm-th-day{padding:6px 2px;text-align:center;font-weight:800;font-size:11px;color:var(--t1);white-space:nowrap;overflow:hidden}
+.hm-tbl .hm-th-hour{padding:6px 6px 6px 4px;font-weight:700;font-size:13px;color:var(--t1);white-space:nowrap;text-align:left;width:80px}
 .hm-cell{height:40px;min-width:48px;border-radius:5px;text-align:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;transition:transform .1s;vertical-align:middle}
 .hm-cell:hover{transform:scale(1.08);box-shadow:var(--s2);z-index:2;position:relative}
 /* 그라데이션 띠 */
@@ -1969,9 +1969,19 @@ function renderHm(){
     document.getElementById('hmTop3').innerHTML='';
     return;
   }
-  const labels=td.labels; // ["26-03-17","26-03-18",...]
+  // 최대 31일 제한 (넘으면 최근 31일만)
+  let allLabels=td.labels;
   const cur=td.cur||td;
+  const maxDays=31;
+  const startIdx=allLabels.length>maxDays?allLabels.length-maxDays:0;
+  const labels=allLabels.slice(startIdx);
   const days=labels.length;
+  // cur 데이터도 슬라이스
+  if(startIdx>0){
+    ['impressions','clicks','adSpend','conversions','convRevenue'].forEach(k=>{
+      if(cur[k])cur[k]=cur[k].slice(startIdx);
+    });
+  }
 
   // 지표 정의: [key, label, format함수, 높을수록 좋은지]
   const METRICS=[
@@ -1997,33 +2007,38 @@ function renderHm(){
     return (cur[key]||[])[idx]||0;
   }
 
-  // TOP3 최고/최저 계산 (ROAS 기준)
-  const roasArr=[];
-  for(let i=0;i<days;i++){
-    const sp=cur.adSpend?.[i]||0,rv=cur.convRevenue?.[i]||0;
-    roasArr.push({day:labels[i],roas:sp>0?Math.round(rv/sp*100):0,spend:sp,conv:cur.conversions?.[i]||0});
+  // TOP3: 전체일 때는 숨기고, 유형 선택 시만 표시
+  const hmType=ST.hmType||'전체';
+  if(hmType==='전체'){
+    document.getElementById('hmTop3').innerHTML='';
+  }else{
+    const roasArr=[];
+    for(let i=0;i<days;i++){
+      const sp=cur.adSpend?.[i]||0,rv=cur.convRevenue?.[i]||0;
+      roasArr.push({day:labels[i],roas:sp>0?Math.round(rv/sp*100):0,spend:sp,conv:cur.conversions?.[i]||0,
+        clicks:cur.clicks?.[i]||0,impressions:cur.impressions?.[i]||0});
+    }
+    const sorted=[...roasArr].filter(d=>d.spend>0).sort((a,b)=>b.roas-a.roas);
+    const top3=sorted.slice(0,3);
+    const bot3=[...sorted].reverse().slice(0,3);
+    document.getElementById('hmTop3').innerHTML=`
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px">
+        <div style="flex:1;min-width:280px;padding:12px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px">
+          <div style="font-size:15px;font-weight:800;color:#166534;margin-bottom:8px">🏆 ${hmType} ROAS 최고 TOP 3</div>
+          ${top3.map((d,i)=>`<div style="font-size:14px;color:#0f172a;padding:4px 0"><b>${i+1}.</b> ${d.day} — ROAS <b style="color:#166534">${fN(d.roas)}%</b> · 광고비 ${fC(d.spend)} · 전환 ${d.conv}건</div>`).join('')}
+        </div>
+        <div style="flex:1;min-width:280px;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px">
+          <div style="font-size:15px;font-weight:800;color:#991b1b;margin-bottom:8px">⚠️ ${hmType} ROAS 최저 TOP 3</div>
+          ${bot3.map((d,i)=>`<div style="font-size:14px;color:#0f172a;padding:4px 0"><b>${i+1}.</b> ${d.day} — ROAS <b style="color:#991b1b">${fN(d.roas)}%</b> · 광고비 ${fC(d.spend)} · 전환 ${d.conv}건</div>`).join('')}
+        </div>
+      </div>`;
   }
-  const sorted=[...roasArr].filter(d=>d.spend>0).sort((a,b)=>b.roas-a.roas);
-  const top3=sorted.slice(0,3);
-  const bot3=[...sorted].reverse().slice(0,3);
-
-  document.getElementById('hmTop3').innerHTML=`
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
-      <div style="flex:1;min-width:280px;padding:12px 16px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:10px">
-        <div style="font-size:15px;font-weight:800;color:#16a34a;margin-bottom:8px">🏆 ROAS 최고 TOP 3</div>
-        ${top3.map((d,i)=>`<div style="font-size:13px;color:var(--t1);padding:3px 0"><b>${i+1}.</b> ${d.day} — ROAS <b style="color:#16a34a">${fN(d.roas)}%</b> · 광고비 ${fC(d.spend)} · 전환 ${d.conv}건</div>`).join('')}
-      </div>
-      <div style="flex:1;min-width:280px;padding:12px 16px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:10px">
-        <div style="font-size:15px;font-weight:800;color:#dc2626;margin-bottom:8px">⚠️ ROAS 최저 TOP 3</div>
-        ${bot3.map((d,i)=>`<div style="font-size:13px;color:var(--t1);padding:3px 0"><b>${i+1}.</b> ${d.day} — ROAS <b style="color:#dc2626">${fN(d.roas)}%</b> · 광고비 ${fC(d.spend)} · 전환 ${d.conv}건</div>`).join('')}
-      </div>
-    </div>`;
 
   // 테이블 생성: 가로=날짜, 세로=지표
   let html='<tr><th class="hm-th-hour" style="min-width:90px;text-align:left;font-size:12px">지표</th>';
   labels.forEach(l=>{
     const short=l.length>5?l.slice(3):l; // "03-17" or "3/17"
-    html+=`<th class="hm-th-day" style="font-size:11px;min-width:55px">${short}</th>`;
+    html+=`<th class="hm-th-day">${short}</th>`;
   });
   html+='</tr>';
 
@@ -2040,24 +2055,19 @@ function renderHm(){
     for(let i=0;i<days;i++){
       const v=vals[i];
       const t=v===0?0:norm(v);
-      // 색상: higherBetter면 높을수록 초록, 낮을수록 빨강. 반대면 반전
-      let r,g,b;
-      if(v===0){r=245;g=245;b=245}
-      else if(higherBetter){
-        r=Math.round(220-t*190);g=Math.round(80+t*120);b=Math.round(60-t*20);
-      }else{
-        // 비용 지표: 높을수록 빨강
-        r=Math.round(80+(1-t)*140);g=Math.round(200-t*140);b=Math.round(80-t*40);
+      // 파스텔 톤 색상: shadcn 컬러 기반
+      let bg,tc='#0f172a';
+      if(v===0){bg='#f8fafc'}
+      else{
+        const s=higherBetter?t:(1-t); // 성과 지표는 높을수록 좋음, 비용 지표는 낮을수록 좋음
+        if(s<0.2){bg='#fef2f2';tc='#991b1b'} // 매우 나쁨 — 연한 빨강
+        else if(s<0.4){bg='#fff7ed';tc='#9a3412'} // 나쁨 — 연한 주황
+        else if(s<0.6){bg='#fefce8';tc='#854d0e'} // 보통 — 연한 노랑
+        else if(s<0.8){bg='#f0fdf4';tc='#166534'} // 좋음 — 연한 초록
+        else{bg='#dcfce7';tc='#15803d'} // 매우 좋음 — 진한 초록
       }
-      // 비용 지표 반전
-      if(!higherBetter&&v>0){
-        const t2=1-t;
-        r=Math.round(220-t2*190);g=Math.round(80+t2*120);b=Math.round(60-t2*20);
-      }
-      const bg=`rgb(${r},${g},${b})`;
-      const tc=(r*0.299+g*0.587+b*0.114)>160?'#0f172a':'#fff';
       const disp=fmt(v,i);
-      html+=`<td class="hm-cell" style="background:${bg};color:${tc};font-size:11px;padding:5px 3px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums">${disp}</td>`;
+      html+=`<td class="hm-cell" style="background:${bg};color:${tc};font-size:13px;padding:7px 4px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap">${disp}</td>`;
     }
     html+='</tr>';
   });
