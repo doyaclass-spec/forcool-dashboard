@@ -2433,16 +2433,48 @@ function renderQl(){document.getElementById('qlList').innerHTML=QS.map(q=>`<butt
 function askQ(q){document.getElementById('chatInp').value=q;sendChat()}
 function escHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function addMsg(text,role){const w=document.getElementById('chatMsgs');const d=document.createElement('div');d.className=`msg ${role}`;const safe=role==='user'?escHtml(text):text;d.innerHTML=`<div class="mb">${safe}</div><div class="mt">${nowT()}</div>`;w.appendChild(d);w.scrollTop=w.scrollHeight}
-function sendChat(){const inp=document.getElementById('chatInp');const q=inp.value.trim();if(!q)return;addMsg(q,'user');inp.value='';setTimeout(()=>addMsg(ansQ(q),'bot'),300)}
+function sendChat(){const inp=document.getElementById('chatInp');const q=inp.value.trim();if(!q)return;addMsg(q,'user');inp.value='';const reply=ansQ(q);if(reply!==null)setTimeout(()=>addMsg(reply,'bot'),300)}
 function ansQ(q){
   const t=q.toLowerCase();
   const cmp=getCampData(),actC=cmp.filter(c=>c.status==='활성'),pauC=cmp.filter(c=>c.status==='일시중지');
-  function pM(s){const p=[[/(26년?|2026).*?(1월|01월)/,'2026-01'],[/(25년?|2025).*?(12월)/,'2025-12'],[/(25년?|2025).*?(3월)/,'2025-03']];for(const[re,k]of p){if(re.test(s))return k}return null}
+  // 월별 질문 파싱 (모든 년월 지원)
+  function pM(s){
+    const mMap={'1월':'01','2월':'02','3월':'03','4월':'04','5월':'05','6월':'06','7월':'07','8월':'08','9월':'09','10월':'10','11월':'11','12월':'12'};
+    for(const[ml,mn] of Object.entries(mMap)){
+      const re=new RegExp('(2[0-9]|\\d{4})년?\\s*'+ml.replace('월','')+'월?');
+      const m=s.match(re);
+      if(m){let y=m[1];if(y.length===2)y='20'+y;return y+'-'+mn}
+    }
+    return null;
+  }
   const tm=pM(t);
   const tpM={'쇼핑검색':['쇼핑검색','쇼핑'],'파워링크':['파워링크','파워'],'콘텐츠':['콘텐츠'],'브랜드':['브랜드']};
   let ft=null;for(const[k,al]of Object.entries(tpM)){if(al.some(a=>t.includes(a))){ft=k;break}}
-  const ymL={'2026-01':'2026년 1월','2025-12':'2025년 12월','2025-03':'2025년 3월'};
-  if(tm){const md=MO_DATA[tm];const ym=ymL[tm]||tm;if(!md)return`<b>${ym}</b> 데이터 없음 📭`;if(ft&&md[ft]){const d=md[ft];if(t.includes('광고비'))return`📅 <b>${ym} ${ft}</b> 광고비<br>→ <b>${fC(d.adSpend)}</b>`;if(t.includes('매출'))return`📅 <b>${ym} ${ft}</b> 매출<br>→ <b>${fC(d.convRevenue)}</b>`;return`📅 <b>${ym} ${ft}</b><br>광고비: ${fC(d.adSpend)}<br>매출: ${fC(d.convRevenue)}<br>ROAS: ${Math.round(d.convRevenue/d.adSpend*100)}%`}const tot={adSpend:0,convRevenue:0,conversions:0};Object.values(md).forEach(d=>{tot.adSpend+=d.adSpend;tot.convRevenue+=d.convRevenue;tot.conversions+=d.conversions});if(t.includes('광고비'))return`📅 <b>${ym}</b> 총 광고비<br>→ <b>${fC(tot.adSpend)}</b>`;return`📅 <b>${ym}</b> 전체<br>광고비: ${fC(tot.adSpend)}<br>매출: ${fC(tot.convRevenue)}<br>ROAS: ${Math.round(tot.convRevenue/tot.adSpend*100)}%`}
+  if(tm){
+    // KV에서 해당 월 실데이터 가져오기 (비동기 → 로딩 메시지 후 업데이트)
+    const ym=tm.replace('-','년 ').replace(/(\d{2})$/,(m)=>parseInt(m)+'월');
+    addMsg(`📅 <b>${ym}</b> 데이터 조회 중...`,"bot");
+    const [yr,mn]=tm.split('-');
+    const lastDay=new Date(parseInt(yr),parseInt(mn),0).getDate();
+    const from=`${tm}-01`,to=`${tm}-${String(lastDay).padStart(2,'0')}`;
+    fetch(API_BASE+`/api/dashboard-fast?from=${from}&to=${to}`,{headers:{'Origin':location.origin}})
+      .then(r=>r.json()).then(d=>{
+        const types=['전체','쇼핑검색','파워링크','콘텐츠','브랜드'];
+        if(ft&&d.kpi&&d.kpi[ft]){
+          const k=d.kpi[ft];
+          if(t.includes('광고비')){addMsg(`📅 <b>${ym} ${ft}</b> 광고비<br>→ <b>${fC(k.adSpend)}</b>`,'bot');return}
+          if(t.includes('매출')){addMsg(`📅 <b>${ym} ${ft}</b> 매출<br>→ <b>${fC(k.convRevenue)}</b>`,'bot');return}
+          addMsg(`📅 <b>${ym} ${ft}</b><br>광고비: ${fC(k.adSpend)}<br>매출: ${fC(k.convRevenue)}<br>ROAS: ${k.adSpend>0?fN(Math.round(k.convRevenue/k.adSpend*100))+'%':'0%'}`,'bot')
+        }else if(d.kpi&&d.kpi['전체']){
+          const k=d.kpi['전체'];
+          if(t.includes('광고비')){addMsg(`📅 <b>${ym}</b> 총 광고비<br>→ <b>${fC(k.adSpend)}</b>`,'bot');return}
+          let html=`📅 <b>${ym}</b> 전체<br>광고비: ${fC(k.adSpend)}<br>매출: ${fC(k.convRevenue)}<br>ROAS: ${k.adSpend>0?fN(Math.round(k.convRevenue/k.adSpend*100))+'%':'0%'}`;
+          types.slice(1).forEach(tp=>{if(d.kpi[tp]&&d.kpi[tp].adSpend>0)html+=`<br>· ${tp}: ${fC(d.kpi[tp].adSpend)}`});
+          addMsg(html,"bot")
+        }else{addMsg(`<b>${ym}</b> 데이터가 없습니다 📭`,"bot")}
+      }).catch(()=>addMsg(`<b>${ym}</b> 데이터 조회 실패`,"bot"));
+    return null; // 비동기 처리이므로 null 반환
+  }
   const kw=getKwData().filter(k=>k.type!=='쇼핑검색');
   if(t.includes('낭비 키워드')||t.includes('낭비키워드')){const w=kw.filter(k=>getWaste(k)==='high');return`🔴 낭비 키워드 <b>${w.length}개</b><br>${w.map(k=>`· ${k.kw} [${k.type}] ${fC(k.adSpend)} 전환0`).join('<br>')}`}
   if(t.includes('roas 0')||t.includes('전환없는')||t.includes('전환 없는')){const w=kw.filter(k=>k.conversions===0);return`⚠️ 전환 0건 키워드 <b>${w.length}개</b><br>${w.slice(0,5).map(k=>`· ${k.kw} [${k.type}]`).join('<br>')}`}
