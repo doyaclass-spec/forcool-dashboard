@@ -696,6 +696,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <option value="5">5만원 이상</option>
       <option value="0-10">10만원 미만</option>
     </select>
+    <button onclick="renderKw()" style="padding:6px 16px;border:1px solid var(--blue);border-radius:6px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;cursor:pointer">🔍 조회</button>
     <span class="tcnt" id="kwCnt"></span>
     <select class="ps-sel" id="kwPsSel" onchange="ST.kwPS=parseInt(this.value);ST.kwPage=1;renderKw()">
       <option value="10">10개씩</option><option value="20">20개씩</option>
@@ -743,6 +744,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <option value="10">10만원 이상</option>
       <option value="0-10">10만원 미만</option>
     </select>
+    <button onclick="ST.cmpPage=1;renderCmp()" style="padding:6px 16px;border:1px solid var(--blue);border-radius:6px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;cursor:pointer">🔍 조회</button>
     <span class="tcnt" id="cmpCnt"></span>
     <select class="ps-sel" id="cmpPsSel" onchange="ST.cmpPS=parseInt(this.value);ST.cmpPage=1;renderCmp()">
       <option value="10">10개씩</option><option value="20">20개씩</option>
@@ -2149,7 +2151,7 @@ function renderKw(){
   document.getElementById('kwCnt').textContent=`${total}개 키워드`;
   const maxS=Math.max(...slice.map(k=>k.adSpend),1);
   document.getElementById('kwBody').innerHTML=slice.map(k=>`
-    <tr style="cursor:pointer" onclick="jumpToCampaign('${(k.campaign||'').replace(/'/g,"\\'")}')"><td><b>${k.kw}</b></td><td>${tBadge(k.type)}</td>
+    <tr><td><b>${k.kw}</b></td><td>${tBadge(k.type)}</td>
     <td style="font-size:11px;color:var(--t2);max-width:130px;white-space:normal"><div class="tip-wrap"><span style="cursor:help">${k.campaign}</span><div class="tip-box" style="font-size:14px;font-weight:600;white-space:nowrap">${k.campaign}</div></div></td>
     <td>${fN(k.impressions)}</td><td>${kwChgLbl(k.impressions,k.prevImpressions)}</td><td>${fN(k.clicks)}</td>
     <td><div class="kwbar-cell"><div class="kwbar" style="width:${Math.round(k.adSpend/maxS*65)}px;background:${getWaste(k)==='high'?'var(--red)':getWaste(k)==='mid'?'var(--orange)':'var(--green)'}"></div>${fC(k.adSpend)}</div></td>
