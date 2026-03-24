@@ -2505,7 +2505,7 @@ async function fetchMonthlySpend(){
     const r=await fetch(WORKER_URL+'/api/monthly-spend',{headers:{'Origin':location.origin}});
     const d=await r.json();
     const fC=v=>'₩'+Math.round(v).toLocaleString();
-    document.getElementById('msDate').textContent=`${d.year}년 ${parseInt(d.month)}월 ${d.today.slice(8)}일 기준`;
+    document.getElementById('msDate').textContent=`${d.year}년 ${parseInt(d.month)}월 1일 ~ ${parseInt(d.month)}월 ${parseInt(d.today.slice(8))}일 기준`;
     document.getElementById('ms-total').textContent=fC(d.spend['전체']);
     document.getElementById('ms-shopping').textContent=fC(d.spend['쇼핑검색']);
     document.getElementById('ms-powerlink').textContent=fC(d.spend['파워링크']);
@@ -2513,7 +2513,8 @@ async function fetchMonthlySpend(){
     document.getElementById('ms-brand').textContent=fC(d.spend['브랜드']);
   }catch(e){console.warn('월간 광고비 로드 실패:',e)}
 }
-// 1시간마다 자동 갱신
+// 페이지 로드 시 즉시 호출 + 1시간마다 자동 갱신
+fetchMonthlySpend();
 setInterval(fetchMonthlySpend,3600000);
 function updateBidRecommend(){
   const el=document.getElementById('bidRecommend');
