@@ -485,6 +485,39 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <!-- KPI -->
 <div class="card" style="margin-bottom:0">
+  <!-- 이번 달 누적 광고비 카드 -->
+  <div class="card" style="margin-bottom:16px" id="monthlySpendCard">
+    <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd)">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:18px;font-weight:800;color:var(--t1)">💰 이번 달 누적 광고비</span>
+        <span id="msDate" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
+      </div>
+      <div style="font-size:13px;color:var(--t2);margin-top:4px">이번 달 1일부터 오늘까지 광고 유형별 누적 지출 금액입니다. 매 1시간마다 자동 업데이트됩니다.</div>
+    </div>
+    <div id="msGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--bd)">
+      <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px">
+        <div style="font-size:13px;font-weight:700;color:var(--t2)">총액</div>
+        <div id="ms-total" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+      </div>
+      <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px">
+        <div style="font-size:13px;font-weight:700;color:var(--green)">쇼핑검색</div>
+        <div id="ms-shopping" style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+      </div>
+      <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px">
+        <div style="font-size:13px;font-weight:700;color:var(--blue)">파워링크</div>
+        <div id="ms-powerlink" style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+      </div>
+      <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px">
+        <div style="font-size:13px;font-weight:700;color:var(--orange)">콘텐츠</div>
+        <div id="ms-content" style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+      </div>
+      <div class="ms-item" style="padding:16px 18px">
+        <div style="font-size:13px;font-weight:700;color:var(--purple)">브랜드</div>
+        <div id="ms-brand" style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+      </div>
+    </div>
+  </div>
+
   <!-- 소제목 (다른 카드와 동일 디자인) -->
   <div style="padding:14px 18px 10px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="toggleCard('kpiGrid','kpiCardTog')">
     <div style="display:flex;align-items:center;justify-content:space-between">
@@ -2427,7 +2460,24 @@ function ansQ(q){
 function showToast(msg){const el=document.createElement('div');el.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0B1D34;color:#fff;padding:10px 20px;border-radius:9px;font-size:12.5px;font-weight:700;box-shadow:0 6px 20px rgba(11,29,52,.3);z-index:600';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2300)}
 
 /* ================================================================ RELOAD */
-function reloadAll(){renderAlerts();renderKpi();initTrend();initHmMonthSel();renderHm();renderKw();renderCmp();updateBidRecommend()}
+function reloadAll(){renderAlerts();renderKpi();initTrend();initHmMonthSel();renderHm();renderKw();renderCmp();updateBidRecommend();fetchMonthlySpend()}
+
+// 이번 달 누적 광고비
+async function fetchMonthlySpend(){
+  try{
+    const r=await fetch(API_BASE+'/api/monthly-spend',{headers:{'Origin':location.origin}});
+    const d=await r.json();
+    const fC=v=>'₩'+Math.round(v).toLocaleString();
+    document.getElementById('msDate').textContent=`${d.year}년 ${parseInt(d.month)}월 ${d.today.slice(8)}일 기준`;
+    document.getElementById('ms-total').textContent=fC(d.spend['전체']);
+    document.getElementById('ms-shopping').textContent=fC(d.spend['쇼핑검색']);
+    document.getElementById('ms-powerlink').textContent=fC(d.spend['파워링크']);
+    document.getElementById('ms-content').textContent=fC(d.spend['콘텐츠']);
+    document.getElementById('ms-brand').textContent=fC(d.spend['브랜드']);
+  }catch(e){console.warn('월간 광고비 로드 실패:',e)}
+}
+// 1시간마다 자동 갱신
+setInterval(fetchMonthlySpend,3600000);
 function updateBidRecommend(){
   const el=document.getElementById('bidRecommend');
   if(!el)return;
