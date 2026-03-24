@@ -534,24 +534,22 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     </div>
     <div style="font-size:14px;color:var(--t1);margin-top:4px;line-height:1.6">선택한 기간의 광고 성과를 한눈에 파악합니다. 이전 동일 기간과 자동 비교되며, 당일 데이터는 정산 전 수치로 0.1% 이내 오차가 있을 수 있습니다.</div>
   </div>
-  <!-- 유형 탭 -->
-  <div class="trend-type-tabs" id="kpiTypePills" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap">
-    <div style="display:flex;gap:3px">
+  <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="display:none">
+    <option value="auto" selected>자동 (동일 기간)</option>
+  </select>
+  <div class="card-body" id="kpiGrid" style="max-height:1600px;overflow:hidden;transition:max-height .3s ease">
+    <div class="trend-type-tabs" id="kpiTypePills" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:8px 18px;border-bottom:1px solid var(--bd)">
       <button class="trend-type-tab active" data-type="전체">전체</button>
       <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
       <button class="trend-type-tab" data-type="파워링크">파워링크</button>
       <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
       <button class="trend-type-tab" data-type="브랜드">브랜드</button>
-    </div>
-    <div style="display:flex;gap:6px">
+      <div style="border-left:2px solid var(--bd);height:20px;margin:0 6px"></div>
       <button class="btn-goal" onclick="openGoalModal()">🎯 월별 목표 설정</button>
       <button onclick="openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">👁 표시 설정</button>
     </div>
+    <div class="kpi-grid" id="kpiGridInner"></div>
   </div>
-  <select id="kpiBaselineSel" onchange="changeKpiBaseline(this.value)" style="display:none">
-    <option value="auto" selected>자동 (동일 기간)</option>
-  </select>
-  <div class="card-body" id="kpiGrid" style="max-height:1600px"><div class="kpi-grid" id="kpiGridInner"></div></div>
   </div>
 </div>
 
