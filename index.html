@@ -2259,9 +2259,9 @@ function runAi(){
   const chgConv=k.p_conversions>0?Math.round((k.conversions-k.p_conversions)/k.p_conversions*100):0;
 
   document.getElementById('aiRes').innerHTML=`
-  <div style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
-    <!-- ❶ 종합 진단 (가로 3컬럼) -->
-    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+    <!-- ❶ 종합 진단 (2열 전체 차지) -->
+    <div style="grid-column:1/-1;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
       <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">📊 종합 진단</div>
       <div style="display:grid;grid-template-columns:140px 1fr 1fr;gap:20px;align-items:center">
         <div style="text-align:center;padding:16px;background:${gradeColor}10;border-radius:12px">
