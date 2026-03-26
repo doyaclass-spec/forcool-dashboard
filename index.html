@@ -2390,7 +2390,7 @@ function runAi(){
   document.getElementById('pdfBtnWrap').style.display='block';
   document.getElementById('aiTrig').style.display='flex';
   ST.aiShown=true;
-  ST._lastAiResult=result; // PDF 생성용 저장
+  ST._lastAiResult={score,grade,efficiency,growth,stability,kpi,typeSpend,totalWaste,zeroCamps,killList,boostList,offHours,boostHours,actions,projSpend,projConv,projRoas,savingAmount,chgSpend}; // PDF 생성용 저장
 }
 
 // PDF 보고서 다운로드 (html2canvas 방식 — 한글 완벽 지원)
