@@ -2281,7 +2281,7 @@ function runAi(){
     </div>
 
     <!-- ❷❸ 예산 효율 + 키워드 최적화 (가로 2열) -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
       <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">💰 예산 효율 분석</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
@@ -2323,7 +2323,7 @@ function runAi(){
     </div><!-- /2열 그리드 -->
 
     <!-- ❹❺ 시간대 + 실행계획 (가로 2열) -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
       <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">🕐 시간대/요일 최적화</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -2486,8 +2486,10 @@ async function downloadPDF(){
 
     document.body.appendChild(reportDiv);
 
-    // html2canvas로 캡처
-    const canvas=await html2canvas(reportDiv,{scale:2,useCORS:true,backgroundColor:'#ffffff'});
+    // 폰트 로드 대기 후 html2canvas로 캡처
+    await document.fonts.ready;
+    await new Promise(r=>setTimeout(r,500)); // 렌더링 안정화 대기
+    const canvas=await html2canvas(reportDiv,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});
     document.body.removeChild(reportDiv);
 
     // PDF 생성 (이미지 방식 — 한글 완벽)
