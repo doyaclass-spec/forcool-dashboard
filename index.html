@@ -2259,9 +2259,9 @@ function runAi(){
   const chgConv=k.p_conversions>0?Math.round((k.conversions-k.p_conversions)/k.p_conversions*100):0;
 
   document.getElementById('aiRes').innerHTML=`
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
-    <!-- ❶ 종합 진단 (2열 전체 차지) -->
-    <div style="grid-column:1/-1;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
+  <div style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
+    <!-- ❶ 종합 진단 -->
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
       <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">📊 종합 진단</div>
       <div style="display:grid;grid-template-columns:140px 1fr 1fr;gap:20px;align-items:center">
         <div style="text-align:center;padding:16px;background:${gradeColor}10;border-radius:12px">
@@ -2281,7 +2281,8 @@ function runAi(){
       </div>
     </div>
 
-    <!-- ❷ 예산 효율 분석 -->
+    <!-- ❷❸ 예산 효율 + 키워드 최적화 (가로 2열) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
       <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">💰 예산 효율 분석</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
@@ -2320,7 +2321,10 @@ function runAi(){
       </div>
     </div>
 
-    <!-- ❹ 시간대/요일 최적화 -->
+    </div><!-- /2열 그리드 -->
+
+    <!-- ❹❺ 시간대 + 실행계획 (가로 2열) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
       <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">🕐 시간대/요일 최적화</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -2350,7 +2354,9 @@ function runAi(){
       </div>`).join('')}
     </div>
 
-    <!-- ❻ 예상 효과 -->
+    </div><!-- /2열 그리드 -->
+
+    <!-- ❻ 예상 효과 (전체 너비) -->
     <div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;padding:24px;color:#fff">
       <div style="font-size:18px;font-weight:800;margin-bottom:16px">📈 전략 실행 시 예상 효과 (30일 후)</div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px">
