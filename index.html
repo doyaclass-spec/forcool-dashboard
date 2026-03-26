@@ -803,7 +803,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     </div>
     <div class="ctog open" id="aiCardTog">▼</div>
   </div>
-  <div class="card-body" id="aiBody" style="max-height:1200px">
+  <div class="card-body" id="aiBody" style="max-height:none">
     <div style="padding:16px">
       <span id="bidRecommend" style="display:none"></span>
       <div id="bidStratBody" style="display:none"></div>
@@ -2281,7 +2281,7 @@ function runAi(){
     </div>
 
     <!-- ❷❸ 예산 효율 + 키워드 최적화 (가로 2열) -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch">
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
       <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">💰 예산 효율 분석</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
@@ -2323,7 +2323,7 @@ function runAi(){
     </div><!-- /2열 그리드 -->
 
     <!-- ❹❺ 시간대 + 실행계획 (가로 2열) -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch">
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px">
       <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:14px">🕐 시간대/요일 최적화</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -2785,7 +2785,7 @@ function toggleCard(bodyId, togId){
   body.classList.toggle('coll',isOpen);
   // max-height 처리
   if(isOpen){body.style.maxHeight='0'}
-  else{body.style.maxHeight='4000px'}
+  else{body.style.maxHeight='none'}
   if(tog)tog.classList.toggle('open',!isOpen);
 }
 function toggleSec(bodyId, togId){
