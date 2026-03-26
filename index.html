@@ -819,7 +819,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
       <div class="ai-ld" id="aiLd"><div class="spinner"></div><div style="color:var(--t1);font-size:15px;font-weight:700">전문가 수준 전략 보고서 생성 중… (약 10~15초)</div></div>
       <!-- 6개 카드 결과 -->
       <div id="pdfBtnWrap" style="display:none;margin-bottom:12px;text-align:right">
-        <button onclick="downloadPDF()" style="padding:10px 24px;background:linear-gradient(135deg,#1e293b,#334155);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15)">📄 PDF 보고서 다운로드</button>
+        <button id="pdfBtn" onclick="downloadPDF()" style="padding:10px 24px;background:linear-gradient(135deg,#1e293b,#334155);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15)">📄 PDF 보고서 다운로드</button>
       </div>
       <div class="ai-res" id="aiRes"></div>
     </div>
@@ -2395,7 +2395,7 @@ function runAi(){
 
 // PDF 보고서 다운로드 (html2canvas 방식 — 한글 완벽 지원)
 async function downloadPDF(){
-  const btn=event.target;btn.textContent='📄 PDF 생성 중...';btn.disabled=true;
+  const btn=document.getElementById('pdfBtn');if(btn){btn.textContent='📄 PDF 생성 중...';btn.disabled=true;}
   try{
     const {jsPDF}=window.jspdf;
     const from=fmtDK(DS.from),to=fmtDK(DS.to);
