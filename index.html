@@ -28,6 +28,48 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'SUIT',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(180deg,#f0f4f8 0%,#f8fafc 50%,#f0f4f8 100%);color:var(--t1);font-size:16px;line-height:1.65;min-height:100vh;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+/* ============ JARVIS Floating Panel ============ */
+#jvFab{position:fixed;right:22px;bottom:22px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);color:#fff;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,.4),0 0 0 0 rgba(37,99,235,.5);z-index:900;display:flex;align-items:center;justify-content:center;font-size:24px;transition:transform .2s ease,box-shadow .3s ease;animation:jvPulse 2.8s ease-in-out infinite}
+#jvFab:hover{transform:scale(1.07)}
+#jvFab.hidden{display:none}
+@keyframes jvPulse{0%,100%{box-shadow:0 8px 24px rgba(37,99,235,.4),0 0 0 0 rgba(124,58,237,.5)}50%{box-shadow:0 8px 24px rgba(37,99,235,.4),0 0 0 14px rgba(124,58,237,0)}}
+#jvPanel{position:fixed;right:0;top:0;bottom:0;width:420px;max-width:94vw;background:#fff;box-shadow:-8px 0 32px rgba(0,0,0,.12);z-index:901;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;font-family:'SUIT',sans-serif}
+#jvPanel.open{transform:translateX(0)}
+.jv-head{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #334155}
+.jv-logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(124,58,237,.5)}
+.jv-title{flex:1}
+.jv-title h3{font-size:16px;font-weight:800;margin:0;letter-spacing:-.3px}
+.jv-title small{font-size:11px;color:#94a3b8;font-weight:500}
+.jv-close{background:transparent;border:none;color:#cbd5e1;cursor:pointer;width:32px;height:32px;border-radius:8px;font-size:20px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.jv-close:hover{background:#334155;color:#fff}
+.jv-body{flex:1;overflow-y:auto;padding:16px;background:#f8fafc;display:flex;flex-direction:column;gap:12px}
+.jv-msg{max-width:92%;padding:11px 14px;border-radius:12px;font-size:14px;line-height:1.6;word-break:break-word;white-space:pre-wrap}
+.jv-msg.user{align-self:flex-end;background:#2563eb;color:#fff;border-bottom-right-radius:4px}
+.jv-msg.bot{align-self:flex-start;background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.jv-msg.bot.brief{background:linear-gradient(135deg,#eff6ff 0%,#f5f3ff 100%);border-color:#c7d2fe}
+.jv-msg.bot.err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.jv-msg p{margin:0 0 6px 0}.jv-msg p:last-child{margin-bottom:0}
+.jv-msg ul,.jv-msg ol{margin:4px 0 4px 18px;padding:0}
+.jv-msg li{margin:2px 0}
+.jv-msg code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px}
+.jv-msg strong{color:#0f172a;font-weight:800}
+.jv-msg h3{font-size:14px;font-weight:800;margin:8px 0 4px;color:#0f172a}
+.jv-loading{display:inline-flex;gap:4px;align-items:center}
+.jv-loading span{width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:jvDot 1.2s infinite ease-in-out}
+.jv-loading span:nth-child(2){animation-delay:.15s}.jv-loading span:nth-child(3){animation-delay:.3s}
+@keyframes jvDot{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+.jv-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.jv-chip{background:#fff;border:1px solid #cbd5e1;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;color:#334155;cursor:pointer;transition:all .15s}
+.jv-chip:hover{background:#2563eb;border-color:#2563eb;color:#fff}
+.jv-input-wrap{padding:12px 14px;border-top:1px solid #e2e8f0;background:#fff}
+.jv-input-row{display:flex;gap:8px;align-items:flex-end}
+.jv-inp{flex:1;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;resize:none;min-height:40px;max-height:120px;outline:none;transition:border-color .15s}
+.jv-inp:focus{border-color:#2563eb}
+.jv-send{background:#2563eb;color:#fff;border:none;border-radius:10px;padding:0 14px;font-weight:700;cursor:pointer;font-size:14px;min-height:40px;transition:background .15s}
+.jv-send:hover{background:#1d4ed8}
+.jv-send:disabled{background:#94a3b8;cursor:not-allowed}
+.jv-footer{font-size:10px;color:#94a3b8;text-align:center;margin-top:6px}
+@media(max-width:560px){#jvPanel{width:100vw}}
 button{cursor:pointer;font-family:inherit;border:none;outline:none}
 input,select,textarea{font-family:inherit;outline:none}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
@@ -2809,6 +2851,211 @@ async function init(){
   renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();renderQl();
 }
 init();
+
+/* ================================================================ JARVIS */
+const JV_STATE={open:false,busy:false,briefed:false};
+
+function jvOpen(){
+  const p=document.getElementById('jvPanel');
+  p.classList.add('open');
+  JV_STATE.open=true;
+  document.getElementById('jvFab').classList.add('hidden');
+  // 최초 오픈 시 선제적 브리핑
+  if(!JV_STATE.briefed&&LIVE_DATA){JV_STATE.briefed=true;jvStream({mode:'brief'});}
+  setTimeout(()=>document.getElementById('jvInp')?.focus(),280);
+}
+function jvClose(){
+  document.getElementById('jvPanel').classList.remove('open');
+  document.getElementById('jvFab').classList.remove('hidden');
+  JV_STATE.open=false;
+}
+
+// 마크다운 → 안전한 HTML (간단 파서, API 응답 전용)
+function jvMd(s){
+  if(!s)return '';
+  let t=escHtml(s);
+  // 코드
+  t=t.replace(/`([^`\n]+?)`/g,'<code>$1</code>');
+  // 굵게
+  t=t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  // 헤더 ### / ##
+  t=t.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  t=t.replace(/^## (.+)$/gm,'<h3>$1</h3>');
+  // 리스트 (- 또는 *)
+  const lines=t.split('\n');
+  const out=[];let inList=false;
+  for(const line of lines){
+    const m=line.match(/^\s*[-*]\s+(.+)$/);
+    if(m){if(!inList){out.push('<ul>');inList=true;}out.push('<li>'+m[1]+'</li>');}
+    else{if(inList){out.push('</ul>');inList=false;}out.push(line);}
+  }
+  if(inList)out.push('</ul>');
+  // 빈 줄 → <p> 구분
+  return out.join('\n').split(/\n{2,}/).map(p=>p.trim()?(/<(h3|ul|ol|pre)/.test(p)?p:'<p>'+p.replace(/\n/g,'<br>')+'</p>'):'').join('');
+}
+
+// LIVE_DATA에서 Claude에 보낼 요약 컨텍스트 생성 (토큰 절약)
+function jvBuildContext(){
+  if(!LIVE_DATA)return {error:'데이터 없음'};
+  const ctx={
+    period:{from:localDateStr(DS.from),to:localDateStr(DS.to),days:DS.days},
+    kpi:{},
+    monthlySpend:{total:ST._monthlyTotal||0,day:ST._monthlyDay||0},
+  };
+  const types=['전체','쇼핑검색','파워링크','콘텐츠','브랜드'];
+  types.forEach(t=>{
+    const k=LIVE_DATA.kpi?.[t]||{};
+    ctx.kpi[t]={
+      impressions:k.impressions||0,clicks:k.clicks||0,
+      ctr:k.ctr||0,cpc:k.cpc||0,adSpend:k.adSpend||0,
+      conversions:k.conversions||0,crto:k.crto||0,
+      convRevenue:k.convRevenue||0,roas:k.roas||0,cpConv:k.cpConv||0,
+      p_adSpend:k.p_adSpend||0,p_conversions:k.p_conversions||0,p_roas:k.p_roas||0,
+    };
+  });
+  const camps=(LIVE_DATA.campaigns||[]).slice().sort((a,b)=>b.adSpend-a.adSpend);
+  ctx.topSpendCampaigns=camps.slice(0,15).map(c=>({
+    name:c.name,type:c.type,status:c.status,
+    adSpend:c.adSpend,conversions:c.conversions,convRevenue:c.convRevenue,roas:c.roas,ctr:c.ctr
+  }));
+  ctx.zeroConvCampaigns=camps.filter(c=>c.adSpend>50000&&c.conversions===0).slice(0,10).map(c=>({
+    name:c.name,type:c.type,adSpend:c.adSpend,impressions:c.impressions,clicks:c.clicks
+  }));
+  const kws=(LIVE_DATA.keywords||[]).filter(k=>k.type!=='쇼핑검색');
+  const sorted=kws.slice().sort((a,b)=>b.adSpend-a.adSpend);
+  ctx.topSpendKeywords=sorted.slice(0,15).map(k=>({
+    kw:k.kw,campaign:k.campaign,adSpend:k.adSpend,clicks:k.clicks,
+    conversions:k.conversions,convRevenue:k.convRevenue,roas:k.roas,cpc:k.cpc
+  }));
+  ctx.wasteKeywords=sorted.filter(k=>k.adSpend>=30000&&k.conversions===0).slice(0,15).map(k=>({
+    kw:k.kw,campaign:k.campaign,adSpend:k.adSpend,clicks:k.clicks
+  }));
+  ctx.topRoasKeywords=kws.filter(k=>k.conversions>=2).sort((a,b)=>b.roas-a.roas).slice(0,10).map(k=>({
+    kw:k.kw,campaign:k.campaign,roas:k.roas,conversions:k.conversions,convRevenue:k.convRevenue,adSpend:k.adSpend
+  }));
+  return ctx;
+}
+
+// 스트리밍 호출 + 점진적 렌더
+async function jvStream({question,mode}){
+  if(JV_STATE.busy)return;
+  JV_STATE.busy=true;
+  const body=document.getElementById('jvBody');
+
+  if(question){
+    const u=document.createElement('div');u.className='jv-msg user';u.textContent=question;body.appendChild(u);
+  }
+  const bot=document.createElement('div');bot.className='jv-msg bot'+(mode==='brief'?' brief':'');
+  bot.innerHTML='<div class="jv-loading"><span></span><span></span><span></span></div>';
+  body.appendChild(bot);
+  body.scrollTop=body.scrollHeight;
+
+  const payload={mode:mode||'qa',context:jvBuildContext()};
+  if(question)payload.question=question;
+
+  let acc='';
+  try{
+    const res=await fetch(WORKER_URL+'/api/jarvis',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok){
+      let msg='오류 발생';
+      try{const j=await res.json();msg=j.error||msg;}catch{}
+      bot.className='jv-msg bot err';
+      bot.innerHTML=jvMd(msg);
+      JV_STATE.busy=false;
+      return;
+    }
+    const reader=res.body.getReader();
+    const decoder=new TextDecoder();
+    let buf='';
+    bot.innerHTML='';
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      buf+=decoder.decode(value,{stream:true});
+      // SSE 파싱
+      const lines=buf.split('\n');buf=lines.pop()||'';
+      for(const line of lines){
+        if(!line.startsWith('data:'))continue;
+        const data=line.slice(5).trim();
+        if(!data)continue;
+        try{
+          const ev=JSON.parse(data);
+          if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){
+            acc+=ev.delta.text;
+            bot.innerHTML=jvMd(acc);
+            body.scrollTop=body.scrollHeight;
+          }else if(ev.type==='message_stop'){
+            // 완료
+          }else if(ev.type==='error'){
+            bot.className='jv-msg bot err';
+            bot.innerHTML=jvMd('오류: '+(ev.error?.message||'알 수 없음'));
+          }
+        }catch{}
+      }
+    }
+    if(!acc){bot.className='jv-msg bot err';bot.innerHTML='응답이 비어있습니다.';}
+  }catch(e){
+    console.warn('jarvis stream fail:',e);
+    bot.className='jv-msg bot err';
+    bot.innerHTML=jvMd('네트워크 오류: '+(e.message||'알 수 없음'));
+  }finally{
+    JV_STATE.busy=false;
+    body.scrollTop=body.scrollHeight;
+  }
+}
+
+function jvSend(){
+  const inp=document.getElementById('jvInp');
+  const q=(inp.value||'').trim();
+  if(!q||JV_STATE.busy)return;
+  inp.value='';
+  inp.style.height='40px';
+  jvStream({question:q,mode:'qa'});
+}
+function jvChipAsk(q){
+  const inp=document.getElementById('jvInp');
+  inp.value=q;
+  jvSend();
+}
+function jvInpKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();jvSend();}
+}
+function jvInpGrow(el){
+  el.style.height='40px';
+  el.style.height=Math.min(120,el.scrollHeight)+'px';
+}
+// ESC로 닫기
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&JV_STATE.open)jvClose();});
 </script>
+<!-- Jarvis UI -->
+<button id="jvFab" onclick="jvOpen()" title="AI 자비스에게 물어보기">✨</button>
+<aside id="jvPanel" aria-label="AI 자비스" aria-hidden="true">
+  <div class="jv-head">
+    <div class="jv-logo">🤖</div>
+    <div class="jv-title"><h3>자비스</h3><small>광고 데이터 AI 어시스턴트</small></div>
+    <button class="jv-close" onclick="jvClose()" title="닫기 (ESC)">×</button>
+  </div>
+  <div class="jv-body" id="jvBody">
+    <div class="jv-msg bot">안녕하세요! 네이버 광고 성과를 물어보시면 <b>현재 데이터</b>를 근거로 답변드립니다.
+      <div class="jv-suggest" style="margin-top:10px">
+        <span class="jv-chip" onclick="jvChipAsk('이번 주 가장 낭비되는 키워드 3개는?')">낭비 키워드 TOP3</span>
+        <span class="jv-chip" onclick="jvChipAsk('ROAS가 가장 높은 캠페인 알려줘')">최고 ROAS 캠페인</span>
+        <span class="jv-chip" onclick="jvChipAsk('광고비 10% 절감 방법 알려줘')">10% 절감 방법</span>
+        <span class="jv-chip" onclick="jvChipAsk('전환이 0건인 캠페인 중 광고비 많이 쓴 곳은?')">전환0 고비용</span>
+      </div>
+    </div>
+  </div>
+  <div class="jv-input-wrap">
+    <div class="jv-input-row">
+      <textarea class="jv-inp" id="jvInp" rows="1" placeholder="예: 이번 주 성과는 어때?" oninput="jvInpGrow(this)" onkeydown="jvInpKey(event)"></textarea>
+      <button class="jv-send" id="jvSendBtn" onclick="jvSend()">전송</button>
+    </div>
+    <div class="jv-footer">Enter 전송 · Shift+Enter 줄바꿈 · 하루 100회 제한</div>
+  </div>
+</aside>
 </body>
 </html>
