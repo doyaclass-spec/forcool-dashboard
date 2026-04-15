@@ -1075,16 +1075,25 @@ async function fetchDashboardData() {
 
 async function fetchKeywordsAsync(from, to) {
   try {
-    const kwCountEl = document.querySelector('[id*="kwCnt"], .tcnt');
     const res = await fetch(`${WORKER_URL}/api/keywords?from=${from}&to=${to}`);
-    if (!res.ok) return;
+    if (!res.ok) {
+      console.warn(`fetchKeywordsAsync: HTTP ${res.status}`);
+      return;
+    }
     const kwData = await res.json();
+    if (kwData.error) {
+      console.warn('fetchKeywordsAsync: server error', kwData.error, kwData.requestId||'');
+      return;
+    }
     if (kwData.keywords && kwData.keywords.length > 0 && LIVE_DATA) {
       LIVE_DATA.keywords = kwData.keywords;
+      if (kwData._meta) LIVE_DATA._kwMeta = kwData._meta;
       updateKwCampFilter(kwData.keywords);
       renderKw();
     }
-  } catch {}
+  } catch (e) {
+    console.warn('fetchKeywordsAsync failed:', e?.message || e);
+  }
 }
 
 function showWasteInfo(){
@@ -1137,7 +1146,7 @@ function updateKwCampFilter(keywords) {
   const sel = document.getElementById('kwCampF');
   if (!sel) return;
   const camps = [...new Set(keywords.map(k => k.campaign))].sort();
-  sel.innerHTML = '<option value="all">전체 캠페인</option>' + camps.map(c => `<option value="${c}">${c}</option>`).join('');
+  sel.innerHTML = '<option value="all">전체 캠페인</option>' + camps.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
 }
 
 /* ================================================================ DATA */
@@ -1450,7 +1459,7 @@ const KPI_DEFS=[
 ];
 // KPI ON/OFF 상태 (localStorage 저장)
 const KPI_VIS_KEY='forcool_kpi_visible';
-let kpiVisible=JSON.parse(localStorage.getItem(KPI_VIS_KEY)||'null')||KPI_DEFS.reduce((o,d)=>{o[d.id]=true;return o},{});
+let kpiVisible=(function(){try{const r=JSON.parse(localStorage.getItem(KPI_VIS_KEY)||'null');return r&&typeof r==='object'?r:null;}catch{return null;}})()||KPI_DEFS.reduce((o,d)=>{o[d.id]=true;return o},{});
 const GM=[
   {id:'impressions',n:'노출수',u:'회',c:'#2E86DE'},
   {id:'clicks',n:'클릭수',u:'회',c:'#00A07A'},
@@ -2080,8 +2089,8 @@ function renderKw(){
   document.getElementById('kwCnt').textContent=`${total}개 키워드`;
   const maxS=Math.max(...slice.map(k=>k.adSpend),1);
   document.getElementById('kwBody').innerHTML=slice.map(k=>`
-    <tr><td><b>${k.kw}</b></td><td>${tBadge(k.type)}</td>
-    <td style="font-size:11px;color:var(--t2);max-width:130px;white-space:normal"><div class="tip-wrap"><span style="cursor:help">${k.campaign}</span><div class="tip-box" style="font-size:14px;font-weight:600;white-space:nowrap">${k.campaign}</div></div></td>
+    <tr><td><b>${escHtml(k.kw)}</b></td><td>${tBadge(k.type)}</td>
+    <td style="font-size:11px;color:var(--t2);max-width:130px;white-space:normal"><div class="tip-wrap"><span style="cursor:help">${escHtml(k.campaign)}</span><div class="tip-box" style="font-size:14px;font-weight:600;white-space:nowrap">${escHtml(k.campaign)}</div></div></td>
     <td>${fN(k.impressions)}</td><td>${kwChgLbl(k.impressions,k.prevImpressions)}</td><td>${fN(k.clicks)}</td>
     <td><div class="kwbar-cell"><div class="kwbar" style="width:${Math.round(k.adSpend/maxS*65)}px;background:${getWaste(k)==='high'?'var(--red)':getWaste(k)==='mid'?'var(--orange)':'var(--green)'}"></div>${fC(k.adSpend)}</div></td>
     <td>${fC(k.cpc)}</td>
@@ -2145,7 +2154,7 @@ function renderCmp(){
   document.getElementById('cmpCnt').textContent=`${total}개 캠페인`;
   document.getElementById('cmpBody').innerHTML=slice.map(c=>`
     <tr class="${c.alr?'alr-r':''}">
-      <td><div class="tdn">${c.alr?'<div class="adot"></div>':''}<span class="tdnt">${c.name}</span></div></td>
+      <td><div class="tdn">${c.alr?'<div class="adot"></div>':''}<span class="tdnt">${escHtml(c.name)}</span></div></td>
       <td>${tBadge(c.type)}</td><td>${stBadge(c.status)}</td>
       <td>${fC(c.adSpend)}</td><td>${chgLbl(chgP(c.adSpend,c.prevAdSpend),true)}</td>
       <td>${fN(c.impressions)}</td><td>${fN(c.clicks)}</td><td>${fN(c.conversions)}</td><td>${fC(c.convRevenue)}</td>
@@ -2543,17 +2552,17 @@ async function searchKwSuggest(){
     if(data.error)throw new Error(data.error);
     const list=data.suggestions||[];
     if(list.length===0){el.innerHTML='<div style="padding:12px;color:var(--t3)">연관 키워드를 찾을 수 없습니다.</div>';return}
-    el.innerHTML=`<div style="margin-bottom:8px;font-weight:700;color:var(--t1)">"${kw}" 연관 키워드 ${list.length}개</div>
+    el.innerHTML=`<div style="margin-bottom:8px;font-weight:700;color:var(--t1)">"${escHtml(kw)}" 연관 키워드 ${list.length}개</div>
     <div style="max-height:320px;overflow-y:auto"><table style="width:100%;font-size:12px"><thead><tr style="background:var(--sf2)">
       <th style="text-align:left;padding:6px">키워드</th><th style="text-align:right;padding:6px">월간 검색량</th><th style="text-align:right;padding:6px">PC</th><th style="text-align:right;padding:6px">모바일</th><th style="text-align:center;padding:6px">경쟁도</th>
     </tr></thead><tbody>${list.map(k=>`<tr style="border-bottom:1px solid var(--bd)">
       <td style="padding:5px 6px;font-weight:600">${escHtml(k.keyword)}</td>
-      <td style="padding:5px 6px;text-align:right;font-weight:700;color:var(--blue)">${k.monthlyTotalSearch.toLocaleString()}</td>
-      <td style="padding:5px 6px;text-align:right;color:var(--t2)">${k.monthlyPcSearch.toLocaleString()}</td>
-      <td style="padding:5px 6px;text-align:right;color:var(--t2)">${k.monthlyMobileSearch.toLocaleString()}</td>
-      <td style="padding:5px 6px;text-align:center"><span style="padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;${k.competition==='높음'?'background:var(--rbg);color:var(--red)':k.competition==='중간'?'background:var(--obg);color:var(--orange)':'background:var(--gbg);color:var(--g2)'}">${k.competition}</span></td>
+      <td style="padding:5px 6px;text-align:right;font-weight:700;color:var(--blue)">${Number(k.monthlyTotalSearch||0).toLocaleString()}</td>
+      <td style="padding:5px 6px;text-align:right;color:var(--t2)">${Number(k.monthlyPcSearch||0).toLocaleString()}</td>
+      <td style="padding:5px 6px;text-align:right;color:var(--t2)">${Number(k.monthlyMobileSearch||0).toLocaleString()}</td>
+      <td style="padding:5px 6px;text-align:center"><span style="padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;${k.competition==='높음'?'background:var(--rbg);color:var(--red)':k.competition==='중간'?'background:var(--obg);color:var(--orange)':'background:var(--gbg);color:var(--g2)'}">${escHtml(k.competition)}</span></td>
     </tr>`).join('')}</tbody></table></div>`;
-  }catch(e){el.innerHTML=`<div style="padding:12px;color:var(--red)">오류: ${e.message}</div>`}
+  }catch(e){el.innerHTML=`<div style="padding:12px;color:var(--red)">오류: ${escHtml(e.message||'알 수 없음')}</div>`}
 }
 
 /* ================================================================ BID STRATEGY */
