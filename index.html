@@ -1475,7 +1475,7 @@ const GM=[
 function fmtKpi(val, fmt){
   if(fmt==='cur')return`<span class="csym">₩</span>${fN(val)}`;
   if(fmt==='pct')return`${fN(val)}<span class="pct">%</span>`;
-  if(fmt==='pct2')return`${fN(val)}<span class="pct">%</span>`;
+  if(fmt==='pct2'){const n=Number(val)||0;return`${n.toFixed(2)}<span class="pct">%</span>`;}
   return fN(val);
 }
 function renderKpi(){
