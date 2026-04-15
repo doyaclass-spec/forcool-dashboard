@@ -58,8 +58,12 @@ body{font-family:'SUIT',-apple-system,BlinkMacSystemFont,sans-serif;background:l
 .jv-msg h4{font-size:13px;font-weight:800;margin:8px 0 4px;color:#6b21a8}
 .jv-msg hr{border:none;border-top:1px dashed #e2e8f0;margin:10px -4px}
 .jv-msg blockquote{border-left:3px solid #a855f7;background:#faf5ff;margin:6px 0;padding:8px 12px;border-radius:0 8px 8px 0;color:#5b21b6;font-size:13px}
-/* 표: 실제 네이티브 테이블로 렌더 */
-.jv-msg table{width:100%;border-collapse:separate;border-spacing:0;margin:6px 0 10px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;font-size:12.5px}
+/* 표: 가로 스크롤 래퍼 + 네이티브 테이블 */
+.jv-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:6px -4px 10px;padding:0 4px;scrollbar-width:thin}
+.jv-table-wrap::-webkit-scrollbar{height:6px}
+.jv-table-wrap::-webkit-scrollbar-thumb{background:#d8b4fe;border-radius:3px}
+.jv-empty-table{background:#fafafa;border:1px dashed #e5e7eb;border-radius:8px;padding:10px;color:#94a3b8;font-size:12px;text-align:center;margin:6px 0}
+.jv-msg table{width:100%;min-width:320px;border-collapse:separate;border-spacing:0;margin:0;background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;font-size:12.5px}
 .jv-msg thead th{background:linear-gradient(135deg,#fdf2f8 0%,#f5f3ff 100%);color:#6b21a8;font-weight:800;padding:8px 10px;text-align:left;border-bottom:1px solid #e9d5ff;white-space:nowrap}
 .jv-msg tbody td{padding:8px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top;word-break:break-word}
 .jv-msg tbody tr:last-child td{border-bottom:none}
@@ -108,6 +112,18 @@ body{font-family:'SUIT',-apple-system,BlinkMacSystemFont,sans-serif;background:l
 .jv-send:disabled{background:#94a3b8;cursor:not-allowed}
 .jv-footer{font-size:10px;color:#94a3b8;text-align:center;margin-top:6px}
 @media(max-width:560px){#jvPanel{width:100vw}}
+@media(max-width:420px){
+  .jv-head{gap:8px;padding:12px 14px}
+  .jv-logo{width:34px;height:34px;font-size:18px}
+  .jv-title h3{font-size:14px}
+  .jv-title small{font-size:10px}
+  .jv-head-btn{width:28px;height:28px;font-size:14px}
+  .jv-close{width:28px;height:28px;font-size:18px}
+  #jvFab{right:14px;bottom:14px;width:54px;height:54px;font-size:24px}
+  .jv-msg{font-size:13px}
+  .jv-msg table{font-size:11.5px}
+  .jv-msg tbody td,.jv-msg thead th{padding:6px 8px}
+}
 button{cursor:pointer;font-family:inherit;border:none;outline:none}
 input,select,textarea{font-family:inherit;outline:none}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
@@ -3049,7 +3065,12 @@ function jvMd(s){
         const nums=bodyRows.filter(r=>/^[₩\d\-+][\d,.%\s원]*$/.test((r[ci]||'').replace(/<[^>]+>/g,'').trim())||/<span class="jv-pill/.test(r[ci]||'')).length;
         return nums>=Math.ceil(bodyRows.length/2);
       });
-      let html='<table><thead><tr>';
+      // 빈 body 표는 건너뛰기 (헤더만 있는 표는 어색함)
+      if(bodyRows.length===0){
+        out.push('<div class="jv-empty-table">(표시할 데이터가 없어요)</div>');
+        continue;
+      }
+      let html='<div class="jv-table-wrap"><table><thead><tr>';
       headerCells.forEach((h,ci)=>{
         const cls=numCol[ci]?' class="num"':'';
         html+=`<th${cls}${aligns[ci]?` style="text-align:${aligns[ci]}"`:''}>${h}</th>`;
@@ -3063,7 +3084,7 @@ function jvMd(s){
         });
         html+='</tr>';
       });
-      html+='</tbody></table>';
+      html+='</tbody></table></div>';
       out.push(html);
       continue;
     }
@@ -3170,9 +3191,12 @@ async function jvStream({question,mode}){
 
   if(question){
     const u=document.createElement('div');u.className='jv-msg user';u.textContent=question;body.appendChild(u);
-    // history에 user 먼저 넣기
-    JV_STATE.history.push({role:'user',content:question});
-    JV_STATE.history=JV_STATE.history.slice(-JV_MAX_TURNS*2);
+    // history에 user 추가 (동일 user 메시지 연속 중복 방지)
+    const last=JV_STATE.history[JV_STATE.history.length-1];
+    if(!(last && last.role==='user' && last.content===question)){
+      JV_STATE.history.push({role:'user',content:question});
+      JV_STATE.history=JV_STATE.history.slice(-JV_MAX_TURNS*2);
+    }
     jvUpdateTurnLabel();
   }
 
@@ -3262,8 +3286,8 @@ async function jvStream({question,mode}){
               if(summ)summ.innerHTML='🧠 포비스의 생각 과정';
             }
           }else if(ev.type==='message_stop'){
-            // 응답 완료 — history에 assistant 추가
-            if(acc){
+            // 응답 완료 — brief는 history에 안 넣음 (자동 생성이라 대화 턴 아님)
+            if(acc && mode !== 'brief'){
               JV_STATE.history.push({role:'assistant',content:acc});
               JV_STATE.history=JV_STATE.history.slice(-JV_MAX_TURNS*2);
             }
