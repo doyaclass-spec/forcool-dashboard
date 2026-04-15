@@ -79,6 +79,19 @@ body{font-family:'SUIT',-apple-system,BlinkMacSystemFont,sans-serif;background:l
 .jv-card.warn{background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);border-color:#fde68a;border-left-color:#f59e0b}
 .jv-card.bad{background:linear-gradient(135deg,#fef2f2 0%,#fee2e2 100%);border-color:#fecaca;border-left-color:#dc2626}
 .jv-card.good{background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%);border-color:#a7f3d0;border-left-color:#16a34a}
+/* 헤더 우측 버튼들 */
+.jv-head-btn{background:transparent;border:none;color:#cbd5e1;cursor:pointer;width:30px;height:30px;border-radius:8px;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s;padding:0}
+.jv-head-btn:hover{background:#4c1d95;color:#fff}
+.jv-turns{font-size:10.5px;color:#94a3b8;font-weight:500;white-space:nowrap}
+/* Thinking 블록: 접기/펼치기 */
+.jv-thinking{margin-top:2px;background:#faf5ff;border:1px dashed #d8b4fe;border-radius:10px;padding:0;overflow:hidden;font-size:12px;color:#6b21a8}
+.jv-thinking summary{padding:6px 12px;cursor:pointer;font-weight:700;list-style:none;display:flex;align-items:center;gap:6px;user-select:none}
+.jv-thinking summary::-webkit-details-marker{display:none}
+.jv-thinking summary::before{content:'▶';font-size:9px;transition:transform .2s}
+.jv-thinking[open] summary::before{transform:rotate(90deg)}
+.jv-thinking .jv-thinking-body{padding:0 12px 10px;white-space:pre-wrap;line-height:1.55;font-style:italic;color:#7c3aed;font-size:11.5px;border-top:1px dashed #e9d5ff}
+/* 세션 리셋 알림 칩 */
+.jv-session-note{align-self:center;background:#f3e8ff;color:#6b21a8;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;margin:4px 0}
 .jv-loading{display:inline-flex;gap:4px;align-items:center}
 .jv-loading span{width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:jvDot 1.2s infinite ease-in-out}
 .jv-loading span:nth-child(2){animation-delay:.15s}.jv-loading span:nth-child(3){animation-delay:.3s}
@@ -2849,22 +2862,138 @@ async function init(){
 }
 init();
 
-/* ================================================================ JARVIS */
-const JV_STATE={open:false,busy:false,briefed:false};
+/* ================================================================ PHOBIS (구 JARVIS) */
+const JV_SESSION_KEY='fc_phobis_v1';
+const JV_IDLE_MS=30*60*1000; // 30분
+const JV_MAX_TURNS=20; // 최대 20턴(=40 메시지) 유지
+const JV_STATE={
+  open:false,busy:false,briefed:false,
+  history:[], // [{role:'user'|'assistant', content:string}]
+  lastActivity:0,
+  showThinking: (function(){try{return localStorage.getItem('fc_phobis_think')!=='off'}catch{return true}})(),
+};
+
+// ─ 세션 저장/복원
+function jvSaveSession(){
+  try{localStorage.setItem(JV_SESSION_KEY,JSON.stringify({
+    history:JV_STATE.history.slice(-JV_MAX_TURNS*2),
+    lastActivity:JV_STATE.lastActivity,
+    briefed:JV_STATE.briefed,
+  }));}catch{}
+}
+function jvLoadSession(){
+  try{
+    const raw=localStorage.getItem(JV_SESSION_KEY);
+    if(!raw)return;
+    const d=JSON.parse(raw);
+    if(!d||typeof d!=='object')return;
+    const age=Date.now()-(d.lastActivity||0);
+    if(age>JV_IDLE_MS)return; // idle 초과 — 복원 안 함
+    if(Array.isArray(d.history))JV_STATE.history=d.history.slice(-JV_MAX_TURNS*2);
+    JV_STATE.lastActivity=d.lastActivity||0;
+    JV_STATE.briefed=!!d.briefed;
+  }catch{}
+}
+function jvCheckIdle(){
+  if(!JV_STATE.lastActivity)return false;
+  if(Date.now()-JV_STATE.lastActivity>JV_IDLE_MS){
+    JV_STATE.history=[];JV_STATE.briefed=false;
+    return true;
+  }
+  return false;
+}
+function jvUpdateTurnLabel(){
+  const el=document.getElementById('jvTurns');if(!el)return;
+  const turns=Math.floor(JV_STATE.history.length/2);
+  el.textContent=turns===0?'새 대화':`대화 ${turns}턴`;
+}
+
+// ─ 복원된 이력으로 body 다시 그리기
+function jvRehydrateBody(){
+  const body=document.getElementById('jvBody');
+  if(!body)return;
+  body.innerHTML='';
+  // 환영 메시지는 유지
+  const hello=document.createElement('div');
+  hello.className='jv-msg bot';
+  hello.innerHTML='안녕하세요~ 🌸 저는 <b>포비스</b>예요!<br>이전 대화 이어서 얘기해볼까요? 궁금한 거 있으면 바로 물어보세요.';
+  body.appendChild(hello);
+  // history 렌더
+  JV_STATE.history.forEach(m=>{
+    const d=document.createElement('div');
+    if(m.role==='user'){d.className='jv-msg user';d.textContent=m.content;}
+    else{d.className='jv-msg bot';d.innerHTML=jvMd(m.content);}
+    body.appendChild(d);
+  });
+}
 
 function jvOpen(){
   const p=document.getElementById('jvPanel');
   p.classList.add('open');
   JV_STATE.open=true;
   document.getElementById('jvFab').classList.add('hidden');
-  // 최초 오픈 시 선제적 브리핑
-  if(!JV_STATE.briefed&&LIVE_DATA){JV_STATE.briefed=true;jvStream({mode:'brief'});}
+  // idle 체크 → 만료 시 알림
+  const expired=jvCheckIdle();
+  if(JV_STATE.history.length>0&&!expired){
+    // 이어가기
+    jvRehydrateBody();
+    jvUpdateTurnLabel();
+  } else {
+    // 새 세션: 브리핑 자동
+    if(expired){
+      const body=document.getElementById('jvBody');
+      if(body){
+        const n=document.createElement('div');n.className='jv-session-note';
+        n.textContent='⏱ 30분 지나 새 대화 시작했어요';
+        body.appendChild(n);
+      }
+    }
+    if(!JV_STATE.briefed&&LIVE_DATA){
+      JV_STATE.briefed=true;
+      jvSaveSession();
+      jvStream({mode:'brief'});
+    }
+  }
+  jvUpdateTurnLabel();
   setTimeout(()=>document.getElementById('jvInp')?.focus(),280);
 }
 function jvClose(){
   document.getElementById('jvPanel').classList.remove('open');
   document.getElementById('jvFab').classList.remove('hidden');
   JV_STATE.open=false;
+  jvSaveSession();
+}
+function jvNewChat(){
+  if(JV_STATE.busy)return;
+  JV_STATE.history=[];
+  JV_STATE.briefed=false;
+  JV_STATE.lastActivity=0;
+  jvSaveSession();
+  const body=document.getElementById('jvBody');
+  body.innerHTML='';
+  // 환영+칩 재생성
+  const hello=document.createElement('div');
+  hello.className='jv-msg bot';
+  hello.innerHTML=`안녕하세요~ 🌸 저는 <b>포비스</b>예요!<br>지금 보고 계신 광고 데이터 바로 확인해서 답해드릴게요. 뭐 궁금하세요?
+    <div class="jv-suggest" style="margin-top:10px">
+      <span class="jv-chip" onclick="jvChipAsk('이번 주 가장 낭비되는 키워드 3개 알려줘')">💸 낭비 키워드 TOP3</span>
+      <span class="jv-chip" onclick="jvChipAsk('ROAS가 가장 높은 캠페인이 뭐야?')">🏆 최고 ROAS 캠페인</span>
+      <span class="jv-chip" onclick="jvChipAsk('광고비 10% 줄이려면 어디부터 손대야 해?')">✂️ 10% 절감 방법</span>
+      <span class="jv-chip" onclick="jvChipAsk('전환 0건인데 광고비 많이 쓰는 캠페인 있어?')">😵 전환0 고비용</span>
+    </div>`;
+  body.appendChild(hello);
+  jvUpdateTurnLabel();
+  if(LIVE_DATA){JV_STATE.briefed=true;jvStream({mode:'brief'});}
+}
+function jvToggleThinking(){
+  JV_STATE.showThinking=!JV_STATE.showThinking;
+  try{localStorage.setItem('fc_phobis_think',JV_STATE.showThinking?'on':'off');}catch{}
+  const btn=document.getElementById('jvThBtn');
+  if(btn){btn.style.opacity=JV_STATE.showThinking?'1':'0.4';btn.title=JV_STATE.showThinking?'생각 숨기기':'생각 보이기';}
+  // 기존 생각 블록 표시 토글
+  document.querySelectorAll('#jvBody .jv-thinking').forEach(el=>{
+    el.style.display=JV_STATE.showThinking?'':'none';
+  });
 }
 
 // 마크다운 → 안전한 HTML (API 응답 전용 · 포비스 특화)
@@ -3026,24 +3155,58 @@ function jvBuildContext(){
   return ctx;
 }
 
-// 스트리밍 호출 + 점진적 렌더
+// 스트리밍 호출 + 점진적 렌더 + thinking 분리 + history 업데이트
 async function jvStream({question,mode}){
   if(JV_STATE.busy)return;
   JV_STATE.busy=true;
   const body=document.getElementById('jvBody');
 
+  // idle 체크 (질문 시점에도) — 30분 지나면 history 리셋 + 알림
+  if(mode==='qa'&&jvCheckIdle()&&JV_STATE.history.length===0){
+    const n=document.createElement('div');n.className='jv-session-note';
+    n.textContent='⏱ 30분 지나 새 대화로 이어갈게요';
+    body.appendChild(n);
+  }
+
   if(question){
     const u=document.createElement('div');u.className='jv-msg user';u.textContent=question;body.appendChild(u);
+    // history에 user 먼저 넣기
+    JV_STATE.history.push({role:'user',content:question});
+    JV_STATE.history=JV_STATE.history.slice(-JV_MAX_TURNS*2);
+    jvUpdateTurnLabel();
   }
+
+  // bot 컨테이너: thinking 블록 + 본문
   const bot=document.createElement('div');bot.className='jv-msg bot'+(mode==='brief'?' brief':'');
-  bot.innerHTML='<div class="jv-loading"><span></span><span></span><span></span></div>';
+  const thinkEl=document.createElement('details');
+  thinkEl.className='jv-thinking';
+  thinkEl.innerHTML='<summary>🧠 포비스가 생각 중...</summary><div class="jv-thinking-body"></div>';
+  thinkEl.style.display='none'; // thinking 오기 전엔 숨김
+  if(!JV_STATE.showThinking)thinkEl.dataset.hideUser='1';
+  bot.appendChild(thinkEl);
+  const mainEl=document.createElement('div');
+  mainEl.className='jv-main';
+  mainEl.innerHTML='<div class="jv-loading"><span></span><span></span><span></span></div>';
+  bot.appendChild(mainEl);
   body.appendChild(bot);
   body.scrollTop=body.scrollHeight;
 
-  const payload={mode:mode||'qa',context:jvBuildContext()};
+  // history: 새 질문 빼고 이전 것들만 서버에 전달 (새 질문은 context와 함께 별도로)
+  const historyForServer = question ? JV_STATE.history.slice(0,-1) : JV_STATE.history.slice();
+
+  const payload={
+    mode:mode||'qa',
+    context:jvBuildContext(),
+    history:historyForServer,
+    thinking:JV_STATE.showThinking&&mode==='qa',
+  };
   if(question)payload.question=question;
 
   let acc='';
+  let thinkAcc='';
+  const thinkBody=thinkEl.querySelector('.jv-thinking-body');
+  let currentBlockType='text'; // 스트림 중 현재 블록 타입
+
   try{
     const res=await fetch(WORKER_URL+'/api/jarvis',{
       method:'POST',
@@ -3054,19 +3217,20 @@ async function jvStream({question,mode}){
       let msg='오류 발생';
       try{const j=await res.json();msg=j.error||msg;}catch{}
       bot.className='jv-msg bot err';
-      bot.innerHTML=jvMd(msg);
+      mainEl.innerHTML=jvMd(msg);
+      thinkEl.remove();
       JV_STATE.busy=false;
+      jvSaveSession();
       return;
     }
     const reader=res.body.getReader();
     const decoder=new TextDecoder();
     let buf='';
-    bot.innerHTML='';
+    mainEl.innerHTML='';
     while(true){
       const {done,value}=await reader.read();
       if(done)break;
       buf+=decoder.decode(value,{stream:true});
-      // SSE 파싱
       const lines=buf.split('\n');buf=lines.pop()||'';
       for(const line of lines){
         if(!line.startsWith('data:'))continue;
@@ -3074,27 +3238,62 @@ async function jvStream({question,mode}){
         if(!data)continue;
         try{
           const ev=JSON.parse(data);
-          if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){
-            acc+=ev.delta.text;
-            bot.innerHTML=jvMd(acc);
-            body.scrollTop=body.scrollHeight;
+          if(ev.type==='content_block_start'){
+            currentBlockType=ev.content_block?.type||'text';
+            if(currentBlockType==='thinking'){
+              thinkEl.style.display=JV_STATE.showThinking?'':'none';
+            }
+          }else if(ev.type==='content_block_delta'){
+            const d=ev.delta;
+            if(d?.type==='thinking_delta'&&d.thinking){
+              thinkAcc+=d.thinking;
+              thinkBody.textContent=thinkAcc;
+              if(JV_STATE.showThinking)body.scrollTop=body.scrollHeight;
+            }else if(d?.type==='text_delta'&&d.text){
+              acc+=d.text;
+              mainEl.innerHTML=jvMd(acc);
+              body.scrollTop=body.scrollHeight;
+            }
+          }else if(ev.type==='content_block_stop'){
+            // block 종료
+            if(currentBlockType==='thinking'&&thinkAcc){
+              // 생각이 있었음을 summary에 표시
+              const summ=thinkEl.querySelector('summary');
+              if(summ)summ.innerHTML='🧠 포비스의 생각 과정';
+            }
           }else if(ev.type==='message_stop'){
-            // 완료
+            // 응답 완료 — history에 assistant 추가
+            if(acc){
+              JV_STATE.history.push({role:'assistant',content:acc});
+              JV_STATE.history=JV_STATE.history.slice(-JV_MAX_TURNS*2);
+            }
+            JV_STATE.lastActivity=Date.now();
+            jvSaveSession();
+            jvUpdateTurnLabel();
           }else if(ev.type==='error'){
             bot.className='jv-msg bot err';
-            bot.innerHTML=jvMd('오류: '+(ev.error?.message||'알 수 없음'));
+            mainEl.innerHTML=jvMd('오류: '+(ev.error?.message||'알 수 없음'));
           }
         }catch{}
       }
     }
-    if(!acc){bot.className='jv-msg bot err';bot.innerHTML='응답이 비어있습니다.';}
+    // thinking이 없었으면 블록 제거
+    if(!thinkAcc)thinkEl.remove();
+    // brief 모드는 history에 포함 안 시킴 (매번 다시 생성)
+    if(mode==='brief'&&acc){
+      // 단, history 맥락에서는 brief를 한 번만 "assistant 첫 인사"로 남김
+      // 복원 시 또 brief 실행되지 않게 briefed 유지
+    }
+    if(!acc){bot.className='jv-msg bot err';mainEl.innerHTML='응답이 비어있습니다.';}
   }catch(e){
-    console.warn('jarvis stream fail:',e);
+    console.warn('phobis stream fail:',e);
     bot.className='jv-msg bot err';
-    bot.innerHTML=jvMd('네트워크 오류: '+(e.message||'알 수 없음'));
+    mainEl.innerHTML=jvMd('네트워크 오류: '+(e.message||'알 수 없음'));
+    thinkEl.remove();
   }finally{
     JV_STATE.busy=false;
     body.scrollTop=body.scrollHeight;
+    jvSaveSession();
   }
 }
 
@@ -3120,13 +3319,24 @@ function jvInpGrow(el){
 }
 // ESC로 닫기
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&JV_STATE.open)jvClose();});
+// 페이지 로드 시 이전 세션 복원
+jvLoadSession();
+// Thinking 토글 버튼 초기 상태
+setTimeout(()=>{
+  const btn=document.getElementById('jvThBtn');
+  if(btn){btn.style.opacity=JV_STATE.showThinking?'1':'0.4';btn.title=JV_STATE.showThinking?'생각 숨기기':'생각 보이기';}
+},100);
+// 페이지 나가기 전에 세션 저장
+window.addEventListener('beforeunload',jvSaveSession);
 </script>
 <!-- Jarvis UI -->
 <button id="jvFab" onclick="jvOpen()" title="포비스에게 물어보기" aria-label="포비스 열기">💁‍♀️</button>
 <aside id="jvPanel" aria-label="AI 포비스" aria-hidden="true">
   <div class="jv-head">
     <div class="jv-logo">💁‍♀️</div>
-    <div class="jv-title"><h3>포비스</h3><small>네이버 광고 AI 파트너</small></div>
+    <div class="jv-title"><h3>포비스</h3><small><span id="jvTurns">새 대화</span> · AI 파트너</small></div>
+    <button class="jv-head-btn" onclick="jvNewChat()" title="새 대화 시작">🔄</button>
+    <button class="jv-head-btn" onclick="jvToggleThinking()" id="jvThBtn" title="생각 과정 보이기/숨기기">🧠</button>
     <button class="jv-close" onclick="jvClose()" title="닫기 (ESC)">×</button>
   </div>
   <div class="jv-body" id="jvBody">
