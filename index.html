@@ -1671,7 +1671,7 @@ function renderKpi(){
   const kd=getKpiData(ST.kpiType),goals=GOALS[ST.kpiType]||GOALS['전체'];
   const gridTarget=document.getElementById('kpiGridInner')||document.getElementById('kpiGrid');
   let html='';
-  [1,2,3].forEach(row=>{
+  [1,2,3,4].forEach(row=>{
     const defs=KPI_DEFS.filter(d=>d.row===row&&kpiVisible[d.id]);
     if(!defs.length)return;
     const colsCls=defs.length<=2?'cols-2':'';
@@ -1704,9 +1704,9 @@ function renderKpi(){
   setTimeout(initSparks,50);
 }
 function openKpiToggleModal(){
-  const ROW_LABELS={1:'📊 트래픽 지표',2:'🎯 전환 지표',3:'💰 수익 지표'};
+  const ROW_LABELS={1:'📊 트래픽 지표',2:'🎯 전환 지표',3:'💰 수익 지표',4:'🛒 구매완료·기타'};
   let inner='';
-  [1,2,3].forEach(row=>{
+  [1,2,3,4].forEach(row=>{
     inner+=`<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:6px">${ROW_LABELS[row]}</div>`;
     KPI_DEFS.filter(d=>d.row===row).forEach(d=>{
       const chk=kpiVisible[d.id]?'checked':'';
