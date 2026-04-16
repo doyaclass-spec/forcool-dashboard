@@ -519,32 +519,135 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 .ar-desc{font-size:12.5px;color:var(--t3);margin-top:5px}
 .alert-rule-disabled{opacity:.5;pointer-events:none}
 .alert-preview{padding:10px 12px;background:var(--rbg);border:1px solid rgba(229,57,53,.2);border-radius:var(--rsm);margin-top:10px;font-size:13.5px;color:var(--red);font-weight:600}
+
+/* ─── NEW: Sticky Header (redesign) ─── */
+.header{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid var(--bd);padding:14px 32px;display:flex;align-items:center;gap:16px}
+.header h1{font-size:18px;font-weight:900;color:var(--navy);letter-spacing:-.3px;margin:0}
+.header h1 span{color:var(--purple);font-weight:900}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.phobis-btn{background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;border:none;border-radius:12px;padding:8px 18px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(168,85,247,.3)}
+.phobis-btn:hover{filter:brightness(1.06)}
+
+/* ─── NEW: Hero Section ─── */
+.hero{padding:28px 32px 20px;background:#fff;border-bottom:1px solid #f1f5f9}
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1200px}
+.hero-card{background:var(--bg);border-radius:16px;padding:24px 28px;position:relative;border:1px solid #e2e8f0;transition:box-shadow .2s}
+.hero-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.hero-card.primary{background:linear-gradient(135deg,#eff6ff 0%,#f5f3ff 100%);border-color:#c7d2fe}
+.hero-label{font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.hero-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.hero-val{font-size:42px;font-weight:900;letter-spacing:-1px;color:var(--t1);line-height:1.1;font-variant-numeric:tabular-nums}
+.hero-val .unit{font-size:22px;font-weight:700;color:var(--t2);margin-left:2px}
+.hero-val .sym{font-size:26px;font-weight:600;color:var(--t2)}
+.hero-chg{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:800}
+.hero-chg.up{background:#dcfce7;color:#15803d}
+.hero-chg.down{background:#fee2e2;color:#b91c1c}
+.hero-chg.neutral{background:#f1f5f9;color:#64748b}
+.hero-sub{font-size:11.5px;color:var(--t3);margin-top:6px}
+
+/* ─── NEW: Chart Section ─── */
+.chart-section{padding:24px 32px;background:#fff;margin-bottom:8px}
+.chart-title{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* ─── NEW: Tab Navigation ─── */
+.tab-nav{padding:0 32px;background:#fff;border-bottom:1px solid var(--bd);display:flex;gap:0;position:sticky;top:57px;z-index:99}
+.tab-item{padding:13px 22px;font-size:14px;font-weight:700;color:var(--t2);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s}
+.tab-item:hover{color:var(--t1);background:#f8fafc}
+.tab-item.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:800}
+
+/* ─── NEW: KPI Sub Grid ─── */
+.kpi-sub{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+.kpi-mini{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:14px 16px}
+.kpi-mini-label{font-size:11.5px;font-weight:700;color:var(--t3);margin-bottom:4px}
+.kpi-mini-val{font-size:22px;font-weight:900;color:var(--t1);font-variant-numeric:tabular-nums}
+.kpi-mini-chg{font-size:11px;font-weight:700;margin-top:2px}
+.kpi-mini-chg.up{color:#16a34a}.kpi-mini-chg.down{color:#dc2626}
+
+/* ─── NEW: Alert Grid ─── */
+.alert-grid-new{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-bottom:24px}
+.alert-card-new{padding:16px 20px;border-radius:14px;border-left:4px solid;font-size:13.5px;line-height:1.6}
+.alert-card-new.warn{background:#fffbeb;border-color:#f59e0b;color:#92400e}
+.alert-card-new.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.alert-card-new b{font-weight:800}
+
+/* ─── NEW: Data Table ─── */
+.data-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--bd);border-radius:14px;overflow:hidden;font-size:13px;margin-bottom:24px}
+.data-table thead th{background:#f8fafc;padding:12px 14px;font-weight:800;color:var(--t2);text-align:left;border-bottom:1px solid var(--bd);font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+.data-table tbody td{padding:12px 14px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover td{background:#fafbfe}
+.data-table .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+
+/* ─── NEW: Tab content visibility ─── */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ─── NEW: Responsive for hero ─── */
+@media(max-width:768px){
+  .hero-grid{grid-template-columns:1fr}
+  .header{padding:12px 16px}
+  .hero,.chart-section{padding-left:16px;padding-right:16px}
+  .hero-val{font-size:32px}
+  .tab-nav{padding:0 16px}
+  .tab-item{padding:13px 14px;font-size:13px}
+}
 </style>
 </head>
 <body>
 <div class="hm-tip" id="hmTip"></div>
 
-<header class="hdr">
-  <div class="hdr-inner">
-    <div class="logo-ico">FC</div>
-    <span class="logo-name">포쿨 네이버 광고 대시보드</span>
-    <div class="hdiv"></div>
-    <button class="date-btn" id="dateBtnMain" onclick="toggleDp()">
-      <span class="arr">◀</span>
+<!-- OLD header (hidden, keeping elements for JS compatibility) -->
+<div id="oldHdrCompat" style="display:none">
+  <span class="date-range-txt" id="dateRangeTxt_old"></span>
+  <div class="clock-wrap">
+    <span id="clockEmoji" style="font-size:18px">☀️</span>
+    <div class="clock-date" id="clockDate">--</div>
+    <div class="clock-ampm" id="clockAmpm">오전</div>
+    <div class="clock-time" id="clockTime">--:--:--</div>
+  </div>
+  <div class="upd"><div class="upd-dot"></div><span id="updTxt">데이터 로딩 중...</span></div>
+</div>
+
+<!-- NEW sticky header -->
+<header class="header">
+  <h1>📊 포쿨 <span>광고 대시보드</span></h1>
+  <div class="header-right">
+    <button class="date-btn" id="dateBtnMain" onclick="toggleDp()" style="background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">
       <span class="date-range-txt" id="dateRangeTxt">최근 7일(오늘 포함) : 2026.03.15. ~ 2026.03.21.</span>
-      <span class="arr">▶</span>
     </button>
-    <div class="hdr-right">
-      <div class="clock-wrap">
-        <span id="clockEmoji" style="font-size:18px">☀️</span>
-        <div class="clock-date" id="clockDate">--</div>
-        <div class="clock-ampm" id="clockAmpm">오전</div>
-        <div class="clock-time" id="clockTime">--:--:--</div>
-      </div>
-      <div class="upd"><div class="upd-dot"></div><span id="updTxt">데이터 로딩 중...</span></div>
-    </div>
+    <button class="phobis-btn" onclick="jvOpen()">💁‍♀️ 포비스</button>
   </div>
 </header>
+
+<!-- Hero: Big 3 Numbers -->
+<section class="hero">
+  <div class="hero-grid" id="heroGrid">
+    <div class="hero-card primary">
+      <div class="hero-label"><span class="hero-dot" style="background:#7c3aed"></span>광고수익률 (ROAS)</div>
+      <div class="hero-val">—<span class="unit">%</span></div>
+      <span class="hero-chg neutral">— 로딩 중</span>
+    </div>
+    <div class="hero-card">
+      <div class="hero-label"><span class="hero-dot" style="background:#2563eb"></span>이번 주 광고비</div>
+      <div class="hero-val"><span class="sym">₩</span>—</div>
+      <span class="hero-chg neutral">— 로딩 중</span>
+    </div>
+    <div class="hero-card">
+      <div class="hero-label"><span class="hero-dot" style="background:#16a34a"></span>전환매출</div>
+      <div class="hero-val"><span class="sym">₩</span>—</div>
+      <span class="hero-chg neutral">— 로딩 중</span>
+    </div>
+  </div>
+</section>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+  <div class="tab-item active" onclick="switchTab('status')">📊 현황</div>
+  <div class="tab-item" onclick="switchTab('trend')">📈 트렌드</div>
+  <div class="tab-item" onclick="switchTab('keyword')">🔍 키워드</div>
+  <div class="tab-item" onclick="switchTab('campaign')">📋 캠페인</div>
+  <div class="tab-item" onclick="switchTab('strategy')">🎯 AI 전략</div>
+</nav>
 
 <!-- DATE PICKER -->
 <div class="dp-overlay" id="dpOv" onclick="closeDpOv(event)">
@@ -563,7 +666,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 <div class="main">
 
-<!-- 📊 현황 파악 -->
+<!-- 📊 현황 파악 (Tab: status) -->
+<div id="secStatus" class="tab-content active">
 <div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn1">📊</div><span class="p-title">현황 파악</span><span class="p-date" id="pDate1" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span></div></div>
 
 <!-- ⑥ 가로 3개 경고 -->
@@ -674,7 +778,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   </div>
 </div>
 
-<!-- 📈 트렌드 -->
+</div><!-- /secStatus tab-content -->
+
+<!-- 📈 트렌드 (Tab: trend) -->
+<div id="secTrendTab" class="tab-content">
 <div class="phase" onclick="toggleSec('secTrend','secTrendTog')" style="cursor:pointer">
   <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn2">📈</div><span class="p-title">트렌드 분석</span><span class="p-date" id="pDate2" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span></div>
   <div class="sec-tog open" id="secTrendTog" style="margin-left:auto;flex-shrink:0">▼</div>
@@ -765,7 +872,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 </div><!-- /two-col -->
 </div><!-- /secTrend -->
 
-<!-- 🔍 세부 분석 -->
+</div><!-- /secTrendTab tab-content -->
+
+<!-- 🔍 세부 분석 (Tab: keyword/campaign) -->
+<div id="secDetailTab" class="tab-content">
 <div class="phase" onclick="toggleSec('secDetail','secDetailTog')" style="cursor:pointer">
   <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
     <div class="p-num pn3">🔍</div>
@@ -878,7 +988,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 
 </div><!-- /secDetail -->
 
-<!-- 🎯 전략 수립 -->
+</div><!-- /secDetailTab tab-content -->
+
+<!-- 🎯 전략 수립 (Tab: strategy) -->
+<div id="secStratTab" class="tab-content">
 <div class="phase" onclick="toggleSec('secStrat','secStratTog')" style="cursor:pointer">
   <div style="display:flex;align-items:center;gap:9px">
     <div class="p-num pn4">🎯</div>
@@ -930,6 +1043,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <div id="logCnt" style="display:none"></div>
 
 </div><!-- /secStrat -->
+
+</div><!-- /secStratTab tab-content -->
 
 </div><!-- /main -->
 
@@ -2783,8 +2898,53 @@ function _unusedAnsQ(q){
 /* ================================================================ TOAST */
 function showToast(msg){const el=document.createElement('div');el.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0B1D34;color:#fff;padding:10px 20px;border-radius:9px;font-size:12.5px;font-weight:700;box-shadow:0 6px 20px rgba(11,29,52,.3);z-index:600';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2300)}
 
+/* ================================================================ HERO RENDER */
+function renderHero(){
+  const k=getKpiData('전체');
+  const heroEl=document.getElementById('heroGrid');
+  if(!heroEl)return;
+
+  const chg=(cur,prev)=>prev?Math.round(((cur-prev)/prev)*100):0;
+  const chgHtml=(pct)=>{
+    const cls=pct>0?'up':pct<0?'down':'neutral';
+    const sym=pct>0?'▲':pct<0?'▼':'—';
+    return `<span class="hero-chg ${cls}">${sym} ${Math.abs(pct)}% vs 전주</span>`;
+  };
+
+  heroEl.innerHTML=`
+    <div class="hero-card primary">
+      <div class="hero-label"><span class="hero-dot" style="background:#7c3aed"></span>광고수익률 (ROAS)</div>
+      <div class="hero-val">${fN(k.roas)}<span class="unit">%</span></div>
+      ${chgHtml(chg(k.roas,k.p_roas))}
+      <div class="hero-sub">전환매출 ${fC(k.convRevenue)} ÷ 광고비 ${fC(k.adSpend)}</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-label"><span class="hero-dot" style="background:#2563eb"></span>이번 주 광고비</div>
+      <div class="hero-val"><span class="sym">₩</span>${fN(k.adSpend)}</div>
+      ${chgHtml(chg(k.adSpend,k.p_adSpend))}
+      <div class="hero-sub">일 평균 ${fC(Math.round(k.adSpend/(DS?.days||7)))}</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-label"><span class="hero-dot" style="background:#16a34a"></span>전환매출</div>
+      <div class="hero-val"><span class="sym">₩</span>${fN(k.convRevenue)}</div>
+      ${chgHtml(chg(k.convRevenue,k.p_convRevenue))}
+      <div class="hero-sub">전환 ${fN(k.conversions)}건 · 전환당 ${k.conversions>0?fC(Math.round(k.convRevenue/k.conversions)):'—'}</div>
+    </div>
+  `;
+}
+
+/* ================================================================ TAB SWITCHING */
+function switchTab(tabId){
+  const map={status:'secStatus',trend:'secTrendTab',keyword:'secDetailTab',campaign:'secDetailTab',strategy:'secStratTab'};
+  document.querySelectorAll('.tab-content').forEach(el=>{el.classList.remove('active')});
+  const targetId=map[tabId];
+  if(targetId){const t=document.getElementById(targetId);if(t)t.classList.add('active')}
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  if(event&&event.target)event.target.classList.add('active');
+}
+
 /* ================================================================ RELOAD */
-function reloadAll(){renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();updateBidRecommend();fetchMonthlySpend();checkAiMinDays()}
+function reloadAll(){renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();updateBidRecommend();fetchMonthlySpend();checkAiMinDays()}
 
 // 이번 달 누적 광고비
 async function fetchMonthlySpend(){
@@ -2874,7 +3034,7 @@ async function init(){
   loadLog();injectSampleLog();
   updateHeaderDate();
   await fetchDashboardData();
-  renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();
+  renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();
 }
 init();
 
