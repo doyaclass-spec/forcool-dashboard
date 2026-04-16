@@ -1641,7 +1641,9 @@ const KPI_DEFS=[
   // 3행: 네이비 — 수익 지표
   {id:'adSpend',     label:'총 광고비용',      fmt:'cur', cls:'c-navy',   inv:true,  row:3},
   {id:'roas',        label:'광고수익률(ROAS)', fmt:'pct', cls:'c-navy',   inv:false, row:3},
-  // 4행: 보라 — 추가 지표
+  // 4행: 보라 — 구매완료 + 추가 지표
+  {id:'purchaseCnt', label:'구매완료 전환수',  fmt:'num', cls:'c-purple',  inv:false, row:4},
+  {id:'purchaseAmt', label:'구매완료 전환매출',fmt:'cur', cls:'c-purple',  inv:false, row:4},
   {id:'viewCnt',     label:'동영상 재생수',    fmt:'num', cls:'c-purple',  inv:false, row:4},
 ];
 // KPI ON/OFF 상태 (localStorage 저장)
