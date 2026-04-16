@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>포쿨 네이버 광고 대시보드</title>
+<!-- Preconnect: Worker API · CDN 연결 선점으로 ~500ms 단축 -->
+<link rel="preconnect" href="https://naver-ad-proxy.pokool-ad.workers.dev" crossorigin>
+<link rel="dns-prefetch" href="https://naver-ad-proxy.pokool-ad.workers.dev">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -1236,30 +1241,89 @@ function localDateStr(d) {
   const dd = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${dd}`;
 }
+// ── localStorage 캐시 헬퍼 (stale-while-revalidate 전략) ──
+const DASH_CACHE_KEY = 'forcool_dash_cache_v2';
+const DASH_CACHE_TTL = 60 * 60 * 1000; // 1시간 신선 (그 이후엔 stale로 표시하되 즉시 사용)
+const DASH_CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7일 넘으면 폐기
+
+function dashCacheGet(from, to) {
+  try {
+    const raw = localStorage.getItem(DASH_CACHE_KEY);
+    if (!raw) return null;
+    const cache = JSON.parse(raw);
+    const entry = cache[`${from}__${to}`];
+    if (!entry) return null;
+    const age = Date.now() - (entry.savedAt || 0);
+    if (age > DASH_CACHE_MAX_AGE) return null; // 너무 오래된 건 폐기
+    return { data: entry.data, age, fresh: age < DASH_CACHE_TTL };
+  } catch { return null; }
+}
+
+function dashCacheSet(from, to, data) {
+  try {
+    let cache = {};
+    try { cache = JSON.parse(localStorage.getItem(DASH_CACHE_KEY) || '{}'); } catch {}
+    cache[`${from}__${to}`] = { data, savedAt: Date.now() };
+    // 오래된 entry 자동 정리 (LRU 대신 TTL 초과 제거)
+    for (const key in cache) {
+      if (Date.now() - (cache[key].savedAt || 0) > DASH_CACHE_MAX_AGE) delete cache[key];
+    }
+    localStorage.setItem(DASH_CACHE_KEY, JSON.stringify(cache));
+  } catch (e) {
+    // 용량 초과 시 캐시 리셋 후 재시도
+    try {
+      localStorage.removeItem(DASH_CACHE_KEY);
+      localStorage.setItem(DASH_CACHE_KEY, JSON.stringify({[`${from}__${to}`]: {data, savedAt: Date.now()}}));
+    } catch (e2) { console.warn('localStorage quota:', e2?.message); }
+  }
+}
+
 async function fetchDashboardData() {
   const from = localDateStr(DS.from);
   const to = localDateStr(DS.to);
+
+  // 1) localStorage 캐시 확인 — 있으면 즉시 렌더 (0ms)
+  const cached = dashCacheGet(from, to);
+  if (cached && cached.data) {
+    LIVE_DATA = cached.data;
+    const ageMin = Math.round(cached.age / 60000);
+    const status = cached.fresh ? '실시간 데이터' : `캐시 (${ageMin}분 전, 새로고침 중...)`;
+    document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · ${status}`;
+    showLoading(false);
+    // 2) 백그라운드로 최신 데이터 가져오기 (stale-while-revalidate)
+    fetchDashboardFresh(from, to, /*background=*/true);
+    return;
+  }
+
+  // 3) 캐시 없으면 로딩 표시 + 즉시 fetch
   showLoading(true);
+  document.getElementById('updTxt').textContent = '데이터 로딩 중...';
+  await fetchDashboardFresh(from, to, /*background=*/false);
+  showLoading(false);
+}
+
+async function fetchDashboardFresh(from, to, background) {
   try {
-    document.getElementById('updTxt').textContent = '데이터 로딩 중...';
-    // 대시보드 데이터 먼저 로드
     const dashRes = await fetch(`${WORKER_URL}/api/dashboard-fast?from=${from}&to=${to}`);
     if (!dashRes.ok) throw new Error(`HTTP ${dashRes.status}`);
-    LIVE_DATA = await dashRes.json();
-    if (LIVE_DATA.error) throw new Error(LIVE_DATA.error);
-    // 키워드: fast API에 포함되어 있으면 사용, 없으면 별도 로드
+    const fresh = await dashRes.json();
+    if (fresh.error) throw new Error(fresh.error);
+    LIVE_DATA = fresh;
+    dashCacheSet(from, to, fresh); // 캐시 갱신
     if (!LIVE_DATA.keywords || LIVE_DATA.keywords.length === 0) {
       fetchKeywordsAsync(from, to);
     }
     const fc = LIVE_DATA?._meta?.failCount || 0;
     const statusTxt = fc > 0 ? `실시간 데이터 (${fc}건 누락)` : '실시간 데이터';
     document.getElementById('updTxt').textContent = `${fmtDK(DS.to)} 기준 · ${statusTxt}`;
+    // 백그라운드 갱신이었으면 화면 재렌더
+    if (background && typeof reloadAll === 'function') reloadAll();
   } catch(e) {
     console.warn('API 연결 실패:', e.message);
-    LIVE_DATA = null;
-    document.getElementById('updTxt').textContent = `⚠️ 데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.`;
-  } finally {
-    showLoading(false);
+    if (!background) {
+      LIVE_DATA = null;
+      document.getElementById('updTxt').textContent = `⚠️ 데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.`;
+    }
   }
 }
 
@@ -2952,12 +3016,12 @@ function switchTab(tabId){
 /* ================================================================ RELOAD */
 function reloadAll(){renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();updateBidRecommend();fetchMonthlySpend();checkAiMinDays()}
 
-// 이번 달 누적 광고비
-async function fetchMonthlySpend(){
+// 이번 달 누적 광고비 (localStorage 캐시로 즉시 렌더 + 백그라운드 갱신)
+const MS_CACHE_KEY='forcool_ms_v1';
+function renderMonthlySpend(d){
+  if(!d||!d.spend)return;
+  const fC=v=>'₩'+Math.round(v).toLocaleString();
   try{
-    const r=await fetch(WORKER_URL+'/api/monthly-spend',{headers:{'Origin':location.origin}});
-    const d=await r.json();
-    const fC=v=>'₩'+Math.round(v).toLocaleString();
     document.getElementById('msDate').textContent=`${d.year}년 ${parseInt(d.month)}월 1일 ~ ${parseInt(d.month)}월 ${parseInt(d.today.slice(8))}일 기준`;
     document.getElementById('ms-total').textContent=fC(d.spend['전체']);
     document.getElementById('ms-shopping').textContent=fC(d.spend['쇼핑검색']);
@@ -2967,6 +3031,22 @@ async function fetchMonthlySpend(){
     ST._monthlyTotal=d.spend['전체'];
     ST._monthlyDay=parseInt(d.today.slice(8));
     updateBudgetGauge();
+  }catch(e){console.warn('render ms fail:',e)}
+}
+async function fetchMonthlySpend(){
+  // 1) 캐시 즉시 렌더
+  try{
+    const raw=localStorage.getItem(MS_CACHE_KEY);
+    if(raw){const cached=JSON.parse(raw); if(cached && Date.now()-cached.at<3600000) renderMonthlySpend(cached.data);}
+  }catch{}
+  // 2) 백그라운드 최신 fetch
+  try{
+    const r=await fetch(WORKER_URL+'/api/monthly-spend',{headers:{'Origin':location.origin}});
+    const d=await r.json();
+    if(d && d.spend){
+      renderMonthlySpend(d);
+      try{localStorage.setItem(MS_CACHE_KEY,JSON.stringify({data:d,at:Date.now()}));}catch{}
+    }
   }catch(e){console.warn('월간 광고비 로드 실패:',e)}
 }
 // 예산 저장/불러오기
