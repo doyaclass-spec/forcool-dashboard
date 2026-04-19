@@ -2737,7 +2737,7 @@ async function renderWeeklyReport(){
   const html=`
   <div class="rpt-head">
     <div><div class="rpt-badge">WEEKLY REPORT</div><div class="rpt-title">포쿨 네이버 광고 주간 보고서</div></div>
-    <div class="rpt-sub">${_getWeekLabel()} · ${_getPeriodStr()}<br>담당: 김선명 · 생성: ${new Date().toLocaleDateString('ko-KR')}</div>
+    <div class="rpt-sub">${_getWeekLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}</div>
   </div>
   <!-- KPI + 목표 -->
   <div class="rpt-top">
@@ -2779,12 +2779,15 @@ async function renderWeeklyReport(){
   <div class="rpt-pov"><span class="rpt-pov-badge">POVISER</span><div class="rpt-pov-text" id="rptPovText">포비서 의견 생성 중...</div></div>
   <div class="rpt-footer">포쿨 네이버 광고 대시보드 · AI 주간 보고서 · ${new Date().toLocaleDateString('ko-KR')} 생성</div>`;
 
-  // 포비서 완료 후 한 번에 렌더링
-  const povText=await povPromise;
-  html=html.replace('포비서 의견 생성 중...',povText.replace(/\n/g,'<br>'));
+  // 즉시 렌더 (Claude 응답 대기 없이)
   document.getElementById('reportContainer').innerHTML=html;
   ld.style.display='none';
   _renderWeeklyChart();
+  // 포비서 응답은 비동기 업데이트
+  povPromise.then(povText=>{
+    const el=document.getElementById('rptPovText');
+    if(el)el.innerHTML=povText.replace(/\n/g,'<br>');
+  });
 }
 
 function _renderWeeklyChart(){
@@ -2858,7 +2861,7 @@ async function renderMonthlyReport(){
   const html=`
   <div class="rpt-head monthly">
     <div><div class="rpt-badge">▣ MONTHLY REPORT</div><div class="rpt-title">포쿨 네이버 광고 월간 보고서</div></div>
-    <div class="rpt-sub">${_getMonthLabel()} · ${_getPeriodStr()}<br>담당: 김선명 · 생성: ${new Date().toLocaleDateString('ko-KR')}</div>
+    <div class="rpt-sub">${_getMonthLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}</div>
   </div>
   <!-- KPI + 연간 목표 -->
   <div class="rpt-top">
