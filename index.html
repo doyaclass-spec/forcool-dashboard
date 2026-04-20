@@ -200,9 +200,10 @@ input,select,textarea{font-family:inherit;outline:none}
 .main{max-width:1600px;margin:0 auto;padding:0 22px 60px}
 
 /* ─── PHASE ─── */
-.phase{display:flex;align-items:center;gap:14px;padding:30px 0 16px}
+.phase{display:flex;align-items:center;gap:12px;padding:32px 0 18px;flex-wrap:wrap}
+.p-title{font-size:24px!important;font-weight:900;color:var(--t1);letter-spacing:-.015em}
 .phase::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--bd),transparent)}
-.p-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;flex-shrink:0}
+.p-num{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.12)}
 .pn1{background:var(--red)}.pn2{background:var(--blue)}.pn3{background:var(--purple)}.pn4{background:var(--g2)}
 .p-title{font-size:28px;font-weight:900;color:var(--t1);letter-spacing:-.01em}
 .p-sub{font-size:15px;color:var(--t2);margin-left:8px;font-weight:500}
@@ -222,16 +223,16 @@ input,select,textarea{font-family:inherit;outline:none}
 .pill:hover{background:rgba(241,245,249,0.9);color:#0f172a;border-color:#cbd5e1;transform:translateY(-1px)}.pill.active{background:#eff6ff;border-color:#2563eb;color:#0f172a;box-shadow:0 2px 8px rgba(37,99,235,.15)}
 
 /* ─── ALERTS (⑥ 가로 3개) ─── */
-.alert-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:linear-gradient(135deg,#dc2626,#ef4444);border-radius:12px 12px 0 0;cursor:pointer;user-select:none}
+.alert-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:linear-gradient(135deg,#fef2f2 0%,#fee2e2 100%);border:1px solid #fecaca;border-bottom:none;border-radius:12px 12px 0 0;cursor:pointer;user-select:none}
 .alert-hd.coll{border-radius:var(--r)}.alert-hd:hover{filter:brightness(1.07)}
-.ah-l{display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;font-size:14.5px}
-.acnt{background:rgba(255,255,255,.22);color:#fff;padding:1px 7px;border-radius:10px;font-size:12.5px;font-weight:700}
+.ah-l{display:flex;align-items:center;gap:10px;color:#991b1b;font-weight:800;font-size:14px}
+.acnt{background:#dc2626;color:#fff;padding:2px 9px;border-radius:10px;font-size:12px;font-weight:800}
 .ah-r{display:flex;align-items:center;gap:8px}
-.ah-tog{color:rgba(255,255,255,.7);font-size:14.5px;transition:transform .2s}.ah-tog.r{transform:rotate(180deg)}
+.ah-tog{color:#dc2626;font-size:14px;transition:transform .2s}.ah-tog.r{transform:rotate(180deg)}
 /* ⑦ 경고 설정 버튼 */
-.alert-cfg-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:13px;font-weight:700;transition:var(--tr)}
-.alert-cfg-btn:hover{background:rgba(255,255,255,.28)}
-.alert-body{background:var(--sf);border:1px solid rgba(229,57,53,.25);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden;transition:max-height .3s ease,opacity .2s;max-height:400px;opacity:1}
+.alert-cfg-btn{display:flex;align-items:center;gap:4px;padding:5px 12px;background:#fff;border:1px solid #fca5a5;border-radius:7px;color:#991b1b;font-size:12.5px;font-weight:700;transition:var(--tr);cursor:pointer}
+.alert-cfg-btn:hover{background:#fef2f2;border-color:#f87171}
+.alert-body{background:#fff;border:1px solid #fecaca;border-top:none;border-radius:0 0 12px 12px;overflow:hidden;transition:max-height .3s ease,opacity .2s;max-height:600px;opacity:1}
 .alert-body.coll{max-height:0;opacity:0}
 /* ⑥ 가로 3열 레이아웃 */
 .alert-cards{display:flex;flex-direction:column;gap:8px;padding:12px 16px}
@@ -1167,7 +1168,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <!-- ⑥ 가로 3개 경고 -->
 <div style="margin-bottom:14px" role="region" aria-label="긴급 경고 알림" data-priority="critical">
   <div class="alert-hd" id="alertHd" onclick="toggleAlert()" role="button" tabindex="0" aria-expanded="true" aria-controls="alertBody" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAlert()}">
-    <div class="ah-l"><span aria-hidden="true">🚨</span> <span>즉시 확인 필요한 경고</span><span class="acnt" id="alertCnt" aria-live="polite">0건</span><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);margin-left:12px">경고 설정에서 기준을 직접 설정할 수 있습니다</span></div>
+    <div class="ah-l"><span aria-hidden="true">🚨</span> <span>즉시 확인 필요한 경고</span><span class="acnt" id="alertCnt" aria-live="polite">0건</span></div>
     <div class="ah-r">
       <button class="alert-cfg-btn" onclick="event.stopPropagation();openAlertCfg()" aria-label="경고 기준 설정 열기">경고 설정</button>
       <span class="ah-tog r" id="ahTog" aria-hidden="true">▲</span>
@@ -1669,10 +1670,18 @@ function updateDpPeriod(){
   el.textContent=`${fmtD(lo)} ~ ${fmtD(hi)} (${days}일간)`;
 }
 function updateHeaderDate(){
-  const preset=DS.preset?`${DS.preset} : `:'';
-  document.getElementById('dateRangeTxt').textContent=`${preset}${fmtD(DS.from)} ~ ${fmtD(DS.to)}`;
+  // 축약: "최근 7일(오늘 제외) : 2026.04.13. ~ 2026.04.19." → "최근 7일 · 4/13~4/19"
+  const shortRange=(f,t)=>{const sy=f.getFullYear(),ey=t.getFullYear();const sm=f.getMonth()+1,sd=f.getDate(),em=t.getMonth()+1,ed=t.getDate();if(sy===ey)return`${sm}/${sd}~${em}/${ed}`;return`${sy}.${sm}/${sd}~${ey}.${em}/${ed}`;};
+  const preset=DS.preset?DS.preset.replace(/\(오늘\s*(제외|포함)\)/,'').trim():'';
+  const el=document.getElementById('dateRangeTxt');
+  if(el){
+    const short=preset?`${preset} · ${shortRange(DS.from,DS.to)}`:shortRange(DS.from,DS.to);
+    el.textContent=short;
+    // 전체 텍스트는 tooltip 으로 제공
+    el.closest('button')?.setAttribute('title',`${DS.preset||''} ${fmtD(DS.from)} ~ ${fmtD(DS.to)}`.trim());
+  }
   document.getElementById('updTxt').textContent=`${fmtDK(DS.to)} 기준 · 실시간 데이터`;
-  // 각 섹션 날짜 배지 업데이트
+  // 각 섹션 날짜 배지 업데이트 (섹션 내부는 기존 포맷 유지 — 맥락 명확성)
   const dateStr=`${fmtD(DS.from)} ~ ${fmtD(DS.to)}`;
   ['pDate1','pDate2','pDate3','pDate4','pDate5','pDateKpi'].forEach(id=>{
     const el=document.getElementById(id);
