@@ -1418,6 +1418,30 @@ function dashCacheSet(from, to, data) {
   }
 }
 
+/** 자주 쓰는 기간 프리페치: 최근 6주 + 최근 3개월 → 주간/월간 선택기 즉시 히트 */
+function prefetchCommonRanges(){
+  const ranges=[];
+  const mon=_mondayOf?_mondayOf(TODAY):(()=>{const d=new Date(TODAY);const day=d.getDay()||7;d.setDate(d.getDate()-(day-1));return d})();
+  for(let i=0;i<6;i++){
+    const f=new Date(mon);f.setDate(f.getDate()-7*i);
+    const t=new Date(f);t.setDate(f.getDate()+6);
+    ranges.push([localDateStr(f),localDateStr(t)]);
+  }
+  for(let i=0;i<3;i++){
+    const f=new Date(TODAY.getFullYear(),TODAY.getMonth()-i,1);
+    const t=new Date(TODAY.getFullYear(),TODAY.getMonth()-i+1,0);
+    ranges.push([localDateStr(f),localDateStr(t)]);
+  }
+  // 이미 캐시된 것은 건너뛰고, 나머지는 낮은 우선순위 병렬 fetch
+  ranges.forEach(([f,t])=>{
+    if(dashCacheGet(f,t))return;
+    fetch(`${WORKER_URL}/api/dashboard-fast?from=${f}&to=${t}`)
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{if(d&&!d.error)dashCacheSet(f,t,d)})
+      .catch(()=>{});
+  });
+}
+
 async function fetchDashboardData() {
   const from = localDateStr(DS.from);
   const to = localDateStr(DS.to);
@@ -3698,6 +3722,9 @@ async function init(){
   await fetchDashboardData();
   renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();
   try{populateReportSelectors()}catch(e){console.warn('populateReportSelectors:',e?.message||e)}
+  // 초기 렌더 후 자주 쓰는 기간 프리페치 (유휴 시)
+  if('requestIdleCallback' in window)requestIdleCallback(()=>prefetchCommonRanges(),{timeout:3000});
+  else setTimeout(prefetchCommonRanges,1500);
 }
 init();
 
