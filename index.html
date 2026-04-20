@@ -873,11 +873,113 @@ button:disabled{opacity:.55;cursor:not-allowed}
 /* 푸터 */
 .rpt-footer{margin-top:28px;padding:14px 20px;background:var(--rp-surface);border-radius:10px;text-align:center;font-size:11px;color:var(--rp-mute);letter-spacing:.3px}
 
+/* ══════════════════════════════════════════════════════════════════
+   Executive Overview (최상단 결정 중심 카드)
+   ══════════════════════════════════════════════════════════════════ */
+.rpt-exec{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4c1d95 100%);color:#fff;border-radius:16px;padding:28px 32px;margin-bottom:24px;box-shadow:0 10px 30px rgba(30,27,75,.25),0 4px 12px rgba(30,27,75,.15);position:relative;overflow:hidden}
+.rpt-exec::before{content:"";position:absolute;top:0;right:0;width:360px;height:360px;background:radial-gradient(circle,rgba(168,85,247,.25),transparent 70%);pointer-events:none}
+.rpt-exec-label{font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.6);margin-bottom:14px;text-transform:uppercase;position:relative}
+
+.exec-summary{background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:16px 20px;margin-bottom:20px;position:relative;transition:border-color .2s}
+.exec-summary.edited{border-color:rgba(168,85,247,.5);background:rgba(168,85,247,.12)}
+.exec-summary:focus-within{border-color:rgba(168,85,247,.8);box-shadow:0 0 0 3px rgba(168,85,247,.2)}
+.exec-sum-label{font-size:11px;font-weight:800;letter-spacing:.5px;color:rgba(255,255,255,.85);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.exec-edit-hint{font-size:10px;color:rgba(255,255,255,.5);font-weight:500;letter-spacing:0}
+.exec-sum-text{font-size:16px;font-weight:600;line-height:1.65;color:#fff;outline:none;padding:2px 4px;border-radius:4px;min-height:24px;cursor:text;transition:background .15s}
+.exec-sum-text:hover{background:rgba(255,255,255,.05)}
+.exec-sum-text:focus{background:rgba(255,255,255,.1);cursor:text}
+
+.exec-grid{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;margin-bottom:16px;position:relative}
+@media(max-width:900px){.exec-grid{grid-template-columns:1fr}}
+
+.exec-sec-label{font-size:11px;font-weight:800;letter-spacing:.8px;color:rgba(255,255,255,.85);margin-bottom:12px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.exec-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;background:rgba(99,102,241,.5);border-radius:999px;font-size:10px;font-weight:800;letter-spacing:0}
+.exec-count.risk{background:rgba(239,68,68,.55)}
+
+.exec-empty{background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.15);border-radius:10px;padding:20px;text-align:center;font-size:12px;color:rgba(255,255,255,.55)}
+.exec-risks-ok{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#a7f3d0;padding:14px 18px;border-radius:10px;font-size:13px;font-weight:700;text-align:center}
+
+/* 결정 카드 */
+.dec-card{background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:16px 18px;margin-bottom:10px;transition:all .18s}
+.dec-card:hover{background:rgba(255,255,255,.1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.dec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+.dec-prio{font-size:10px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.5px}
+.dec-prio-high{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
+.dec-prio-medium{background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.4)}
+.dec-due{font-size:10px;color:rgba(255,255,255,.5);font-weight:600}
+.dec-q{font-size:15px;font-weight:800;color:#fff;margin-bottom:8px;line-height:1.45}
+.dec-ai{font-size:12.5px;color:rgba(255,255,255,.85);margin-bottom:6px;line-height:1.55}
+.dec-ai-badge{display:inline-block;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;font-size:9px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:4px;margin-right:6px;vertical-align:middle}
+.dec-evidence{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:10px;line-height:1.5;font-style:italic}
+.dec-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dec-btn{padding:6px 12px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff;border-radius:6px;cursor:pointer;transition:all .15s}
+.dec-btn:hover{background:rgba(255,255,255,.12)}
+.dec-btn.active.dec-approve{background:#10b981;border-color:#10b981}
+.dec-btn.active.dec-hold{background:#f59e0b;border-color:#f59e0b}
+.dec-btn.active.dec-reject{background:#ef4444;border-color:#ef4444}
+.dec-status{margin-left:auto;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px}
+.dec-status-pending{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+.dec-status-approved{background:rgba(16,185,129,.2);color:#6ee7b7}
+.dec-status-hold{background:rgba(245,158,11,.2);color:#fcd34d}
+.dec-status-rejected{background:rgba(239,68,68,.2);color:#fca5a5}
+.dec-note-input{width:100%;margin-top:10px;padding:8px 12px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none;transition:border-color .15s}
+.dec-note-input:focus{border-color:rgba(168,85,247,.6)}
+.dec-note-input::placeholder{color:rgba(255,255,255,.35)}
+
+/* 리스크 카드 */
+.risk-card{background:rgba(255,255,255,.06);border-left:3px solid #ef4444;border-radius:8px;padding:12px 14px;margin-bottom:8px}
+.risk-medium{border-left-color:#f59e0b}
+.risk-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.risk-lvl{font-size:10px;font-weight:800;letter-spacing:.5px}
+.risk-due{font-size:10px;color:rgba(255,255,255,.55);font-weight:600}
+.risk-title{font-size:13px;font-weight:800;color:#fff;margin-bottom:4px}
+.risk-detail{font-size:11.5px;color:rgba(255,255,255,.78);margin-bottom:6px;line-height:1.5}
+.risk-action{font-size:11px;color:rgba(168,85,247,.9);font-weight:700}
+
+/* 대표 최종 방침 */
+.exec-ceo-note{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 18px;margin-top:4px;position:relative}
+.ceo-note-label{font-size:11px;font-weight:800;letter-spacing:.5px;color:rgba(255,255,255,.85);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.ceo-note-input{width:100%;min-height:56px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;padding:10px 14px;font-size:13px;font-family:inherit;line-height:1.6;outline:none;resize:vertical;transition:border-color .15s}
+.ceo-note-input:focus{border-color:rgba(168,85,247,.6)}
+.ceo-note-input::placeholder{color:rgba(255,255,255,.35)}
+
+/* 벤치마크 KPI 테이블 */
+.bm-table{font-size:12.5px}
+.bm-table th{background:var(--rp-surface);color:var(--rp-navy);font-size:10.5px;padding:10px 8px}
+.bm-table td{padding:10px 8px;border-bottom:1px solid var(--rp-border)}
+.bm-table .bm-label{font-weight:800;color:var(--rp-text)}
+.bm-table .bm-cur{font-weight:800;font-size:14px;color:var(--rp-text)}
+.bm-up{color:var(--rp-green);font-weight:700}
+.bm-down{color:var(--rp-red);font-weight:700}
+.bm-na{color:var(--rp-mute)}
+.bm-note{font-size:10.5px;color:var(--rp-mute);margin-top:8px;line-height:1.5}
+
+/* 드라이버 분해 */
+.dd-total{font-size:13px;color:var(--rp-text);margin-bottom:14px;padding:10px 14px;background:var(--rp-surface);border-radius:8px;font-weight:600}
+.dd-bars{display:flex;flex-direction:column;gap:10px}
+.dd-row{display:grid;grid-template-columns:80px 1fr 100px 100px;gap:12px;align-items:center;font-size:12.5px}
+.dd-name{font-weight:800;color:var(--rp-text)}
+.dd-bar{height:22px;background:#f3f4f6;border-radius:4px;overflow:hidden;position:relative}
+.dd-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+.dd-val{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.dd-pct{font-size:11px;color:var(--rp-mute);text-align:right;font-weight:600}
+.dd-note{font-size:11.5px;color:var(--rp-text);margin-top:12px;padding:10px 14px;background:var(--rp-accent-soft);border-radius:8px;line-height:1.55}
+
+/* 섹션 제목 부제 */
+.sec-subtitle{font-size:11px;color:var(--rp-mute);font-weight:600;margin-left:auto;letter-spacing:0;text-transform:none}
+
 /* 컨트롤 바 반응형 */
 @media(max-width:900px){
   .ai-controls{padding:12px 14px;gap:10px}
   .ai-actions{margin-left:0;width:100%;justify-content:flex-end}
   .ai-period select{min-width:240px!important}
+}
+@media(max-width:700px){
+  .rpt-exec{padding:20px 18px}
+  .dec-actions{gap:4px}
+  .dec-btn{padding:5px 10px;font-size:11px}
+  .dd-row{grid-template-columns:60px 1fr 80px;gap:8px}
+  .dd-pct{display:none}
 }
 @media(max-width:600px){
   .ai-period select{min-width:0!important;width:100%}
@@ -1547,28 +1649,36 @@ function dashCacheSet(from, to, data) {
   }
 }
 
-/** 자주 쓰는 기간 프리페치: 최근 6주 + 최근 3개월 → 주간/월간 선택기 즉시 히트 */
+/** 자주 쓰는 기간 프리페치: 최근 12주 + 최근 6개월 → 벤치마크 이동평균 기초 데이터 */
 function prefetchCommonRanges(){
   const ranges=[];
   const mon=_mondayOf?_mondayOf(TODAY):(()=>{const d=new Date(TODAY);const day=d.getDay()||7;d.setDate(d.getDate()-(day-1));return d})();
-  for(let i=0;i<6;i++){
+  // 최근 12주 (벤치마크용)
+  for(let i=0;i<12;i++){
     const f=new Date(mon);f.setDate(f.getDate()-7*i);
     const t=new Date(f);t.setDate(f.getDate()+6);
     ranges.push([localDateStr(f),localDateStr(t)]);
   }
-  for(let i=0;i<3;i++){
+  // 최근 6개월
+  for(let i=0;i<6;i++){
     const f=new Date(TODAY.getFullYear(),TODAY.getMonth()-i,1);
     const t=new Date(TODAY.getFullYear(),TODAY.getMonth()-i+1,0);
     ranges.push([localDateStr(f),localDateStr(t)]);
   }
-  // 이미 캐시된 것은 건너뛰고, 나머지는 낮은 우선순위 병렬 fetch
-  ranges.forEach(([f,t])=>{
-    if(dashCacheGet(f,t))return;
-    fetch(`${WORKER_URL}/api/dashboard-fast?from=${f}&to=${t}`)
-      .then(r=>r.ok?r.json():null)
-      .then(d=>{if(d&&!d.error)dashCacheSet(f,t,d)})
-      .catch(()=>{});
-  });
+  // 캐시 미스만 낮은 우선순위 병렬 fetch (3개씩 배치)
+  const toFetch=ranges.filter(([f,t])=>!dashCacheGet(f,t));
+  const batch=async(items)=>{
+    for(let i=0;i<items.length;i+=3){
+      await Promise.all(items.slice(i,i+3).map(([f,t])=>
+        fetch(`${WORKER_URL}/api/dashboard-fast?from=${f}&to=${t}`)
+          .then(r=>r.ok?r.json():null)
+          .then(d=>{if(d&&!d.error)dashCacheSet(f,t,d)})
+          .catch(()=>{})
+      ));
+      await new Promise(r=>setTimeout(r,500)); // 배치간 500ms 텀
+    }
+  };
+  batch(toFetch);
 }
 
 async function fetchDashboardData() {
@@ -2969,7 +3079,249 @@ function _renderBudgetPace(){
   </div>`;
 }
 
-/* ── P1: 매체 비중 / 요일 분포 / 브랜드-일반 / 이상치 / 월간 예측 ── */
+/* ══════════════════════════════════════════════════════════════════
+   P2/P3 Executive Layer — 10년차 컨설팅 스타일 보고서
+   ══════════════════════════════════════════════════════════════════ */
+
+/* 보고서 메모 저장 (대표 편집 내용 localStorage) */
+const RPT_NOTES_KEY='fc_report_notes_v1';
+function _noteGet(type,from,to,field){try{const all=JSON.parse(localStorage.getItem(RPT_NOTES_KEY)||'{}');return all[`${type}:${from}:${to}:${field}`]||'';}catch{return'';}}
+function _noteSet(type,from,to,field,value){try{const all=JSON.parse(localStorage.getItem(RPT_NOTES_KEY)||'{}');all[`${type}:${from}:${to}:${field}`]=value;localStorage.setItem(RPT_NOTES_KEY,JSON.stringify(all));}catch{}}
+
+/* 최근 N주 이동평균 (localStorage dash cache 기반) */
+function _getRollingAvg(weeks=12){
+  let cache={};try{cache=JSON.parse(localStorage.getItem('forcool_dash_cache_v2')||'{}');}catch{}
+  const thisMonday=_mondayOf(TODAY);
+  const samples=[];
+  for(let i=1;i<=weeks;i++){
+    const mon=new Date(thisMonday);mon.setDate(mon.getDate()-7*i);
+    const sun=new Date(mon);sun.setDate(sun.getDate()+6);
+    const key=`${localDateStr(mon)}__${localDateStr(sun)}`;
+    const kpi=cache[key]?.data?.kpi?.['전체'];
+    if(kpi&&kpi.adSpend>0)samples.push(kpi);
+  }
+  if(samples.length===0)return null;
+  const avg={};
+  ['adSpend','convRevenue','conversions','purchaseCnt','purchaseAmt'].forEach(m=>{avg[m]=samples.reduce((s,w)=>s+(w[m]||0),0)/samples.length;});
+  avg.roas=avg.adSpend>0?Math.round(avg.convRevenue/avg.adSpend*100):0;
+  return{avg,n:samples.length};
+}
+
+/* 매출 변동 드라이버 분해 (매체별 기여도) */
+function _getDriverDecomposition(){
+  const k=getKpiData('전체');
+  const totalDelta=(k.convRevenue||0)-(k.p_convRevenue||0);
+  if(totalDelta===0||!LIVE_DATA?.kpi)return null;
+  const types=['쇼핑검색','파워링크','콘텐츠','브랜드'];
+  const byType=types.map(t=>{
+    const kt=LIVE_DATA.kpi[t];
+    if(!kt)return null;
+    const delta=(kt.convRevenue||0)-(kt.p_convRevenue||0);
+    return{type:t,delta,pct:Math.round(delta/totalDelta*100),current:kt.convRevenue||0,previous:kt.p_convRevenue||0};
+  }).filter(x=>x&&x.delta!==0);
+  byType.sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta));
+  return{totalDelta,byType};
+}
+
+/* 의사결정 질문 자동 생성 (데이터 기반 Top 3) */
+function _getDecisionQuestions(){
+  const qs=[];
+  const{bottom}=_getTopBottomCampaigns(5,100000);
+  const worst=bottom.filter(c=>c.roas<100);
+  if(worst.length>0){
+    const wasteSpend=worst.reduce((s,c)=>s+c.adSpend,0);
+    qs.push({priority:'high',question:`ROAS 100% 미만 캠페인 ${worst.length}개 중단/축소?`,aiRec:`중단 권장 — 기간 광고비 ${_fmtW(wasteSpend)} 회수, 월 환산 약 ${_fmtW(Math.round(wasteSpend*4.3))} 절감 예상`,evidence:worst.slice(0,3).map(c=>`${c.name.slice(0,22)} (ROAS ${fN(c.roas)}%)`).join(' · '),dueDate:'이번 주 내'});
+  }
+  const p=LIVE_DATA?.kpi?.['파워링크'];
+  const s=LIVE_DATA?.kpi?.['쇼핑검색'];
+  if(p&&s&&p.roas>s.roas*1.5&&p.adSpend<s.adSpend*0.5){
+    qs.push({priority:'high',question:`파워링크 예산 증액 + 쇼핑검색 재배분?`,aiRec:`파워링크 +30% 증액 권장 — ROAS ${fN(p.roas)}% vs 쇼핑검색 ${fN(s.roas)}%, 효율 차이 ${Math.round(p.roas/s.roas*10)/10}배`,evidence:`파워링크 ${_fmtW(p.adSpend)} (ROAS ${fN(p.roas)}%) · 쇼핑검색 ${_fmtW(s.adSpend)} (ROAS ${fN(s.roas)}%)`,dueDate:'2주 내'});
+  }
+  const waste=_getWasteKeywords(10,200,50000);
+  if(waste.length>=3){
+    const wasteSpend=waste.reduce((x,k)=>x+k.adSpend,0);
+    const wasteRev=waste.reduce((x,k)=>x+k.convRevenue,0);
+    qs.push({priority:waste.length>=7?'high':'medium',question:`낭비 키워드 ${waste.length}개 일괄 처리 (입찰 -30% 또는 제외)?`,aiRec:`광고비 ${_fmtW(wasteSpend)} → 회수 ${_fmtW(wasteRev)}. 월 환산 약 ${_fmtW(Math.round((wasteSpend-wasteRev)*4.3))} 손실 차단 예상`,evidence:`조건: ROAS <200% · 광고비 ≥5만원. 상위 3개: ${waste.slice(0,3).map(k=>k.kw).join(', ')}`,dueDate:'이번 주 내'});
+  }
+  const bp=_getBudgetPace();
+  if(bp.status==='over'&&bp.paceDiff>10){
+    qs.push({priority:'high',question:`월 예산 초과 페이스 — 재조정?`,aiRec:`현 페이스 +${bp.paceDiff.toFixed(1)}%p 초과. 월말 ${_fmtW(bp.projectedOverrun)} 초과 예상. 일예산 ${Math.round(bp.paceDiff/bp.elapsedPct*100)}% 축소 검토`,evidence:`월 예산 ${_fmtW(bp.budget)} · 현재 ${_fmtW(bp.spent)} (${bp.spentPct.toFixed(1)}% 소진, 경과 ${bp.elapsedPct.toFixed(1)}%)`,dueDate:`${bp.daysIn-bp.daysE}일 내`});
+  }
+  return qs.slice(0,3);
+}
+
+/* 긴급 리스크 */
+function _getUrgentRisks(){
+  const risks=[];
+  const bp=_getBudgetPace();
+  if(bp.status==='over'&&bp.paceDiff>15){risks.push({level:'high',title:'월 예산 초과 위험',detail:`페이스 +${bp.paceDiff.toFixed(1)}%p 초과 → 월말 +${_fmtW(bp.projectedOverrun)} 초과 예상`,action:'예산 재편 또는 저효율 캠페인 일시중단',deadline:`${bp.daysIn-bp.daysE}일 내`});}
+  const k=getKpiData('전체');
+  const wowRoas=(k.roas||0)-(k.p_roas||0);
+  if(wowRoas<-1500){risks.push({level:'high',title:'ROAS 급락',detail:`ROAS ${fN(Math.abs(wowRoas))}%p 하락 (${fN(k.p_roas||0)}% → ${fN(k.roas||0)}%)`,action:'드라이버 분해 기반 주 원인 매체 조치',deadline:'즉시'});}
+  const anoms=_getAnomalies();
+  const conv0=anoms.filter(a=>a.type==='noconv'||a.type==='norev');
+  if(conv0.length>=2){risks.push({level:'medium',title:'전환 이상 다발',detail:`${conv0.length}일간 광고비 지출에도 전환/매출 0건`,action:'랜딩·트래킹·재고 점검',deadline:'이번 주 내'});}
+  const{bottom}=_getTopBottomCampaigns(5,100000);
+  const dead=bottom.filter(c=>c.roas<50);
+  if(dead.length>=2){risks.push({level:'medium',title:'극저효율 캠페인 다수',detail:`ROAS 50% 미만 캠페인 ${dead.length}개 운영 중 (광고비 ${_fmtW(dead.reduce((s,c)=>s+c.adSpend,0))})`,action:'즉시 중단 또는 전면 재설계',deadline:'이번 주 내'});}
+  return risks.slice(0,3);
+}
+
+/* ── 렌더러 ── */
+function _autoSummary(mode,k){
+  const period=mode==='weekly'?'주':'달';
+  const wowRev=_wow(k.convRevenue||0,k.p_convRevenue||0);
+  const revDir=wowRev>=0?'상승':'하락';
+  const roasDelta=(k.roas||0)-(k.p_roas||0);
+  const roasDir=roasDelta>=0?'+':'';
+  return `이번 ${period} 매출 ${_fmtW(k.convRevenue||0)} (전${period} 대비 ${Math.abs(wowRev).toFixed(1)}% ${revDir}), ROAS ${fN(k.roas||0)}% (${roasDir}${roasDelta.toFixed(0)}%p). 구매완료 ${fN(k.purchaseCnt||0)}건.`;
+}
+
+function _renderExecutiveOverview(mode){
+  const from=localDateStr(DS.from),to=localDateStr(DS.to);
+  const k=getKpiData('전체');
+  const savedSummary=_noteGet(mode,from,to,'summary');
+  const summary=savedSummary||_autoSummary(mode,k);
+  const isEdited=!!savedSummary;
+  const questions=_getDecisionQuestions();
+  const risks=_getUrgentRisks();
+
+  const qHtml=questions.length===0
+    ?`<div class="exec-empty">자동 추출된 결정 사항이 없습니다. 정상 운영 중이거나 데이터 축적 중일 수 있습니다.</div>`
+    :questions.map((q,i)=>{
+      const status=_noteGet(mode,from,to,`q${i}_status`);
+      const note=(_noteGet(mode,from,to,`q${i}_note`)||'').replace(/"/g,'&quot;');
+      const statusConf={approved:{ico:'✅',lbl:'실행',cls:'approved'},rejected:{ico:'❌',lbl:'거절',cls:'rejected'},hold:{ico:'⏸',lbl:'보류',cls:'hold'}};
+      const sc=statusConf[status]||{ico:'○',lbl:'미결정',cls:'pending'};
+      return`<div class="dec-card" data-qi="${i}">
+        <div class="dec-head">
+          <span class="dec-prio dec-prio-${q.priority}">${q.priority==='high'?'🔴 긴급':'🟡 일반'}</span>
+          <span class="dec-due">마감 · ${q.dueDate}</span>
+        </div>
+        <div class="dec-q">Q${i+1}. ${q.question}</div>
+        <div class="dec-ai"><span class="dec-ai-badge">ForVis 권고</span>${q.aiRec}</div>
+        <div class="dec-evidence">📎 ${q.evidence}</div>
+        <div class="dec-actions">
+          <button class="dec-btn dec-approve${status==='approved'?' active':''}" onclick="_decSet('${mode}','${from}','${to}',${i},'approved')">✅ 실행</button>
+          <button class="dec-btn dec-hold${status==='hold'?' active':''}" onclick="_decSet('${mode}','${from}','${to}',${i},'hold')">⏸ 보류</button>
+          <button class="dec-btn dec-reject${status==='rejected'?' active':''}" onclick="_decSet('${mode}','${from}','${to}',${i},'rejected')">❌ 거절</button>
+          <span class="dec-status dec-status-${sc.cls}" id="decSt${i}">${sc.ico} ${sc.lbl}</span>
+        </div>
+        <input type="text" class="dec-note-input" placeholder="대표 결정 사유·세부사항 (선택)" value="${note}" oninput="_noteSet('${mode}','${from}','${to}','q${i}_note',this.value)">
+      </div>`;
+    }).join('');
+
+  const riskHtml=risks.length===0
+    ?`<div class="exec-risks-ok">✓ 긴급 리스크 없음 — 안정 운영 중</div>`
+    :risks.map(r=>`<div class="risk-card risk-${r.level}">
+      <div class="risk-head"><span class="risk-lvl">${r.level==='high'?'🔴 긴급':'🟡 주의'}</span><span class="risk-due">${r.deadline}</span></div>
+      <div class="risk-title">${r.title}</div>
+      <div class="risk-detail">${r.detail}</div>
+      <div class="risk-action">→ ${r.action}</div>
+    </div>`).join('');
+
+  return`<div class="rpt-exec">
+    <div class="rpt-exec-label">EXECUTIVE OVERVIEW · ${_getPeriodStr()}</div>
+    <div class="exec-summary${isEdited?' edited':''}">
+      <div class="exec-sum-label">📌 한 줄 요약 <span class="exec-edit-hint">클릭하여 편집 · ${isEdited?'대표 승인':'AI 초안'}</span></div>
+      <div class="exec-sum-text" contenteditable="true" onblur="_noteSet('${mode}','${from}','${to}','summary',this.textContent.trim());this.closest('.exec-summary').classList.add('edited');this.parentNode.querySelector('.exec-edit-hint').textContent='클릭하여 편집 · 대표 승인'">${summary}</div>
+    </div>
+    <div class="exec-grid">
+      <div class="exec-decisions">
+        <div class="exec-sec-label">🎯 이번 ${mode==='weekly'?'주':'달'} 결정 사항 ${questions.length?`<span class="exec-count">${questions.length}</span>`:''}</div>
+        ${qHtml}
+      </div>
+      <div class="exec-risks">
+        <div class="exec-sec-label">⚠️ 긴급 리스크 ${risks.length?`<span class="exec-count risk">${risks.length}</span>`:''}</div>
+        ${riskHtml}
+      </div>
+    </div>
+    <div class="exec-ceo-note">
+      <div class="ceo-note-label">💬 대표 최종 방침 <span class="exec-edit-hint">클릭하여 편집</span></div>
+      <textarea class="ceo-note-input" placeholder="이번 기간 대표 최종 결론·방침을 직접 입력하세요. (AI가 아닌 최종 의사결정)" oninput="_noteSet('${mode}','${from}','${to}','ceo_note',this.value)">${_noteGet(mode,from,to,'ceo_note')}</textarea>
+    </div>
+  </div>`;
+}
+
+window._decSet=function(mode,from,to,qi,status){
+  _noteSet(mode,from,to,`q${qi}_status`,status);
+  const el=document.getElementById(`decSt${qi}`);
+  const card=document.querySelector(`.dec-card[data-qi="${qi}"]`);
+  if(card){card.querySelectorAll('.dec-btn').forEach(b=>b.classList.remove('active'));const b=card.querySelector(`.dec-${status==='approved'?'approve':status==='hold'?'hold':'reject'}`);if(b)b.classList.add('active');}
+  if(el){const conf={approved:{ico:'✅',lbl:'실행',cls:'approved'},rejected:{ico:'❌',lbl:'거절',cls:'rejected'},hold:{ico:'⏸',lbl:'보류',cls:'hold'}}[status]||{ico:'○',lbl:'미결정',cls:'pending'};el.className=`dec-status dec-status-${conf.cls}`;el.textContent=`${conf.ico} ${conf.lbl}`;}
+};
+
+/* 벤치마크 KPI (이번 기간 vs 이동평균 vs 목표) */
+function _renderBenchmarkKpi(mode){
+  const k=getKpiData('전체');
+  const roll=_getRollingAvg(12);
+  const metrics=[
+    {key:'adSpend',label:'광고비',fmt:_fmtW,inv:true},
+    {key:'convRevenue',label:'광고매출',fmt:_fmtW,inv:false},
+    {key:'roas',label:'ROAS',fmt:v=>fN(v)+'%',inv:false},
+    {key:'purchaseCnt',label:'구매완료',fmt:fN,inv:false}
+  ];
+  const wowLbl=mode==='weekly'?'WoW':'MoM';
+  const rows=metrics.map(m=>{
+    const cur=k[m.key]||0;
+    const prev=k[`p_${m.key}`]||0;
+    const wowPct=_wow(cur,prev);
+    const rolling=roll?.avg?.[m.key]||0;
+    const vsRolling=rolling>0?Math.round((cur-rolling)/rolling*100):0;
+    const goal=GOALS?.['전체']?.[m.key]||0;
+    const vsGoal=goal>0?Math.round(cur/goal*100):0;
+    const wowOk=m.inv?wowPct<=0:wowPct>=0;
+    const rollOk=m.inv?vsRolling<=0:vsRolling>=0;
+    const goalOk=m.inv?vsGoal<=100:vsGoal>=100;
+    return`<tr>
+      <td class="bm-label">${m.label}</td>
+      <td class="bm-cur">${m.fmt(cur)}</td>
+      <td class="${wowOk?'bm-up':'bm-down'}">${wowPct>=0?'+':''}${wowPct.toFixed(1)}%</td>
+      <td>${roll?m.fmt(Math.round(rolling)):'<span class="bm-na">-</span>'}</td>
+      <td class="${roll?(rollOk?'bm-up':'bm-down'):''}">${roll?(vsRolling>=0?'+':'')+vsRolling+'%':'-'}</td>
+      <td>${goal>0?m.fmt(goal):'<span class="bm-na">-</span>'}</td>
+      <td class="${goal>0?(goalOk?'bm-up':'bm-down'):''}">${goal>0?vsGoal+'%':'-'}</td>
+    </tr>`;
+  }).join('');
+  const note=roll?`* 최근 <b>${roll.n}주</b> 평균 대비 (이동평균 데이터 자동 누적 중, 12주 목표)`:'* 이동평균 데이터 누적 중 — 기간 선택·프리페치가 완료되면 자동 표시';
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">📊</span> KPI 벤치마크 <span class="sec-subtitle">이번 기간 · ${wowLbl} · 이동평균 · 목표 대비</span></div>
+  <div class="rpt-sec-box">
+    <table class="rpt-table bm-table"><thead><tr>
+      <th>지표</th><th>이번 ${mode==='weekly'?'주':'달'}</th><th>${wowLbl}</th><th>이동평균</th><th>vs 평균</th><th>목표</th><th>달성률</th>
+    </tr></thead><tbody>${rows}</tbody></table>
+    <div class="bm-note">${note}</div>
+  </div>`;
+}
+
+/* 드라이버 분해 */
+function _renderDriverDecomposition(){
+  const d=_getDriverDecomposition();
+  if(!d)return'';
+  const total=d.totalDelta;
+  const dirLabel=total>=0?'증가':'감소';
+  const dirColor=total>=0?'var(--rp-green)':'var(--rp-red)';
+  const rows=d.byType.map(b=>{
+    const barWidth=Math.min(100,Math.abs(b.pct));
+    const barColor=b.delta>=0?'#10b981':'#ef4444';
+    const valColor=b.delta>=0?'var(--rp-green)':'var(--rp-red)';
+    return`<div class="dd-row">
+      <div class="dd-name">${b.type}</div>
+      <div class="dd-bar"><div class="dd-bar-fill" style="width:${barWidth}%;background:${barColor}"></div></div>
+      <div class="dd-val" style="color:${valColor}">${b.delta>=0?'+':''}${_fmtW(b.delta)}</div>
+      <div class="dd-pct">기여 ${b.pct>=0?'+':''}${b.pct}%</div>
+    </div>`;
+  }).join('');
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">⚙</span> 매출 변동 드라이버 분해 <span class="sec-subtitle">어느 매체가 주 원인인가</span></div>
+  <div class="rpt-sec-box">
+    <div class="dd-total">전체 매출 변동 <b style="color:${dirColor}">${total>=0?'+':''}${_fmtW(total)}</b> ${dirLabel} — 매체별 기여도</div>
+    <div class="dd-bars">${rows}</div>
+    <div class="dd-note">💡 주 원인 매체: <b>${d.byType[0]?.type||'-'}</b> (${d.byType[0]?.pct||0}% 기여) → 이 매체 집중 분석 필요</div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   P1: 매체 비중 / 요일 분포 / 브랜드-일반 / 이상치 / 월간 예측
+   ══════════════════════════════════════════════════════════════════ */
 
 // 매체 비중 도넛 차트 데이터
 function _getMediaShare(){
@@ -3286,6 +3638,12 @@ async function renderWeeklyReport(){
     <div><div class="rpt-badge">WEEKLY REPORT</div><div class="rpt-title">포쿨 네이버 광고 주간 보고서</div></div>
     <div class="rpt-sub">${_getWeekLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}</div>
   </div>
+  <!-- ① Executive Overview (대표 결정 중심) -->
+  ${_renderExecutiveOverview('weekly')}
+  <!-- ② KPI 벤치마크 (이동평균·목표 대비) -->
+  ${_renderBenchmarkKpi('weekly')}
+  <!-- ③ 드라이버 분해 -->
+  ${_renderDriverDecomposition()}
   <!-- KPI + 목표 -->
   <div class="rpt-top">
     <div class="rpt-kpi-grid">
@@ -3427,6 +3785,12 @@ async function renderMonthlyReport(){
     <div><div class="rpt-badge">▣ MONTHLY REPORT</div><div class="rpt-title">포쿨 네이버 광고 월간 보고서</div></div>
     <div class="rpt-sub">${_getMonthLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}</div>
   </div>
+  <!-- ① Executive Overview (대표 결정 중심) -->
+  ${_renderExecutiveOverview('monthly')}
+  <!-- ② KPI 벤치마크 -->
+  ${_renderBenchmarkKpi('monthly')}
+  <!-- ③ 드라이버 분해 -->
+  ${_renderDriverDecomposition()}
   <!-- KPI + 연간 목표 -->
   <div class="rpt-top">
     <div class="rpt-kpi-grid">
