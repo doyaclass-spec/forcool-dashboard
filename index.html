@@ -3656,9 +3656,10 @@ function toggleSec(bodyId, togId){
 async function init(){
   loadLog();injectSampleLog();
   updateHeaderDate();
+  try{populateReportSelectors()}catch(e){console.warn('populateReportSelectors:',e?.message||e)}
   await fetchDashboardData();
   renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();
-  populateReportSelectors();
+  try{populateReportSelectors()}catch(e){console.warn('populateReportSelectors:',e?.message||e)}
 }
 init();
 
