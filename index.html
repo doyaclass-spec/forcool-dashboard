@@ -648,7 +648,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 .alert-preview{padding:10px 12px;background:var(--rbg);border:1px solid rgba(229,57,53,.2);border-radius:var(--rsm);margin-top:10px;font-size:13.5px;color:var(--red);font-weight:600}
 
 /* ─── NEW: Sticky Header (redesign) ─── */
-.header{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid var(--bd);padding:14px 32px;display:flex;align-items:center;gap:16px}
+.header{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid var(--bd);max-width:1600px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:16px}
 .header h1{font-size:18px;font-weight:900;color:var(--navy);letter-spacing:-.3px;margin:0}
 .header h1 span{color:var(--purple);font-weight:900}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:14px}
@@ -656,8 +656,8 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 .phobis-btn:hover{filter:brightness(1.06)}
 
 /* ─── NEW: Hero Section ─── */
-.hero{padding:28px 22px 20px;background:#fff;border-bottom:1px solid #f1f5f9}
-.hero-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-width:1600px;margin:0 auto}
+.hero{padding:28px 0 20px;background:#fff;border-bottom:1px solid #f1f5f9}
+.hero-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-width:1600px;margin:0 auto;padding:0 22px;box-sizing:border-box}
 .hero-card{background:var(--bg);border-radius:16px;padding:24px 28px;position:relative;border:1px solid #e2e8f0;transition:box-shadow .2s}
 .hero-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.06)}
 .hero-card.primary{background:linear-gradient(135deg,#eff6ff 0%,#f5f3ff 100%);border-color:#c7d2fe}
@@ -773,7 +773,7 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
   <div class="tab-item" onclick="switchTab('trend')">📈 트렌드</div>
   <div class="tab-item" onclick="switchTab('keyword')">🔍 키워드</div>
   <div class="tab-item" onclick="switchTab('campaign')">📋 캠페인</div>
-  <div class="tab-item" onclick="switchTab('strategy')">🎯 AI 전략</div>
+  <div class="tab-item" onclick="switchTab('strategy')">🎯 AI 전략 보고서</div>
 </nav>
 
 <!-- DATE PICKER -->
@@ -1136,6 +1136,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
     <div class="ai-toggle">
       <button class="active" id="btnWeekly" onclick="switchReport('weekly')">📊 주간 보고서</button>
       <button id="btnMonthly" onclick="switchReport('monthly')">📅 월간 보고서</button>
+    </div>
+    <div class="ai-period" style="display:flex;align-items:center;gap:8px">
+      <select id="selWeek" onchange="onSelectWeek(this.value)" style="padding:7px 12px;border:1px solid var(--rp-border);border-radius:6px;font-size:13px;font-weight:600;min-width:320px;background:#fff;cursor:pointer"></select>
+      <select id="selMonth" onchange="onSelectMonth(this.value)" style="display:none;padding:7px 12px;border:1px solid var(--rp-border);border-radius:6px;font-size:13px;font-weight:600;min-width:200px;background:#fff;cursor:pointer"></select>
     </div>
     <div class="ai-actions">
       <button onclick="generateReport()">✨ 보고서 생성</button>
@@ -2606,16 +2610,63 @@ function switchReport(mode){
   _rptMode=mode;
   document.getElementById('btnWeekly').classList.toggle('active',mode==='weekly');
   document.getElementById('btnMonthly').classList.toggle('active',mode==='monthly');
+  const sw=document.getElementById('selWeek'),sm=document.getElementById('selMonth');
+  if(sw)sw.style.display=mode==='weekly'?'':'none';
+  if(sm)sm.style.display=mode==='monthly'?'':'none';
   document.getElementById('reportContainer').innerHTML='';
 }
 function generateReport(){if(_rptMode==='weekly')renderWeeklyReport();else renderMonthlyReport()}
 function runAi(){generateReport()}
 
+/* ── 주간/월간 선택기 ── */
+function _mondayOf(d){const dd=new Date(d);const day=dd.getDay()||7;dd.setHours(0,0,0,0);dd.setDate(dd.getDate()-(day-1));return dd}
+function _weekLabelByThursday(monday){
+  const thu=new Date(monday);thu.setDate(monday.getDate()+3);
+  return`${thu.getMonth()+1}월 ${Math.ceil(thu.getDate()/7)}주차`;
+}
+function populateReportSelectors(){
+  const selW=document.getElementById('selWeek');const selM=document.getElementById('selMonth');
+  if(!selW||!selM)return;
+  // 주간: 최근 26주 (이번 주 포함)
+  const thisMonday=_mondayOf(TODAY);
+  let wHtml='';
+  for(let i=0;i<26;i++){
+    const mon=new Date(thisMonday);mon.setDate(mon.getDate()-7*i);
+    const sun=new Date(mon);sun.setDate(sun.getDate()+6);
+    const iso=`${mon.getFullYear()}-${p2(mon.getMonth()+1)}-${p2(mon.getDate())}`;
+    const lbl=`${fmtDK(mon)} ~ ${fmtDK(sun)} · ${_weekLabelByThursday(mon)}`;
+    wHtml+=`<option value="${iso}">${lbl}</option>`;
+  }
+  selW.innerHTML=wHtml;
+  selW.selectedIndex=1; // 지난 주 기본값 (가장 최근 완결된 주)
+  // 월간: 최근 12개월
+  let mHtml='';
+  for(let i=0;i<12;i++){
+    const dt=new Date(TODAY.getFullYear(),TODAY.getMonth()-i,1);
+    const val=`${dt.getFullYear()}-${p2(dt.getMonth()+1)}`;
+    mHtml+=`<option value="${val}">${dt.getFullYear()}년 ${dt.getMonth()+1}월</option>`;
+  }
+  selM.innerHTML=mHtml;
+  selM.selectedIndex=1; // 지난 달 기본값
+}
+function onSelectWeek(iso){
+  const [y,m,d]=iso.split('-').map(Number);
+  const f=new Date(y,m-1,d);const t=new Date(f);t.setDate(f.getDate()+6);
+  DS={from:f,to:t,days:7,preset:_weekLabelByThursday(f)};
+  updateHeaderDate();fetchDashboardData().then(()=>reloadAll());
+}
+function onSelectMonth(ym){
+  const [y,m]=ym.split('-').map(Number);
+  const f=new Date(y,m-1,1);const t=new Date(y,m,0);
+  DS={from:f,to:t,days:t.getDate(),preset:`${y}년 ${m}월`};
+  updateHeaderDate();fetchDashboardData().then(()=>reloadAll());
+}
+
 /* ── 유틸 ── */
 function _fmtW(v){if(v>=100000000)return(v/100000000).toFixed(2)+'억';if(v>=10000)return Math.round(v/10000)+'만';return fN(v)}
 function _wow(cur,prev){return prev?((cur-prev)/prev*100):0}
 function _wowHtml(pct,inv){const good=inv?pct<=0:pct>=0;return`<span class="${good?'up':'down'}">${pct>=0?'+':''}${pct.toFixed(1)}%</span>`}
-function _getWeekLabel(){const d=DS.to||new Date();const m=d.getMonth()+1;const w=Math.ceil(d.getDate()/7);return`${m}월 ${w}주차`}
+function _getWeekLabel(){const mon=_mondayOf(DS.from||new Date());return _weekLabelByThursday(mon)}
 function _getMonthLabel(){const d=DS.to||new Date();return`${d.getFullYear()}년 ${d.getMonth()+1}월`}
 function _getPeriodStr(){return fmtDK(DS.from)+' ~ '+fmtDK(DS.to)}
 function _getDaysInMonth(){const d=DS.to||new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).getDate()}
@@ -3607,6 +3658,7 @@ async function init(){
   updateHeaderDate();
   await fetchDashboardData();
   renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();
+  populateReportSelectors();
 }
 init();
 
