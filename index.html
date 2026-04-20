@@ -2796,17 +2796,27 @@ function _autoFocus(kpi,media,checks){
   return focus.slice(0,3);
 }
 
-/* ── 포비서 API ── */
+/* ── 포비서 API (보고서 전용 논스트리밍 엔드포인트) ── */
 async function _fetchPoviser(mode,dataObj){
   try{
-    const sysPrompt=mode==='weekly'?
-      `당신은 10년차 네이버 광고 전문가입니다. 포쿨(스타리온 냉장고 공식 판매채널)의 주간 광고 성과를 분석합니다. 다음 데이터를 바탕으로 한 문장(3줄 이내)으로 총평을 작성하세요. "구조적", "역배분" 같은 단어는 사용하지 마세요. 팀 선배 조언자의 톤으로 작성합니다.`:
-      `당신은 10년차 네이버 광고 전문가입니다. 포쿨 월간 결산을 대표에게 보고합니다. 다음 데이터를 바탕으로 3문단을 작성하세요:\n1) ▸ 이번 달 총평 (성과 요약)\n2) ▸ 매체 전략 방향 (파워링크/쇼핑검색 등)\n3) ▸ 다음 달 주목 포인트 (번호 매긴 4가지)\n"구조적" 단어 금지. 전략 컨설턴트 톤.`;
-    const summary={cost:_fmtW(dataObj.kpi.adSpend),revenue:_fmtW(dataObj.kpi.convRevenue),roas:dataObj.kpi.roas+'%',conversions:dataObj.kpi.conversions,media:dataObj.media.map(m=>m.name+':ROAS '+m.roas+'%').join(', ')};
-    const resp=await fetch('https://naver-ad-proxy.pokool-ad.workers.dev/api/jarvis',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:sysPrompt+'\n\n데이터: '+JSON.stringify(summary),from:fmtDK(DS.from),to:fmtDK(DS.to)})});
-    if(!resp.ok)return mode==='weekly'?'데이터 기반 자동 분석을 수행 중입니다.':'포비서 코멘트를 불러올 수 없습니다.';
-    const j=await resp.json();return j.reply||j.text||j.message||'';
-  }catch(e){return mode==='weekly'?'포비서 연결 실패. 나중에 다시 시도하세요.':'포비서 연결 실패.';}
+    const k=dataObj.kpi||{};
+    // 데이터 요약: 숫자 정수 원본 + 매체 ROAS/지출 + 상위 캠페인 3개
+    const media=(dataObj.media||[]).map(m=>({name:m.name,cost:m.cost,revenue:m.revenue,roas:m.roas,conversions:m.conversions,cpa:m.cpa,wowRev:Math.round((m.wowRev||0)*10)/10}));
+    const campaigns=(LIVE_DATA?.campaigns||[]).slice().sort((a,b)=>(b.adSpend||0)-(a.adSpend||0)).slice(0,5).map(c=>({name:c.name,type:c.type,adSpend:c.adSpend,convRevenue:c.convRevenue,conversions:c.conversions,roas:c.adSpend>0?Math.round((c.convRevenue||0)/c.adSpend*100):0}));
+    const summary={
+      period:{from:fmtDK(DS.from),to:fmtDK(DS.to),days:DS.days},
+      kpi:{adSpend:k.adSpend,convRevenue:k.convRevenue,roas:k.roas,conversions:k.conversions,ctr:k.ctr,cpc:k.cpc,crto:k.crto,cpConv:k.cpConv,p_adSpend:k.p_adSpend,p_convRevenue:k.p_convRevenue,p_roas:k.p_roas,p_conversions:k.p_conversions},
+      mediaBreakdown:media,
+      topCampaignsByCost:campaigns
+    };
+    const resp=await fetch(WORKER_URL+'/api/report-comment',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mode,data:summary})
+    });
+    if(!resp.ok){const t=await resp.text().catch(()=>'');console.warn('poviser fail',resp.status,t.slice(0,120));return mode==='weekly'?'포비서 코멘트를 불러올 수 없습니다.':'포비서 월간 코멘트를 불러올 수 없습니다.';}
+    const j=await resp.json();
+    return j.text||(mode==='weekly'?'코멘트 응답이 비어있습니다.':'월간 코멘트 응답이 비어있습니다.');
+  }catch(e){console.warn('poviser err',e);return '포비서 연결 실패.';}
 }
 
 /* ── 주간 보고서 렌더링 ── */
