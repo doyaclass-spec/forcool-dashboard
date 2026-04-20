@@ -709,15 +709,52 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 .tab-content{display:none}
 .tab-content.active{display:block}
 
-/* ─── NEW: Responsive for hero ─── */
+/* ─── Responsive ─── */
+@media(max-width:1100px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important}
+  .hero-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .hero-val{font-size:34px}
+  .hero-card{padding:18px 20px}
+}
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .hero-card:nth-child(1){grid-column:1 / -1}
+}
 @media(max-width:768px){
   .hero-grid{grid-template-columns:1fr}
+  .hero-card:nth-child(1){grid-column:auto}
   .header{padding:12px 16px}
-  .hero,.chart-section{padding-left:16px;padding-right:16px}
+  .hero-grid{padding:0 16px}
+  .chart-section{padding-left:16px;padding-right:16px}
   .hero-val{font-size:32px}
   .tab-nav{padding:0 16px}
   .tab-item{padding:13px 14px;font-size:13px}
 }
+
+/* ─── 접근성: 키보드 포커스 표시 ─── */
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--purple);outline-offset:2px;border-radius:4px}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,[role="button"]:focus-visible,[onclick]:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+
+/* ─── 버튼 hover 일관성 ─── */
+button:not(:disabled):hover{filter:brightness(1.05)}
+button:not(:disabled):active{transform:translateY(1px)}
+button:disabled{opacity:.55;cursor:not-allowed}
+
+/* ─── 스크롤바 ─── */
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px;border:2px solid transparent;background-clip:content-box}
+*::-webkit-scrollbar-thumb:hover{background:#94a3b8;background-clip:content-box;border:2px solid transparent}
+*{scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+
+/* ─── 히어로 서브텍스트 높이 정렬 ─── */
+.hero-card{display:flex;flex-direction:column}
+.hero-sub{min-height:16px;margin-top:auto;padding-top:6px}
+
+/* ─── 섹션 시각적 계층 (중요도별 카드 구분) ─── */
+.card[data-priority="critical"]{border-left:3px solid var(--red);box-shadow:0 2px 8px rgba(220,38,38,.08)}
+.card[data-priority="high"]{border-left:3px solid var(--purple)}
 </style>
 </head>
 <body>
@@ -739,10 +776,10 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <header class="header">
   <h1>📊 포쿨 <span>광고 대시보드</span></h1>
   <div class="header-right">
-    <button class="date-btn" id="dateBtnMain" onclick="toggleDp()" style="background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">
+    <button class="date-btn" id="dateBtnMain" onclick="toggleDp()" aria-label="분석 기간 선택" style="background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">
       <span class="date-range-txt" id="dateRangeTxt">최근 7일(오늘 포함) : 2026.03.15. ~ 2026.03.21.</span>
     </button>
-    <button class="phobis-btn" onclick="jvOpen()">💁‍♀️ 포비스</button>
+    <button class="phobis-btn" onclick="jvOpen()" aria-label="AI 어시스턴트 포비스 열기"><span aria-hidden="true">💁‍♀️</span> 포비스</button>
   </div>
 </header>
 
@@ -768,12 +805,12 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 </section>
 
 <!-- Tab Navigation -->
-<nav class="tab-nav">
-  <div class="tab-item active" onclick="switchTab('status')">📊 현황</div>
-  <div class="tab-item" onclick="switchTab('trend')">📈 트렌드</div>
-  <div class="tab-item" onclick="switchTab('keyword')">🔍 키워드</div>
-  <div class="tab-item" onclick="switchTab('campaign')">📋 캠페인</div>
-  <div class="tab-item" onclick="switchTab('strategy')">🎯 AI 전략 보고서</div>
+<nav class="tab-nav" role="tablist" aria-label="대시보드 탭 메뉴">
+  <div class="tab-item active" role="tab" tabindex="0" aria-selected="true" onclick="switchTab('status')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('status')}">📊 현황</div>
+  <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('trend')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('trend')}">📈 트렌드</div>
+  <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('keyword')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('keyword')}">🔍 키워드</div>
+  <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('campaign')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('campaign')}">📋 캠페인</div>
+  <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('strategy')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('strategy')}">🎯 AI 전략 보고서</div>
 </nav>
 
 <!-- DATE PICKER -->
@@ -798,12 +835,12 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 <div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn1">📊</div><span class="p-title">현황 파악</span><span class="p-date" id="pDate1" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span></div></div>
 
 <!-- ⑥ 가로 3개 경고 -->
-<div style="margin-bottom:14px">
-  <div class="alert-hd" id="alertHd" onclick="toggleAlert()">
-    <div class="ah-l">🚨 <span>즉시 확인 필요한 경고</span><span class="acnt" id="alertCnt">0건</span><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);margin-left:12px">⚙ 경고 설정에서 기준을 직접 설정할 수 있습니다</span></div>
+<div style="margin-bottom:14px" role="region" aria-label="긴급 경고 알림" data-priority="critical">
+  <div class="alert-hd" id="alertHd" onclick="toggleAlert()" role="button" tabindex="0" aria-expanded="true" aria-controls="alertBody" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAlert()}">
+    <div class="ah-l"><span aria-hidden="true">🚨</span> <span>즉시 확인 필요한 경고</span><span class="acnt" id="alertCnt" aria-live="polite">0건</span><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);margin-left:12px">경고 설정에서 기준을 직접 설정할 수 있습니다</span></div>
     <div class="ah-r">
-      <button class="alert-cfg-btn" onclick="event.stopPropagation();openAlertCfg()">⚙ 경고 설정</button>
-      <span class="ah-tog r" id="ahTog">▲</span>
+      <button class="alert-cfg-btn" onclick="event.stopPropagation();openAlertCfg()" aria-label="경고 기준 설정 열기">경고 설정</button>
+      <span class="ah-tog r" id="ahTog" aria-hidden="true">▲</span>
     </div>
   </div>
   <div class="alert-body" id="alertBody">
@@ -1870,7 +1907,8 @@ function renderKpi(){
       const prev=kd['p_'+def.id]??0;
       const goal=goals[def.id]||val;
       const pct=chgP(val,prev);
-      const gp=goal>0?Math.min(100,Math.round((val/goal)*100)):0;
+      const gpReal=goal>0?Math.round((val/goal)*100):0;
+      const gp=Math.min(100,gpReal);
       const ROW_COLORS={1:'var(--orange)',2:'var(--blue)',3:'var(--purple)',4:'var(--purple)',5:'var(--green)'};
       const gc=ROW_COLORS[def.row]||'var(--blue)';
       const gd=def.fmt==='cur'?fC(goal):def.fmt==='pct'||def.fmt==='pct2'?goal+'%':fN(goal);
@@ -1910,7 +1948,7 @@ function renderKpi(){
         <div class="kpi-top">${lblHtml}${badge}</div>
         <div class="kpi-val">${vH}</div>
         <div class="spark"><canvas id="${sid}"></canvas></div>
-        <div class="goal-area"><div class="goal-row"><div style="display:flex;align-items:center;gap:4px"><span class="goal-lbl">목표 달성률</span><span class="goal-chip">${gd}</span></div><span class="goal-pct">${gp}%</span></div><div class="goal-track"><div class="goal-fill" style="width:${gp}%;background:${gc}"></div></div></div>
+        <div class="goal-area"><div class="goal-row"><div style="display:flex;align-items:center;gap:4px"><span class="goal-lbl">목표 달성률</span><span class="goal-chip">${gd}</span></div><span class="goal-pct" style="${gpReal>100?'color:var(--green);font-weight:900':''}">${gpReal}%</span></div><div class="goal-track"><div class="goal-fill" style="width:${gp}%;background:${gpReal>100?'var(--green)':gc}"></div></div></div>
       </div>`;
     });
     html+=`</div>`;
@@ -3546,8 +3584,8 @@ function switchTab(tabId){
   document.querySelectorAll('.tab-content').forEach(el=>{el.classList.remove('active')});
   const targetId=map[tabId];
   if(targetId){const t=document.getElementById(targetId);if(t)t.classList.add('active')}
-  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
-  if(event&&event.target)event.target.classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false')});
+  if(event&&event.target){event.target.classList.add('active');event.target.setAttribute('aria-selected','true')}
 }
 
 /* ================================================================ RELOAD */
