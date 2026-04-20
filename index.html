@@ -2800,12 +2800,32 @@ function _autoFocus(kpi,media,checks){
 async function _fetchPoviser(mode,dataObj){
   try{
     const k=dataObj.kpi||{};
-    // 데이터 요약: 숫자 정수 원본 + 매체 ROAS/지출 + 상위 캠페인 3개
-    const media=(dataObj.media||[]).map(m=>({name:m.name,cost:m.cost,revenue:m.revenue,roas:m.roas,conversions:m.conversions,cpa:m.cpa,wowRev:Math.round((m.wowRev||0)*10)/10}));
-    const campaigns=(LIVE_DATA?.campaigns||[]).slice().sort((a,b)=>(b.adSpend||0)-(a.adSpend||0)).slice(0,5).map(c=>({name:c.name,type:c.type,adSpend:c.adSpend,convRevenue:c.convRevenue,conversions:c.conversions,roas:c.adSpend>0?Math.round((c.convRevenue||0)/c.adSpend*100):0}));
+    const chg=(cur,prev)=>prev?Math.round((cur-prev)/prev*1000)/10:0; // 소수 1자리
+    const current={adSpend:k.adSpend,convRevenue:k.convRevenue,roas:k.roas,conversions:k.conversions,ctr:k.ctr,cpc:k.cpc,crto:k.crto,cpConv:k.cpConv};
+    const previous={adSpend:k.p_adSpend,convRevenue:k.p_convRevenue,roas:k.p_roas,conversions:k.p_conversions,ctr:k.p_ctr,cpc:k.p_cpc,crto:k.p_crto,cpConv:k.p_cpConv};
+    // 사전 포맷팅된 한국식 금액 (Haiku가 "억" 환산 실수 못하도록)
+    const formatted={
+      current:{adSpend:_fmtW(current.adSpend),convRevenue:_fmtW(current.convRevenue),cpc:_fmtW(current.cpc),cpConv:_fmtW(current.cpConv)},
+      previous:{adSpend:_fmtW(previous.adSpend),convRevenue:_fmtW(previous.convRevenue),cpc:_fmtW(previous.cpc),cpConv:_fmtW(previous.cpConv)}
+    };
+    const wowPct={
+      adSpend:chg(current.adSpend,previous.adSpend),
+      convRevenue:chg(current.convRevenue,previous.convRevenue),
+      roas_delta_points:(current.roas||0)-(previous.roas||0),
+      conversions:chg(current.conversions,previous.conversions),
+      cpc:chg(current.cpc,previous.cpc),
+      crto:chg(current.crto,previous.crto)
+    };
+    const media=(dataObj.media||[]).map(m=>({name:m.name,cost:m.cost,revenue:m.revenue,roas:m.roas,conversions:m.conversions,cpa:m.cpa,wowRevPct:Math.round((m.wowRev||0)*10)/10}));
+    const campaigns=(LIVE_DATA?.campaigns||[]).slice().sort((a,b)=>(b.adSpend||0)-(a.adSpend||0)).slice(0,5).map(c=>({name:c.name,type:c.type,adSpend:c.adSpend,convRevenue:c.convRevenue,conversions:c.conversions,roas:c.adSpend>0?Math.round((c.convRevenue||0)/c.adSpend*100):0,purchaseCnt:c.purchaseCnt||0,purchaseAmt:c.purchaseAmt||0}));
     const summary={
-      period:{from:fmtDK(DS.from),to:fmtDK(DS.to),days:DS.days},
-      kpi:{adSpend:k.adSpend,convRevenue:k.convRevenue,roas:k.roas,conversions:k.conversions,ctr:k.ctr,cpc:k.cpc,crto:k.crto,cpConv:k.cpConv,p_adSpend:k.p_adSpend,p_convRevenue:k.p_convRevenue,p_roas:k.p_roas,p_conversions:k.p_conversions},
+      period:{from:fmtDK(DS.from),to:fmtDK(DS.to),days:DS.days,periodLabel:mode==='weekly'?'이번 주':'이번 달',prevPeriodLabel:mode==='weekly'?'전주':'전월'},
+      current,
+      previous,
+      formatted_note:'금액(원 단위) 표기 시 반드시 formatted 필드 값을 그대로 사용. 직접 "억/만" 환산 금지.',
+      formatted,
+      wowPct_note:'양수=상승, 음수=하락. roas_delta_points 는 %p 차이(예: +200 = ROAS 200%p 상승)',
+      wowPct,
       mediaBreakdown:media,
       topCampaignsByCost:campaigns
     };
