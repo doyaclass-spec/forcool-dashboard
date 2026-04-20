@@ -2862,6 +2862,113 @@ function _getMonthLabel(){const d=DS.to||new Date();return`${d.getFullYear()}년
 function _getPeriodStr(){return fmtDK(DS.from)+' ~ '+fmtDK(DS.to)}
 function _getDaysInMonth(){const d=DS.to||new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).getDate()}
 function _getDaysElapsed(){const d=DS.to||new Date();return d.getDate()}
+/* ── P0: 구매완료 KPI / 성과 TOP/BOTTOM / 낭비 키워드 / 예산 페이스 ── */
+function _getPurchaseKpi(type='전체'){
+  const k=getKpiData(type)||{};
+  const clicks=k.clicks||0;
+  const purCnt=k.purchaseCnt||0;
+  const purAmt=k.purchaseAmt||0;
+  const p_purCnt=k.p_purchaseCnt||0;
+  const p_purAmt=k.p_purchaseAmt||0;
+  const p_clicks=k.p_clicks||0;
+  const purCvr=clicks>0?(purCnt/clicks*100):0;
+  const p_purCvr=p_clicks>0?(p_purCnt/p_clicks*100):0;
+  const aov=purCnt>0?Math.round(purAmt/purCnt):0;
+  const p_aov=p_purCnt>0?Math.round(p_purAmt/p_purCnt):0;
+  return{purCnt,purAmt,purCvr,aov,p_purCnt,p_purAmt,p_purCvr,p_aov};
+}
+function _getTopBottomCampaigns(n=5,minSpend=100000){
+  const list=(LIVE_DATA?.campaigns||[]).filter(c=>(c.adSpend||0)>=minSpend);
+  const withRoas=list.map(c=>({name:c.name,type:c.type,adSpend:c.adSpend||0,convRevenue:c.convRevenue||0,conversions:c.conversions||0,purchaseCnt:c.purchaseCnt||0,purchaseAmt:c.purchaseAmt||0,roas:c.adSpend>0?Math.round((c.convRevenue||0)/c.adSpend*100):0}));
+  return{top:[...withRoas].sort((a,b)=>b.roas-a.roas).slice(0,n),bottom:[...withRoas].sort((a,b)=>a.roas-b.roas).slice(0,n)};
+}
+function _getWasteKeywords(n=10,maxRoas=200,minSpend=50000){
+  const list=(LIVE_DATA?.keywords||[]).map(k=>({kw:k.kw,campaign:k.campaign,type:k.type,adSpend:k.adSpend||0,convRevenue:k.convRevenue||0,conversions:k.conversions||0,roas:k.adSpend>0?Math.round((k.convRevenue||0)/k.adSpend*100):0}));
+  return list.filter(k=>k.adSpend>=minSpend&&k.roas<maxRoas).sort((a,b)=>b.adSpend-a.adSpend).slice(0,n);
+}
+function _getBudgetPace(){
+  const budget=parseInt(localStorage.getItem('fc_budget'))||0;
+  let spent=0;
+  try{const parsed=JSON.parse(localStorage.getItem('forcool_ms_v1')||'{}');spent=parsed?.data?.spend?.['전체']||0;}catch{}
+  const daysIn=_getDaysInMonth();const daysE=_getDaysElapsed();
+  const elapsedPct=daysIn>0?(daysE/daysIn)*100:0;
+  const spentPct=budget>0?(spent/budget)*100:0;
+  const paceDiff=spentPct-elapsedPct;
+  const projectedEnd=daysE>0?Math.round(spent/daysE*daysIn):0;
+  const projectedOverrun=budget>0?projectedEnd-budget:0;
+  const status=!budget?'none':(paceDiff>10?'over':paceDiff<-10?'under':'ok');
+  return{budget,spent,daysIn,daysE,elapsedPct,spentPct,paceDiff,projectedEnd,projectedOverrun,status};
+}
+
+/* HTML 빌더 (공통) */
+function _renderPurchaseKpiRow(mode){
+  const p=_getPurchaseKpi('전체');
+  const wowCnt=_wow(p.purCnt,p.p_purCnt);
+  const wowAmt=_wow(p.purAmt,p.p_purAmt);
+  const wowCvr=p.purCvr-p.p_purCvr; // %p
+  const wowAov=_wow(p.aov,p.p_aov);
+  const lbl=mode==='monthly'?'MoM':'WoW';
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">★</span> 구매완료 실적 (네이버 광고관리 기준)</div>
+  <div class="rpt-sec-box" style="padding:14px 16px"><div class="rpt-kpi-grid">
+    <div class="rpt-kpi"><div class="rpt-kpi-label">구매완료 전환수</div><div class="rpt-kpi-val">${fN(p.purCnt)}</div><div class="rpt-kpi-chg">${lbl} ${_wowHtml(wowCnt,false)}</div></div>
+    <div class="rpt-kpi"><div class="rpt-kpi-label">구매완료 전환매출</div><div class="rpt-kpi-val">${_fmtW(p.purAmt)}</div><div class="rpt-kpi-chg">${lbl} ${_wowHtml(wowAmt,false)}</div></div>
+    <div class="rpt-kpi"><div class="rpt-kpi-label">구매완료 전환율</div><div class="rpt-kpi-val">${p.purCvr.toFixed(2)}%</div><div class="rpt-kpi-chg">${lbl} <span class="${wowCvr>=0?'up':'down'}">${wowCvr>=0?'+':''}${wowCvr.toFixed(2)}%p</span></div></div>
+    <div class="rpt-kpi"><div class="rpt-kpi-label">객단가 (AOV)</div><div class="rpt-kpi-val">${_fmtW(p.aov)}</div><div class="rpt-kpi-chg">${lbl} ${_wowHtml(wowAov,false)}</div></div>
+  </div></div>`;
+}
+function _renderTopBottomCampaigns(){
+  const{top,bottom}=_getTopBottomCampaigns(5,100000);
+  const rowHtml=(c,badge)=>`<tr><td style="width:28px;text-align:center;font-weight:800">${badge}</td><td class="mt-name" title="${c.name}">${c.name.length>26?c.name.slice(0,26)+'…':c.name}<small>${c.type}</small></td><td style="text-align:right">${_fmtW(c.adSpend)}</td><td style="text-align:right">${_fmtW(c.convRevenue)}</td><td style="text-align:right;font-weight:800;color:${c.roas>=500?'var(--rp-green)':c.roas>=200?'var(--rp-amber)':'var(--rp-red)'}">${fN(c.roas)}%</td></tr>`;
+  const topRows=top.length?top.map((c,i)=>rowHtml(c,['🥇','🥈','🥉','4','5'][i])).join(''):`<tr><td colspan="5" style="text-align:center;color:var(--rp-mute);padding:12px">광고비 10만원 이상 캠페인 없음</td></tr>`;
+  const botRows=bottom.length?bottom.map((c,i)=>rowHtml(c,`${i+1}`)).join(''):`<tr><td colspan="5" style="text-align:center;color:var(--rp-mute);padding:12px">데이터 없음</td></tr>`;
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">●</span> 캠페인 성과 Top5 · 낭비 Bottom5</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+    <div class="rpt-sec-box" style="margin-bottom:0"><div style="font-size:12px;font-weight:800;color:var(--rp-green);margin-bottom:8px;letter-spacing:.3px">🚀 TOP 5 (ROAS 높은 순)</div>
+      <table class="rpt-table" style="font-size:12px"><thead><tr><th></th><th>캠페인</th><th style="text-align:right">광고비</th><th style="text-align:right">매출</th><th style="text-align:right">ROAS</th></tr></thead><tbody>${topRows}</tbody></table>
+      <div style="font-size:10px;color:var(--rp-mute);margin-top:6px">* 광고비 10만원 이상 필터</div>
+    </div>
+    <div class="rpt-sec-box" style="margin-bottom:0"><div style="font-size:12px;font-weight:800;color:var(--rp-red);margin-bottom:8px;letter-spacing:.3px">⚠️ BOTTOM 5 (낭비 의심)</div>
+      <table class="rpt-table" style="font-size:12px"><thead><tr><th></th><th>캠페인</th><th style="text-align:right">광고비</th><th style="text-align:right">매출</th><th style="text-align:right">ROAS</th></tr></thead><tbody>${botRows}</tbody></table>
+      <div style="font-size:10px;color:var(--rp-mute);margin-top:6px">* 입찰가 하향/일시중지 검토 대상</div>
+    </div>
+  </div>`;
+}
+function _renderWasteKeywords(){
+  const list=_getWasteKeywords(10,200,50000);
+  if(list.length===0){
+    return`<div class="rpt-sec-title"><span class="rpt-sec-num">◆</span> 낭비 키워드 TOP10</div>
+    <div class="rpt-sec-box" style="text-align:center;color:var(--rp-green);padding:24px;font-weight:700">✓ ROAS 200% 미만 고비용 키워드 없음 — 양호</div>`;
+  }
+  const rows=list.map((k,i)=>`<tr><td style="width:28px;text-align:center;font-weight:800;color:var(--rp-red)">${i+1}</td><td class="mt-name" title="${k.kw}">${k.kw.length>22?k.kw.slice(0,22)+'…':k.kw}<small>${k.type} · ${k.campaign?k.campaign.slice(0,20):''}</small></td><td style="text-align:right">${_fmtW(k.adSpend)}</td><td style="text-align:right">${_fmtW(k.convRevenue)}</td><td style="text-align:right">${k.conversions}</td><td style="text-align:right;font-weight:800;color:var(--rp-red)">${fN(k.roas)}%</td></tr>`).join('');
+  const totSpend=list.reduce((s,k)=>s+k.adSpend,0);
+  const totRev=list.reduce((s,k)=>s+k.convRevenue,0);
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">◆</span> 낭비 키워드 TOP10 <span style="font-size:11px;color:var(--rp-mute);font-weight:600;margin-left:8px">ROAS &lt;200% · 광고비 ≥5만원</span></div>
+  <div class="rpt-sec-box"><table class="rpt-table" style="font-size:12px"><thead><tr><th></th><th>키워드</th><th style="text-align:right">광고비</th><th style="text-align:right">매출</th><th style="text-align:right">전환</th><th style="text-align:right">ROAS</th></tr></thead><tbody>${rows}</tbody></table>
+  <div style="margin-top:10px;padding:10px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#991b1b;font-weight:600">💸 낭비 합계: 광고비 <b>${_fmtW(totSpend)}</b> · 회수 <b>${_fmtW(totRev)}</b> · 손실 추정 <b>${_fmtW(totSpend-totRev)}</b></div></div>`;
+}
+function _renderBudgetPace(){
+  const b=_getBudgetPace();
+  if(b.status==='none')return`<div class="rpt-sec-title"><span class="rpt-sec-num">₩</span> 예산 소진 페이스</div><div class="rpt-sec-box" style="text-align:center;color:var(--rp-mute);padding:16px">월 예산이 설정되지 않았습니다. 대시보드 상단 '월 예산 설정'에서 입력하세요.</div>`;
+  const statusColor=b.status==='over'?'var(--rp-red)':b.status==='under'?'var(--rp-amber)':'var(--rp-green)';
+  const statusLabel=b.status==='over'?`⚠️ 페이스 초과 (${b.paceDiff>=0?'+':''}${b.paceDiff.toFixed(1)}%p)`:b.status==='under'?`💤 소진 지연 (${b.paceDiff.toFixed(1)}%p)`:'✓ 정상 페이스';
+  const projClass=b.projectedOverrun>0?'var(--rp-red)':'var(--rp-green)';
+  const projLabel=b.projectedOverrun>0?`월말 예산 초과 예상: <b style="color:${projClass}">+${_fmtW(b.projectedOverrun)}</b>`:`월말 예산 여유 예상: <b style="color:${projClass}">${_fmtW(-b.projectedOverrun)}</b>`;
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">₩</span> 예산 소진 페이스</div>
+  <div class="rpt-sec-box" style="padding:16px 20px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px">
+      <div><div style="font-size:10px;color:var(--rp-mute);font-weight:700;margin-bottom:3px;letter-spacing:.3px">월 예산</div><div style="font-size:18px;font-weight:800">${_fmtW(b.budget)}</div></div>
+      <div><div style="font-size:10px;color:var(--rp-mute);font-weight:700;margin-bottom:3px;letter-spacing:.3px">현재 소진</div><div style="font-size:18px;font-weight:800">${_fmtW(b.spent)}</div><div style="font-size:11px;color:var(--rp-mute)">${b.spentPct.toFixed(1)}%</div></div>
+      <div><div style="font-size:10px;color:var(--rp-mute);font-weight:700;margin-bottom:3px;letter-spacing:.3px">경과 일수</div><div style="font-size:18px;font-weight:800">${b.daysE}/${b.daysIn}일</div><div style="font-size:11px;color:var(--rp-mute)">${b.elapsedPct.toFixed(1)}%</div></div>
+      <div><div style="font-size:10px;color:var(--rp-mute);font-weight:700;margin-bottom:3px;letter-spacing:.3px">상태</div><div style="font-size:13px;font-weight:800;color:${statusColor}">${statusLabel}</div></div>
+    </div>
+    <div style="height:10px;background:#f3f4f6;border-radius:999px;overflow:hidden;margin-bottom:8px;position:relative">
+      <div style="position:absolute;left:${b.elapsedPct.toFixed(1)}%;top:-4px;width:2px;height:18px;background:#94a3b8" title="경과 ${b.elapsedPct.toFixed(1)}%"></div>
+      <div style="height:100%;background:${b.projectedOverrun>0?'linear-gradient(90deg,#f59e0b,#ef4444)':'linear-gradient(90deg,#6366f1,#a855f7)'};width:${Math.min(100,b.spentPct).toFixed(1)}%"></div>
+    </div>
+    <div style="font-size:12px;color:var(--rp-text)">${projLabel} (현 페이스 유지 시 월말 <b>${_fmtW(b.projectedEnd)}</b>)</div>
+  </div>`;
+}
+
 function _getMediaData(){
   const types=['파워링크','쇼핑검색','콘텐츠','브랜드'];
   const camps=getCampData();
@@ -3046,9 +3153,17 @@ async function renderWeeklyReport(){
     <div class="rpt-hl-line"><div class="rpt-hl-tag">WHY</div><div class="rpt-hl-text">${bestMedia.name} 전환 효율이 ${fN(bestMedia.roas)}%로 전체 ROAS를 견인. ${checks.filter(c=>c.status!=='OK').length>0?checks.filter(c=>c.status!=='OK').map(c=>c.title).join(', ')+' 주의 필요.':'전체 지표 안정적.'}</div></div>
     <div class="rpt-hl-line"><div class="rpt-hl-tag">SO WHAT</div><div class="rpt-hl-text">월 목표 진도율 <b>${achievePct.toFixed(1)}%</b>. 남은 <b>${daysLeft}일</b> 일평균 매출 <b>${_fmtW(dailyNeed)}</b> 필요.</div></div>
   </div>
+  <!-- 구매완료 KPI -->
+  ${_renderPurchaseKpiRow('weekly')}
+  <!-- 예산 소진 페이스 -->
+  ${_renderBudgetPace()}
   <!-- 매체별 성과 -->
   <div class="rpt-sec-title"><span class="rpt-sec-num">1</span> 매체별 주간 성과</div>
   <div class="rpt-sec-box"><table class="rpt-table"><thead><tr><th>매체</th><th>캠페인</th><th>광고비</th><th>매출</th><th>ROAS</th><th>전환</th><th>CVR</th><th>CPA</th><th>WoW</th></tr></thead><tbody>${mediaRows}${totMediaRow}</tbody></table></div>
+  <!-- 캠페인 Top5 / Bottom5 -->
+  ${_renderTopBottomCampaigns()}
+  <!-- 낭비 키워드 Top10 -->
+  ${_renderWasteKeywords()}
   <!-- 8주 추이 -->
   <div class="rpt-sec-title"><span class="rpt-sec-num">2</span> 8주 추이 · ROAS</div>
   <div class="rpt-sec-box"><div class="rpt-chart"><canvas id="rptTrendChart"></canvas></div></div>
@@ -3178,6 +3293,12 @@ async function renderMonthlyReport(){
     <div class="rpt-mom-card"><div class="rpt-mom-title">ROAS</div><div class="rpt-mom-row"><span class="rpt-mom-label">이번 달</span><span class="rpt-mom-val">${fN(totROAS)}%</span></div><div class="rpt-mom-row"><span class="rpt-mom-label">전월 MoM</span><span class="rpt-mom-val">${fN(kpi.p_roas||0)}%<span class="rpt-mom-chg ${momROASpt>=0?'up':'down'}">${momROASpt>=0?'+':''}${momROASpt.toFixed(0)}%p</span></span></div></div>
     <div class="rpt-mom-card"><div class="rpt-mom-title">CPA</div><div class="rpt-mom-row"><span class="rpt-mom-label">이번 달</span><span class="rpt-mom-val">${_fmtW(totCPA)}</span></div><div class="rpt-mom-row"><span class="rpt-mom-label">전월 MoM</span><span class="rpt-mom-val">${_fmtW(prevCPA)}<span class="rpt-mom-chg ${momCPA<=0?'up':'down'}">${momCPA>=0?'+':''}${momCPA.toFixed(1)}%</span></span></div></div>
   </div>
+  <!-- 구매완료 KPI -->
+  ${_renderPurchaseKpiRow('monthly')}
+  <!-- 예산 소진 페이스 -->
+  ${_renderBudgetPace()}
+  <!-- 낭비 키워드 Top10 -->
+  ${_renderWasteKeywords()}
   <!-- 매체별 -->
   <div class="rpt-sec-title"><span class="rpt-sec-num">2</span> 매체별 월간 성과</div>
   <div class="rpt-sec-box"><table class="rpt-table"><thead><tr><th>매체</th><th>캠페인</th><th>광고비</th><th>매출</th><th>ROAS</th><th>전환</th><th>CVR</th><th>CPA</th><th>MoM</th></tr></thead><tbody>${mRows}<tr class="mt-total"><td>합계</td><td>${media.reduce((s,m)=>s+m.campaigns,0)}</td><td>${_fmtW(totCost)}</td><td>${_fmtW(totRev)}</td><td>${fN(totROAS)}%</td><td>${fN(totConv)}</td><td>-</td><td>${_fmtW(totCPA)}</td><td>-</td></tr></tbody></table></div>
