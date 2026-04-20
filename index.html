@@ -968,6 +968,55 @@ button:disabled{opacity:.55;cursor:not-allowed}
 /* 섹션 제목 부제 */
 .sec-subtitle{font-size:11px;color:var(--rp-mute);font-weight:600;margin-left:auto;letter-spacing:0;text-transform:none}
 
+/* What-If 시나리오 */
+.sc-table tr.sc-base{background:var(--rp-accent-soft)}
+.sc-table tr.sc-base td{border-top:2px solid var(--rp-accent);border-bottom:2px solid var(--rp-accent)}
+.sc-table tr.sc-shrink td{color:var(--rp-mute)}
+.sc-table tr.sc-aggressive td{background:#fef3c7}
+.sc-label{font-size:13px}
+.sc-note{font-size:11.5px;color:var(--rp-text);margin-top:12px;padding:10px 14px;background:var(--rp-surface);border-radius:8px;line-height:1.6}
+
+/* Risk Matrix */
+.rm-wrap{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.rm-wrap{grid-template-columns:1fr}}
+.rm-matrix{position:relative;padding:12px 18px 18px 28px}
+.rm-axis-label-y{position:absolute;left:-4px;top:50%;transform:rotate(-90deg) translateX(50%);transform-origin:left center;font-size:9px;font-weight:800;letter-spacing:1px;color:var(--rp-mute)}
+.rm-axis-label-x{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--rp-mute);text-align:center;margin-top:6px}
+.rm-grid{display:flex;flex-direction:column;gap:2px}
+.rm-row{display:grid;grid-template-columns:18px repeat(5,1fr);gap:2px}
+.rm-axis-y{font-size:9px;font-weight:800;color:var(--rp-mute);display:flex;align-items:center;justify-content:center}
+.rm-axis-x{font-size:9px;font-weight:800;color:var(--rp-mute);text-align:center;padding:2px}
+.rm-cell{height:40px;border-radius:4px;padding:3px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;justify-content:center}
+.rm-low{background:#f0fdf4}
+.rm-medium{background:#fef3c7}
+.rm-high{background:#fed7aa}
+.rm-critical{background:#fecaca}
+.rm-dot{font-size:8px;font-weight:800;color:#1f2937;background:rgba(255,255,255,.8);padding:1px 4px;border-radius:3px;white-space:nowrap;cursor:help}
+.rm-list{display:flex;flex-direction:column;gap:8px}
+.rm-item{padding:10px 12px;border-radius:8px;border-left:3px solid var(--rp-border)}
+.rm-item-critical{background:#fef2f2;border-left-color:#ef4444}
+.rm-item-high{background:#fff7ed;border-left-color:#f59e0b}
+.rm-item-medium{background:#fefce8;border-left-color:#facc15}
+.rm-item-low{background:#f0fdf4;border-left-color:#10b981}
+.rm-item-title{font-size:12.5px;font-weight:800;color:var(--rp-text);margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rm-score{font-size:10px;color:var(--rp-mute);font-weight:600}
+.rm-item-detail{font-size:11px;color:var(--rp-mute);line-height:1.5}
+
+/* Keyword Portfolio */
+.kp-score{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--rp-surface);border-radius:10px;margin-bottom:14px}
+.kp-score-head{display:flex;align-items:baseline;gap:6px}
+.kp-score-val{font-size:36px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.kp-score-lbl{font-size:14px;color:var(--rp-mute);font-weight:700}
+.kp-score-verdict{font-size:16px;font-weight:800}
+.kp-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:700px){.kp-metrics{grid-template-columns:1fr 1fr}}
+.kp-m{padding:10px 12px;background:#fff;border:1px solid var(--rp-border);border-radius:8px}
+.kp-m-lbl{font-size:10px;color:var(--rp-mute);font-weight:700;margin-bottom:3px;letter-spacing:.3px}
+.kp-m-val{font-size:16px;font-weight:800;color:var(--rp-text);font-variant-numeric:tabular-nums}
+.kp-top5{margin-top:12px}
+.kp-top5-title{font-size:12px;font-weight:800;color:var(--rp-text);margin-bottom:6px}
+.kp-insight{margin-top:12px;padding:12px 14px;background:var(--rp-accent-soft);border-radius:8px;font-size:12.5px;line-height:1.6;color:var(--rp-text)}
+
 /* 컨트롤 바 반응형 */
 @media(max-width:900px){
   .ai-controls{padding:12px 14px;gap:10px}
@@ -3320,6 +3369,259 @@ function _renderDriverDecomposition(){
 }
 
 /* ══════════════════════════════════════════════════════════════════
+   SaaS급 고도화: What-If / Risk Matrix / Keyword Portfolio / QS 추론
+   ══════════════════════════════════════════════════════════════════ */
+
+/* What-If 시나리오 — 광고비 변화 → 예상 매출/ROAS (탄력성 기반) */
+function _getElasticity(){
+  // 과거 12주 캐시에서 adSpend vs convRevenue 관계 회귀 추정
+  let cache={};try{cache=JSON.parse(localStorage.getItem('forcool_dash_cache_v2')||'{}');}catch{}
+  const samples=[];
+  Object.values(cache).forEach(entry=>{
+    const kpi=entry?.data?.kpi?.['전체'];
+    if(kpi&&kpi.adSpend>0&&kpi.convRevenue>0){samples.push({s:kpi.adSpend,r:kpi.convRevenue});}
+  });
+  if(samples.length<3){
+    // 기본 탄력성: 로그-로그 회귀 β=0.7 (체감 효율, 다이미니싱 리턴)
+    return{beta:0.7,source:'default',n:samples.length};
+  }
+  // log(R) = α + β log(S) + ε 단순 OLS
+  const logs=samples.map(x=>[Math.log(x.s),Math.log(x.r)]);
+  const n=logs.length;
+  const mx=logs.reduce((s,p)=>s+p[0],0)/n;
+  const my=logs.reduce((s,p)=>s+p[1],0)/n;
+  let num=0,den=0;
+  logs.forEach(p=>{num+=(p[0]-mx)*(p[1]-my);den+=(p[0]-mx)**2;});
+  const beta=den>0?num/den:0.7;
+  return{beta:Math.max(0.3,Math.min(1.1,beta)),source:'regression',n};
+}
+
+function _getScenarios(){
+  const k=getKpiData('전체');
+  const S0=k.adSpend||0;const R0=k.convRevenue||0;
+  if(S0===0)return null;
+  const{beta,source,n}=_getElasticity();
+  const deltas=[-20,0,20,50];
+  const rows=deltas.map(d=>{
+    const S=S0*(1+d/100);
+    // 로그-로그 탄력성: R = R0 * (S/S0)^β
+    const R=R0*Math.pow(S/S0,beta);
+    const roas=S>0?Math.round(R/S*100):0;
+    const roasDelta=roas-(k.roas||0);
+    return{delta:d,adSpend:Math.round(S),convRevenue:Math.round(R),roas,roasDelta,profitChange:Math.round(R-R0-(S-S0))};
+  });
+  return{rows,beta,source,n};
+}
+
+function _renderScenarios(){
+  const sc=_getScenarios();
+  if(!sc)return'';
+  const confidenceLbl=sc.source==='regression'?`자사 ${sc.n}주 회귀 추정 (탄력성 β=${sc.beta.toFixed(2)})`:`기본 탄력성 β=${sc.beta.toFixed(2)} 적용 (데이터 누적 시 자동 정밀화)`;
+  const rows=sc.rows.map(r=>{
+    const dClass=r.delta<0?'sc-shrink':r.delta===0?'sc-base':r.delta>=50?'sc-aggressive':'sc-expand';
+    const dLbl=r.delta===0?'현상 유지':r.delta>0?`+${r.delta}% 확장`:`${r.delta}% 축소`;
+    const roasColor=r.roasDelta>=0?'var(--rp-green)':'var(--rp-red)';
+    const profitColor=r.profitChange>=0?'var(--rp-green)':'var(--rp-red)';
+    return`<tr class="${dClass}">
+      <td class="sc-label"><b>${dLbl}</b></td>
+      <td style="text-align:right">${_fmtW(r.adSpend)}</td>
+      <td style="text-align:right">${_fmtW(r.convRevenue)}</td>
+      <td style="text-align:right;font-weight:800">${fN(r.roas)}%</td>
+      <td style="text-align:right;color:${roasColor}">${r.roasDelta>=0?'+':''}${r.roasDelta}%p</td>
+      <td style="text-align:right;font-weight:700;color:${profitColor}">${r.profitChange>=0?'+':''}${_fmtW(r.profitChange)}</td>
+    </tr>`;
+  }).join('');
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">🎲</span> 시나리오 플래닝 <span class="sec-subtitle">예산 변화 시 예상 결과</span></div>
+  <div class="rpt-sec-box">
+    <table class="rpt-table sc-table"><thead><tr>
+      <th>시나리오</th><th style="text-align:right">예상 광고비</th><th style="text-align:right">예상 매출</th><th style="text-align:right">예상 ROAS</th><th style="text-align:right">ROAS Δ</th><th style="text-align:right">순이익 변화</th>
+    </tr></thead><tbody>${rows}</tbody></table>
+    <div class="sc-note">💡 <b>${confidenceLbl}</b><br>* 다이미니싱 리턴 반영: 광고비 X% 증가 시 매출 β·X% 증가 (β&lt;1). 단기 시나리오 참고용이며, 시장 변화·경쟁·시즌 미반영.</div>
+  </div>`;
+}
+
+/* Risk Matrix — 리스크를 probability × impact 2D 그리드로 */
+function _getRiskMatrix(){
+  const risks=[];
+  const bp=_getBudgetPace();
+  if(bp.status==='over'){risks.push({id:'budget',title:'월 예산 초과',prob:bp.paceDiff>15?5:bp.paceDiff>10?4:3,impact:4,detail:`페이스 +${bp.paceDiff.toFixed(1)}%p 초과`});}
+  const{bottom}=_getTopBottomCampaigns(5,100000);
+  const dead=bottom.filter(c=>c.roas<100);
+  if(dead.length>0){risks.push({id:'waste',title:'저효율 캠페인 방치',prob:dead.length>=3?5:dead.length>=2?4:3,impact:3,detail:`ROAS 100% 미만 ${dead.length}개 운영중`});}
+  const waste=_getWasteKeywords(20,150,30000);
+  if(waste.length>=5){risks.push({id:'kw',title:'낭비 키워드 누적',prob:waste.length>=10?4:3,impact:3,detail:`${waste.length}개 키워드 손실 구간`});}
+  const k=getKpiData('전체');
+  if((k.roas||0)<(k.p_roas||0)*0.85){risks.push({id:'roas',title:'ROAS 추세 악화',prob:4,impact:5,detail:`전기간 대비 ${Math.round(((k.roas||0)/(k.p_roas||1)-1)*100)}%`});}
+  const anom=_getAnomalies();
+  const convIssues=anom.filter(a=>a.type==='noconv'||a.type==='norev');
+  if(convIssues.length>=2){risks.push({id:'track',title:'전환 트래킹/재고 이슈',prob:3,impact:4,detail:`${convIssues.length}일 전환 0`});}
+  // 고비용 집중 (portfolio risk)
+  const camps=LIVE_DATA?.campaigns||[];
+  const topSpend=camps.sort((a,b)=>(b.adSpend||0)-(a.adSpend||0)).slice(0,3).reduce((s,c)=>s+(c.adSpend||0),0);
+  const totalSpend=camps.reduce((s,c)=>s+(c.adSpend||0),0);
+  if(totalSpend>0&&topSpend/totalSpend>0.7){risks.push({id:'concentration',title:'캠페인 편중',prob:3,impact:3,detail:`상위 3개가 광고비 ${Math.round(topSpend/totalSpend*100)}% 점유`});}
+  return risks.slice(0,5);
+}
+
+function _renderRiskMatrix(){
+  const risks=_getRiskMatrix();
+  if(risks.length===0)return`<div class="rpt-sec-title"><span class="rpt-sec-num">🛡</span> 리스크 레지스터</div><div class="rpt-sec-box" style="text-align:center;color:var(--rp-green);padding:20px;font-weight:700">✓ 주요 리스크 감지되지 않음</div>`;
+  // 5x5 grid positions
+  const cells={};
+  risks.forEach(r=>{const key=`${r.prob}_${r.impact}`;if(!cells[key])cells[key]=[];cells[key].push(r);});
+  let gridHtml='';
+  for(let imp=5;imp>=1;imp--){
+    gridHtml+='<div class="rm-row">';
+    gridHtml+=`<div class="rm-axis-y">${imp===5?'H':imp===3?'M':imp===1?'L':''}</div>`;
+    for(let prob=1;prob<=5;prob++){
+      const severity=prob*imp;
+      const tier=severity>=15?'critical':severity>=9?'high':severity>=5?'medium':'low';
+      const cellRisks=cells[`${prob}_${imp}`]||[];
+      gridHtml+=`<div class="rm-cell rm-${tier}">${cellRisks.map(r=>`<span class="rm-dot" title="${r.title}: ${r.detail}">${r.title.slice(0,8)}</span>`).join('')}</div>`;
+    }
+    gridHtml+='</div>';
+  }
+  gridHtml+='<div class="rm-row"><div class="rm-axis-y"></div>';
+  for(let p=1;p<=5;p++)gridHtml+=`<div class="rm-axis-x">${p===1?'L':p===3?'M':p===5?'H':''}</div>`;
+  gridHtml+='</div>';
+  const rankedRisks=risks.sort((a,b)=>(b.prob*b.impact)-(a.prob*a.impact));
+  const listHtml=rankedRisks.map(r=>{
+    const sev=r.prob*r.impact;
+    const tier=sev>=15?'critical':sev>=9?'high':sev>=5?'medium':'low';
+    return`<div class="rm-item rm-item-${tier}">
+      <div class="rm-item-title">${r.title} <span class="rm-score">위험도 ${sev}/25</span></div>
+      <div class="rm-item-detail">${r.detail} (발생가능성 ${r.prob}/5 · 임팩트 ${r.impact}/5)</div>
+    </div>`;
+  }).join('');
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">🛡</span> 리스크 레지스터 <span class="sec-subtitle">발생가능성 × 임팩트 매트릭스</span></div>
+  <div class="rpt-sec-box">
+    <div class="rm-wrap">
+      <div class="rm-matrix"><div class="rm-axis-label-y">IMPACT →</div><div class="rm-grid">${gridHtml}</div><div class="rm-axis-label-x">← PROBABILITY</div></div>
+      <div class="rm-list">${listHtml}</div>
+    </div>
+  </div>`;
+}
+
+/* Keyword Portfolio Health — 집중도, 롱테일 비중 */
+function _getKeywordPortfolio(){
+  const kws=(LIVE_DATA?.keywords||[]).filter(k=>(k.adSpend||0)>0);
+  if(kws.length===0)return null;
+  // 매출 기준 정렬
+  const sorted=[...kws].sort((a,b)=>(b.convRevenue||0)-(a.convRevenue||0));
+  const totalRev=sorted.reduce((s,k)=>s+(k.convRevenue||0),0);
+  const totalSpend=sorted.reduce((s,k)=>s+(k.adSpend||0),0);
+  // 상위 10% 키워드의 매출 비중
+  const top10Count=Math.max(1,Math.ceil(sorted.length*0.1));
+  const top10Rev=sorted.slice(0,top10Count).reduce((s,k)=>s+(k.convRevenue||0),0);
+  const top10RevPct=totalRev>0?top10Rev/totalRev*100:0;
+  // Top 5 의존도
+  const top5=sorted.slice(0,5);
+  const top5Rev=top5.reduce((s,k)=>s+(k.convRevenue||0),0);
+  const top5RevPct=totalRev>0?top5Rev/totalRev*100:0;
+  // Gini coefficient (매출 분포 불평등)
+  const vals=sorted.map(k=>k.convRevenue||0).sort((a,b)=>a-b);
+  let giniNum=0;
+  vals.forEach((v,i)=>{giniNum+=(2*(i+1)-vals.length-1)*v;});
+  const giniDenom=vals.length*vals.reduce((s,v)=>s+v,0);
+  const gini=giniDenom>0?Math.abs(giniNum/giniDenom):0;
+  // 롱테일: 매출 하위 50% 키워드가 전체 매출의 몇 %
+  const bottomHalf=sorted.slice(Math.ceil(sorted.length/2));
+  const longTailRev=bottomHalf.reduce((s,k)=>s+(k.convRevenue||0),0);
+  const longTailPct=totalRev>0?longTailRev/totalRev*100:0;
+  // Zero conversion 비율 (ROAS 0 또는 매출 0)
+  const zeroConv=kws.filter(k=>(k.convRevenue||0)===0);
+  const zeroSpendPct=totalSpend>0?zeroConv.reduce((s,k)=>s+(k.adSpend||0),0)/totalSpend*100:0;
+  return{
+    total:kws.length,
+    top10RevPct,top5RevPct,gini,longTailPct,
+    zeroConvCount:zeroConv.length,zeroSpendPct,
+    top5:top5.map(k=>({kw:k.kw,rev:k.convRevenue||0,spend:k.adSpend||0,roas:k.adSpend>0?Math.round((k.convRevenue||0)/k.adSpend*100):0}))
+  };
+}
+
+function _renderKeywordPortfolio(){
+  const p=_getKeywordPortfolio();
+  if(!p)return'';
+  // 건강도 평가
+  const healthScore=Math.round((
+    (p.gini<0.7?1:p.gini<0.85?0.6:0.3)*30 +  // 집중도 낮을수록 좋음
+    (p.top5RevPct<60?1:p.top5RevPct<80?0.6:0.3)*30 +  // Top5 의존도
+    (p.zeroSpendPct<20?1:p.zeroSpendPct<40?0.6:0.3)*25 +  // 무효 광고비 비중
+    (p.total>=10?1:p.total>=5?0.6:0.3)*15  // 키워드 다양성
+  )*100)/100;
+  const healthLbl=healthScore>=75?'양호':healthScore>=50?'보통':'주의';
+  const healthColor=healthScore>=75?'var(--rp-green)':healthScore>=50?'var(--rp-amber)':'var(--rp-red)';
+  const concentration=p.gini<0.7?'분산':p.gini<0.85?'집중':'과집중';
+  const top5Tbody=p.top5.map((k,i)=>`<tr><td style="text-align:center;font-weight:800">${i+1}</td><td>${k.kw.slice(0,22)}${k.kw.length>22?'…':''}</td><td style="text-align:right">${_fmtW(k.spend)}</td><td style="text-align:right">${_fmtW(k.rev)}</td><td style="text-align:right;font-weight:800;color:${k.roas>=500?'var(--rp-green)':k.roas>=200?'var(--rp-amber)':'var(--rp-red)'}">${fN(k.roas)}%</td></tr>`).join('');
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">🔗</span> 키워드 포트폴리오 건강도 <span class="sec-subtitle">집중도·롱테일·무효광고비</span></div>
+  <div class="rpt-sec-box">
+    <div class="kp-score" style="border-left:4px solid ${healthColor}">
+      <div class="kp-score-head"><span class="kp-score-val" style="color:${healthColor}">${healthScore}</span><span class="kp-score-lbl">/ 100</span></div>
+      <div class="kp-score-verdict" style="color:${healthColor}">${healthLbl}</div>
+    </div>
+    <div class="kp-metrics">
+      <div class="kp-m"><div class="kp-m-lbl">총 키워드 수</div><div class="kp-m-val">${p.total}</div></div>
+      <div class="kp-m"><div class="kp-m-lbl">집중도 (Gini)</div><div class="kp-m-val">${p.gini.toFixed(2)} <small style="color:var(--rp-mute);font-size:10px">${concentration}</small></div></div>
+      <div class="kp-m"><div class="kp-m-lbl">Top 5 매출 비중</div><div class="kp-m-val">${p.top5RevPct.toFixed(1)}%</div></div>
+      <div class="kp-m"><div class="kp-m-lbl">Top 10% 매출 비중</div><div class="kp-m-val">${p.top10RevPct.toFixed(1)}%</div></div>
+      <div class="kp-m"><div class="kp-m-lbl">무효 키워드 비중</div><div class="kp-m-val">${p.zeroConvCount}개 · 광고비 ${p.zeroSpendPct.toFixed(1)}%</div></div>
+      <div class="kp-m"><div class="kp-m-lbl">롱테일(하위 50%) 매출</div><div class="kp-m-val">${p.longTailPct.toFixed(1)}%</div></div>
+    </div>
+    <div class="kp-top5">
+      <div class="kp-top5-title">🏆 매출 기여 Top 5 키워드</div>
+      <table class="rpt-table" style="font-size:12px"><thead><tr><th style="text-align:center">#</th><th>키워드</th><th style="text-align:right">광고비</th><th style="text-align:right">매출</th><th style="text-align:right">ROAS</th></tr></thead><tbody>${top5Tbody}</tbody></table>
+    </div>
+    <div class="kp-insight">💡 ${p.top5RevPct>70?`<b>리스크: Top 5 키워드가 매출 ${p.top5RevPct.toFixed(0)}% 차지</b> — 이 중 하나 중단 시 매출 급락 위험. 중간·롱테일 키워드 발굴 권장.`:p.zeroSpendPct>30?`<b>비효율: 무효 키워드에 광고비 ${p.zeroSpendPct.toFixed(0)}% 낭비</b> — 제외 키워드 설정 및 입찰 조정 필요.`:'포트폴리오 분산 양호 — 개별 키워드 이슈에도 안정적.'}</div>
+  </div>`;
+}
+
+/* Quality Score 추론 — 키워드 CTR / 유형 평균 CTR 비율 */
+function _getQualityInference(){
+  const kws=(LIVE_DATA?.keywords||[]).filter(k=>(k.impressions||0)>=500); // 샘플 500 이상만
+  if(kws.length===0)return null;
+  // 유형별 평균 CTR 계산
+  const typeStats={};
+  kws.forEach(k=>{
+    if(!typeStats[k.type])typeStats[k.type]={imp:0,clk:0};
+    typeStats[k.type].imp+=k.impressions||0;
+    typeStats[k.type].clk+=k.clicks||0;
+  });
+  Object.keys(typeStats).forEach(t=>{typeStats[t].avgCtr=typeStats[t].imp>0?typeStats[t].clk/typeStats[t].imp*100:0;});
+  // 개별 키워드 품질 지수 = CTR / 유형평균CTR
+  const qs=kws.map(k=>{
+    const ctr=k.impressions>0?k.clicks/k.impressions*100:0;
+    const avg=typeStats[k.type]?.avgCtr||0;
+    const qi=avg>0?ctr/avg:1;
+    return{kw:k.kw,type:k.type,ctr,avgCtr:avg,qi,spend:k.adSpend||0};
+  });
+  // 하위 5개 (저품질 의심)
+  const low=qs.filter(q=>q.qi<0.7&&q.spend>=30000).sort((a,b)=>a.qi-b.qi).slice(0,5);
+  // 상위 5개
+  const high=qs.filter(q=>q.qi>1.5).sort((a,b)=>b.qi-a.qi).slice(0,5);
+  return{low,high,sampled:kws.length};
+}
+
+function _renderQualityInference(){
+  const q=_getQualityInference();
+  if(!q||(q.low.length===0&&q.high.length===0))return'';
+  const tbl=arr=>arr.length===0?'<tr><td colspan="4" style="text-align:center;color:var(--rp-mute);padding:10px">해당 키워드 없음</td></tr>':arr.map(k=>`<tr><td>${k.kw.slice(0,24)}${k.kw.length>24?'…':''}</td><td style="text-align:right">${k.ctr.toFixed(2)}%</td><td style="text-align:right;color:var(--rp-mute)">${k.avgCtr.toFixed(2)}%</td><td style="text-align:right;font-weight:800;color:${k.qi>=1.5?'var(--rp-green)':k.qi<0.7?'var(--rp-red)':'var(--rp-text)'}">${(k.qi*100).toFixed(0)}</td></tr>`).join('');
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">⭐</span> 품질 지수 추론 <span class="sec-subtitle">CTR / 유형 평균 CTR · 네이버 QS 간접 지표</span></div>
+  <div class="rpt-sec-box">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div style="font-size:12px;font-weight:800;color:var(--rp-red);margin-bottom:6px">⚠️ 저품질 의심 (QI &lt;70)</div>
+        <table class="rpt-table" style="font-size:11.5px"><thead><tr><th>키워드</th><th style="text-align:right">CTR</th><th style="text-align:right">평균</th><th style="text-align:right">QI</th></tr></thead><tbody>${tbl(q.low)}</tbody></table>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:800;color:var(--rp-green);margin-bottom:6px">🏆 고품질 (QI &gt;150)</div>
+        <table class="rpt-table" style="font-size:11.5px"><thead><tr><th>키워드</th><th style="text-align:right">CTR</th><th style="text-align:right">평균</th><th style="text-align:right">QI</th></tr></thead><tbody>${tbl(q.high)}</tbody></table>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--rp-mute);margin-top:10px">* 노출 500회 이상 키워드 ${q.sampled}개 대상. QI = 키워드 CTR ÷ 유형(쇼핑검색/파워링크 등) 평균 CTR × 100. QI&lt;70은 입찰 대비 클릭 유도력 약함 → 소재·랜딩 개선 검토.</div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════
    P1: 매체 비중 / 요일 분포 / 브랜드-일반 / 이상치 / 월간 예측
    ══════════════════════════════════════════════════════════════════ */
 
@@ -3684,6 +3986,14 @@ async function renderWeeklyReport(){
   ${_renderBrandVsGeneric()}
   <!-- 이상치 감지 -->
   ${_renderAnomalies()}
+  <!-- 시나리오 플래닝 -->
+  ${_renderScenarios()}
+  <!-- 리스크 매트릭스 -->
+  ${_renderRiskMatrix()}
+  <!-- 키워드 포트폴리오 건강도 -->
+  ${_renderKeywordPortfolio()}
+  <!-- 품질 지수 추론 -->
+  ${_renderQualityInference()}
   <!-- 8주 추이 -->
   <div class="rpt-sec-title"><span class="rpt-sec-num">2</span> 8주 추이 · ROAS</div>
   <div class="rpt-sec-box"><div class="rpt-chart"><canvas id="rptTrendChart"></canvas></div></div>
@@ -3835,6 +4145,14 @@ async function renderMonthlyReport(){
   ${_renderMonthlyProjection()}
   <!-- 이상치 감지 -->
   ${_renderAnomalies()}
+  <!-- 시나리오 플래닝 -->
+  ${_renderScenarios()}
+  <!-- 리스크 매트릭스 -->
+  ${_renderRiskMatrix()}
+  <!-- 키워드 포트폴리오 건강도 -->
+  ${_renderKeywordPortfolio()}
+  <!-- 품질 지수 추론 -->
+  ${_renderQualityInference()}
   <!-- 매체별 -->
   <div class="rpt-sec-title"><span class="rpt-sec-num">2</span> 매체별 월간 성과</div>
   <div class="rpt-sec-box"><table class="rpt-table"><thead><tr><th>매체</th><th>캠페인</th><th>광고비</th><th>매출</th><th>ROAS</th><th>전환</th><th>CVR</th><th>CPA</th><th>MoM</th></tr></thead><tbody>${mRows}<tr class="mt-total"><td>합계</td><td>${media.reduce((s,m)=>s+m.campaigns,0)}</td><td>${_fmtW(totCost)}</td><td>${_fmtW(totRev)}</td><td>${fN(totROAS)}%</td><td>${fN(totConv)}</td><td>-</td><td>${_fmtW(totCPA)}</td><td>-</td></tr></tbody></table></div>
