@@ -844,7 +844,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .rpt-pov::before{content:"💁‍♀️";position:absolute;left:-14px;top:-14px;width:40px;height:40px;background:linear-gradient(135deg,#ec4899,#a855f7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 10px rgba(168,85,247,.3)}
 .rpt-pov-badge{display:inline-block;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;padding:4px 12px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:1px;margin-bottom:10px;margin-left:32px}
 .rpt-pov-text{font-size:14px;line-height:1.75;color:var(--rp-text);font-weight:500;white-space:pre-wrap}
-.rpt-pov-text b{color:#6d28d9;font-weight:800}
+.rpt-pov-text b,.rpt-pov-text strong{color:#6d28d9;font-weight:800}
+.rpt-pov-text code{background:rgba(168,85,247,.1);color:#6d28d9;padding:1px 6px;border-radius:4px;font-family:'SF Mono',Consolas,monospace;font-size:12.5px;font-weight:600}
 
 /* 보고서 테이블 */
 .rpt-table th{color:var(--rp-navy);font-size:11px;border-bottom:2px solid var(--rp-navy);background:var(--rp-surface);padding:10px}
@@ -1287,7 +1288,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <div class="phase" onclick="toggleSec('secStrat','secStratTog')" style="cursor:pointer">
   <div style="display:flex;align-items:center;gap:9px">
     <div class="p-num pn4">🎯</div>
-    <span class="p-title">전략 수립</span>
+    <span class="p-title">광고 전략 보고서</span>
     <span class="p-date" id="pDate4" style="font-size:14px;font-weight:700;color:var(--t1);background:var(--sf2);padding:4px 12px;border-radius:6px"></span>
   </div>
   <div class="sec-tog open" id="secStratTog" style="margin-left:auto;flex-shrink:0">▼</div>
@@ -2924,7 +2925,20 @@ function _autoFocus(kpi,media,checks){
   return focus.slice(0,3);
 }
 
-/* ── 포비서 API (보고서 전용 논스트리밍 엔드포인트) ── */
+/* ── 보고서 마크다운 렌더링 (bold + 줄바꿈) ── */
+function _rptMd(text){
+  if(!text)return '';
+  // HTML escape 먼저
+  const esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // **bold** → <strong>bold</strong>
+  const bold=esc.replace(/\*\*([^*\n]+?)\*\*/g,'<strong>$1</strong>');
+  // `inline code` → <code>
+  const code=bold.replace(/`([^`\n]+?)`/g,'<code>$1</code>');
+  // 줄바꿈 → <br>
+  return code.replace(/\n/g,'<br>');
+}
+
+/* ── ForVis API (보고서 전용 논스트리밍 엔드포인트) ── */
 async function _fetchPoviser(mode,dataObj){
   try{
     const k=dataObj.kpi||{};
@@ -2961,10 +2975,10 @@ async function _fetchPoviser(mode,dataObj){
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({mode,data:summary})
     });
-    if(!resp.ok){const t=await resp.text().catch(()=>'');console.warn('poviser fail',resp.status,t.slice(0,120));return mode==='weekly'?'포비서 코멘트를 불러올 수 없습니다.':'포비서 월간 코멘트를 불러올 수 없습니다.';}
+    if(!resp.ok){const t=await resp.text().catch(()=>'');console.warn('forvis fail',resp.status,t.slice(0,120));return mode==='weekly'?'ForVis 코멘트를 불러올 수 없습니다.':'ForVis 월간 코멘트를 불러올 수 없습니다.';}
     const j=await resp.json();
     return j.text||(mode==='weekly'?'코멘트 응답이 비어있습니다.':'월간 코멘트 응답이 비어있습니다.');
-  }catch(e){console.warn('poviser err',e);return '포비서 연결 실패.';}
+  }catch(e){console.warn('forvis err',e);return 'ForVis 연결 실패.';}
 }
 
 /* ── 주간 보고서 렌더링 ── */
@@ -3047,17 +3061,17 @@ async function renderWeeklyReport(){
   <div class="rpt-sec-title"><span class="rpt-sec-num">4</span> 다음 주 FOCUS</div>
   <div class="rpt-sec-box"><div class="rpt-focus-grid">${focusHtml}</div></div>
   <!-- 포비서 -->
-  <div class="rpt-pov"><span class="rpt-pov-badge">POVISER</span><div class="rpt-pov-text" id="rptPovText">포비서 의견 생성 중...</div></div>
+  <div class="rpt-pov"><span class="rpt-pov-badge">ForVis</span><div class="rpt-pov-text" id="rptPovText">ForVis 의견 생성 중...</div></div>
   <div class="rpt-footer">포쿨 네이버 광고 대시보드 · AI 주간 보고서 · ${new Date().toLocaleDateString('ko-KR')} 생성</div>`;
 
   // 즉시 렌더 (Claude 응답 대기 없이)
   document.getElementById('reportContainer').innerHTML=html;
   ld.style.display='none';
   _renderWeeklyChart();
-  // 포비서 응답은 비동기 업데이트
+  // ForVis 응답은 비동기 업데이트 (마크다운 렌더링)
   povPromise.then(povText=>{
     const el=document.getElementById('rptPovText');
-    if(el)el.innerHTML=povText.replace(/\n/g,'<br>');
+    if(el)el.innerHTML=_rptMd(povText);
   });
 }
 
@@ -3186,7 +3200,7 @@ async function renderMonthlyReport(){
     <div class="rpt-plan-grid">${planHtml}</div>
   </div>
   <!-- 포비서 -->
-  <div class="rpt-pov"><span class="rpt-pov-badge">POVISER</span><div class="rpt-pov-text" id="rptPovText">포비서 전략 코멘트 생성 중...</div></div>
+  <div class="rpt-pov"><span class="rpt-pov-badge">ForVis</span><div class="rpt-pov-text" id="rptPovText">ForVis 전략 코멘트 생성 중...</div></div>
   <div class="rpt-footer">포쿨 네이버 광고 대시보드 · AI 월간 보고서 · ${new Date().toLocaleDateString('ko-KR')} 생성</div>`;
 
   document.getElementById('reportContainer').innerHTML=html;
@@ -3195,7 +3209,7 @@ async function renderMonthlyReport(){
   _renderMonthlyChart();
   // 포비서
   const povText=await povPromise;
-  document.getElementById('rptPovText').innerHTML=povText.replace(/\n/g,'<br>');
+  document.getElementById('rptPovText').innerHTML=_rptMd(povText);
 }
 
 function _renderMonthlyChart(){
