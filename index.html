@@ -4094,8 +4094,6 @@ async function renderWeeklyReport(){
 
   const brand=_getBrand();
   const html=`
-  ${_renderPdfCover('weekly',brand)}
-  ${_renderPdfToc('weekly')}
   <div class="rpt-head">
     <div><div class="rpt-badge">WEEKLY REPORT</div><div class="rpt-title">${brand.reportName||'포쿨 네이버 광고'} 주간 보고서</div></div>
     <div class="rpt-sub">${_getWeekLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}${brand.clientName?`<br>To: ${brand.clientName}`:''}</div>
@@ -4252,8 +4250,6 @@ async function renderMonthlyReport(){
 
   const brand=_getBrand();
   const html=`
-  ${_renderPdfCover('monthly',brand)}
-  ${_renderPdfToc('monthly')}
   <div class="rpt-head monthly">
     <div><div class="rpt-badge">▣ MONTHLY REPORT</div><div class="rpt-title">${brand.reportName||'포쿨 네이버 광고'} 월간 보고서</div></div>
     <div class="rpt-sub">${_getMonthLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}${brand.clientName?`<br>To: ${brand.clientName}`:''}</div>
