@@ -2969,6 +2969,161 @@ function _renderBudgetPace(){
   </div>`;
 }
 
+/* ── P1: 매체 비중 / 요일 분포 / 브랜드-일반 / 이상치 / 월간 예측 ── */
+
+// 매체 비중 도넛 차트 데이터
+function _getMediaShare(){
+  const types=['쇼핑검색','파워링크','콘텐츠','브랜드'];
+  const camps=LIVE_DATA?.campaigns||[];
+  const bySpend=types.map(t=>({t,v:camps.filter(c=>c.type===t).reduce((s,c)=>s+(c.adSpend||0),0)})).filter(x=>x.v>0);
+  const byRev=types.map(t=>({t,v:camps.filter(c=>c.type===t).reduce((s,c)=>s+(c.convRevenue||0),0)})).filter(x=>x.v>0);
+  return{bySpend,byRev};
+}
+function _renderMediaShare(){
+  const{bySpend,byRev}=_getMediaShare();
+  if(bySpend.length===0)return'';
+  const id='rptShareChart';
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">◐</span> 매체 포트폴리오 비중</div>
+  <div class="rpt-sec-box" style="padding:18px 20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center">
+      <div style="height:220px;position:relative"><canvas id="${id}_s"></canvas><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-size:11px;color:var(--rp-mute);font-weight:700">광고비 비중</div></div>
+      <div style="height:220px;position:relative"><canvas id="${id}_r"></canvas><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-size:11px;color:var(--rp-mute);font-weight:700">매출 비중</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(${bySpend.length},1fr);gap:8px;margin-top:14px">
+      ${bySpend.map((x,i)=>{const total=bySpend.reduce((s,y)=>s+y.v,0);const pct=total>0?(x.v/total*100).toFixed(1):0;return`<div style="text-align:center;padding:8px;background:var(--rp-surface);border-radius:8px"><div style="font-size:10px;color:var(--rp-mute);font-weight:700">${x.t}</div><div style="font-size:16px;font-weight:800;margin-top:2px">${pct}%</div></div>`}).join('')}
+    </div>
+  </div>`;
+}
+function _initMediaShareCharts(){
+  const{bySpend,byRev}=_getMediaShare();if(bySpend.length===0)return;
+  const palette=['#6366f1','#a855f7','#ec4899','#f59e0b','#10b981'];
+  const mk=(id,data)=>{const el=document.getElementById(id);if(!el)return;if(window.Chart&&el._ch)el._ch.destroy();el._ch=new Chart(el,{type:'doughnut',data:{labels:data.map(d=>d.t),datasets:[{data:data.map(d=>d.v),backgroundColor:palette,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>c.label+': '+_fmtW(c.raw)}}}}});};
+  mk('rptShareChart_s',bySpend);mk('rptShareChart_r',byRev);
+}
+
+// 요일별 ROAS (주간 7일 기준)
+function _getDayOfWeek(){
+  const dd=getDailyData('전체');
+  if(!dd?.cur?.adSpend||!dd?.labels)return null;
+  const labels=dd.labels;const spend=dd.cur.adSpend;const rev=dd.cur.convRevenue||[];
+  const DOW=['일','월','화','수','목','금','토'];
+  const agg=Array.from({length:7},()=>({spend:0,rev:0}));
+  labels.forEach((lbl,i)=>{
+    // 포맷 대응: "26-04-13", "2026-04-13", "04.13"
+    let d=null;
+    const p=lbl.split(/[.\-\/]/).filter(Boolean);
+    if(p.length===3){
+      const y=p[0].length<=2?2000+ +p[0]:+p[0];
+      d=new Date(y,+p[1]-1,+p[2]);
+    }else if(p.length===2){
+      d=new Date(DS.from.getFullYear(),+p[0]-1,+p[1]);
+    }
+    if(!d||isNaN(d))return;
+    const w=d.getDay();
+    agg[w].spend+=spend[i]||0;
+    agg[w].rev+=rev[i]||0;
+  });
+  return agg.map((a,i)=>({dow:DOW[i],spend:a.spend,rev:a.rev,roas:a.spend>0?Math.round(a.rev/a.spend*100):0}));
+}
+function _renderDayOfWeek(mode){
+  const data=_getDayOfWeek();
+  if(!data||data.every(d=>d.spend===0))return'';
+  const id='rptDowChart';
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">⏱</span> 요일별 ROAS 분포</div>
+  <div class="rpt-sec-box" style="padding:16px"><div style="height:220px"><canvas id="${id}"></canvas></div>
+    <div style="font-size:11px;color:var(--rp-mute);margin-top:8px">* 광고비가 0원인 요일은 제외. ROAS 기준으로 요일별 효율 파악 → 입찰/예산 가중 근거.</div>
+  </div>`;
+}
+function _initDowChart(){
+  const data=_getDayOfWeek();if(!data)return;
+  const el=document.getElementById('rptDowChart');if(!el||!window.Chart)return;
+  if(el._ch)el._ch.destroy();
+  const filtered=data;
+  el._ch=new Chart(el,{type:'bar',data:{labels:filtered.map(d=>d.dow),datasets:[{label:'ROAS (%)',data:filtered.map(d=>d.roas),backgroundColor:filtered.map(d=>d.roas>=500?'#10b981':d.roas>=200?'#f59e0b':'#ef4444'),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'ROAS '+c.raw.toLocaleString()+'%'}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v.toLocaleString()+'%',font:{size:10},color:'#9ca3af'},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:11,weight:'700'},color:'#4b5563'},grid:{display:false}}}}});
+}
+
+// 브랜드 vs 일반 키워드
+function _getBrandVsGeneric(){
+  const BRAND_RE=/(스타리온|라셀르|포쿨|스타 리온|Pocool|Starion|Lassele)/i;
+  const kws=LIVE_DATA?.keywords||[];
+  const brand={spend:0,rev:0,conv:0,kws:0};
+  const generic={spend:0,rev:0,conv:0,kws:0};
+  kws.forEach(k=>{
+    const bucket=BRAND_RE.test(k.kw||'')?brand:generic;
+    bucket.spend+=k.adSpend||0;
+    bucket.rev+=k.convRevenue||0;
+    bucket.conv+=k.conversions||0;
+    bucket.kws+=1;
+  });
+  brand.roas=brand.spend>0?Math.round(brand.rev/brand.spend*100):0;
+  generic.roas=generic.spend>0?Math.round(generic.rev/generic.spend*100):0;
+  return{brand,generic};
+}
+function _renderBrandVsGeneric(){
+  const{brand,generic}=_getBrandVsGeneric();
+  if(brand.kws===0&&generic.kws===0)return'';
+  const row=(label,b,color)=>`<tr><td style="font-weight:800;color:${color}">${label}</td><td style="text-align:right">${b.kws}</td><td style="text-align:right">${_fmtW(b.spend)}</td><td style="text-align:right">${_fmtW(b.rev)}</td><td style="text-align:right">${fN(b.conv)}</td><td style="text-align:right;font-weight:800;color:${b.roas>=500?'var(--rp-green)':b.roas>=200?'var(--rp-amber)':'var(--rp-red)'}">${fN(b.roas)}%</td></tr>`;
+  const diff=generic.roas>0&&brand.roas>0?Math.round(brand.roas/generic.roas):0;
+  const hint=diff>1?`브랜드 키워드 ROAS가 일반 대비 <b>${diff}배</b>. 브랜드 매출 제외 시 실제 광고 유입 ROAS는 <b>${fN(generic.roas)}%</b>로 봐야 합니다.`:'브랜드/일반 격차 크지 않음.';
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">⦿</span> 브랜드 vs 일반 키워드 (착시 제거)</div>
+  <div class="rpt-sec-box">
+    <table class="rpt-table" style="font-size:12.5px"><thead><tr><th>구분</th><th style="text-align:right">키워드 수</th><th style="text-align:right">광고비</th><th style="text-align:right">매출</th><th style="text-align:right">전환</th><th style="text-align:right">ROAS</th></tr></thead>
+    <tbody>${row('🏷️ 브랜드',brand,'#0891b2')}${row('🔍 일반',generic,'#6b7280')}</tbody></table>
+    <div style="margin-top:10px;padding:10px 12px;background:var(--rp-accent-soft);border-radius:8px;font-size:12px;color:var(--rp-text)">💡 ${hint}</div>
+  </div>`;
+}
+
+// 이상치 자동 감지 (daily CPC/전환 급변)
+function _getAnomalies(){
+  const dd=getDailyData('전체');
+  if(!dd?.cur?.adSpend||!dd?.labels)return[];
+  const sp=dd.cur.adSpend;const cl=dd.cur.clicks||[];const co=dd.cur.conversions||[];const rv=dd.cur.convRevenue||[];
+  const cpcs=sp.map((s,i)=>cl[i]>0?s/cl[i]:0);
+  const validCpcs=cpcs.filter(x=>x>0);
+  const mean=validCpcs.reduce((s,x)=>s+x,0)/(validCpcs.length||1);
+  const std=Math.sqrt(validCpcs.reduce((s,x)=>s+(x-mean)**2,0)/(validCpcs.length||1));
+  const anomalies=[];
+  dd.labels.forEach((lbl,i)=>{
+    if(cpcs[i]>0&&std>0&&Math.abs(cpcs[i]-mean)>2*std){anomalies.push({date:lbl,type:'cpc',detail:`CPC ${_fmtW(Math.round(cpcs[i]))} (평균 ${_fmtW(Math.round(mean))} 대비 ${cpcs[i]>mean?'+':''}${Math.round((cpcs[i]-mean)/mean*100)}%)`,severity:cpcs[i]>mean?'high':'low'});}
+    if(sp[i]>10000&&co[i]===0){anomalies.push({date:lbl,type:'noconv',detail:`광고비 ${_fmtW(sp[i])} 지출했으나 전환 0건`,severity:'high'});}
+    if(sp[i]>0&&rv[i]===0&&sp[i]>50000){anomalies.push({date:lbl,type:'norev',detail:`광고비 ${_fmtW(sp[i])} 지출했으나 매출 0원`,severity:'high'});}
+  });
+  return anomalies;
+}
+function _renderAnomalies(){
+  const list=_getAnomalies();
+  if(list.length===0)return`<div class="rpt-sec-title"><span class="rpt-sec-num">⚡</span> 이상치 감지</div><div class="rpt-sec-box" style="text-align:center;color:var(--rp-green);padding:20px;font-weight:700">✓ 기간 내 이상치 없음 — 안정적 운영</div>`;
+  const rows=list.map(a=>`<div style="display:flex;gap:12px;align-items:center;padding:10px 12px;border-left:3px solid ${a.severity==='high'?'var(--rp-red)':'var(--rp-amber)'};background:${a.severity==='high'?'#fef2f2':'#fef3c7'};border-radius:0 8px 8px 0;margin-bottom:6px"><div style="min-width:60px;font-size:12px;font-weight:800;color:var(--rp-text)">${a.date}</div><div style="font-size:12.5px;color:var(--rp-text);flex:1">${a.detail}</div></div>`).join('');
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">⚡</span> 이상치 감지 <span style="font-size:11px;color:var(--rp-red);font-weight:700;margin-left:8px">${list.length}건</span></div>
+  <div class="rpt-sec-box">${rows}<div style="font-size:11px;color:var(--rp-mute);margin-top:6px">* CPC 평균±2σ 초과 · 광고비 지출에 전환 0건 · 매출 0원 케이스를 자동 감지합니다.</div></div>`;
+}
+
+// 월간 예측
+function _renderMonthlyProjection(){
+  const k=getKpiData('전체');
+  const daysE=_getDaysElapsed();const daysIn=_getDaysInMonth();
+  if(daysE<2||!k.adSpend)return'';
+  const avgDayRev=k.convRevenue/daysE;
+  const avgDaySpend=k.adSpend/daysE;
+  const projRev=Math.round(avgDayRev*daysIn);
+  const projSpend=Math.round(avgDaySpend*daysIn);
+  const projRoas=projSpend>0?Math.round(projRev/projSpend*100):0;
+  const goal=GOALS?.['전체']?.convRevenue||0;
+  const goalAchievePct=goal>0?Math.round(projRev/goal*100):0;
+  const verdict=goal>0?(goalAchievePct>=100?`✓ 목표 달성 예상 (${goalAchievePct}%)`:`⚠️ 목표 미달 예상 (${goalAchievePct}%)`):'목표 미설정';
+  const verdictColor=goal>0?(goalAchievePct>=100?'var(--rp-green)':'var(--rp-red)'):'var(--rp-mute)';
+  return`<div class="rpt-sec-title"><span class="rpt-sec-num">📈</span> 월말 예상 (선형 추세)</div>
+  <div class="rpt-sec-box" style="padding:18px 20px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <div><div style="font-size:10px;color:var(--rp-mute);font-weight:700;letter-spacing:.3px">예상 광고비</div><div style="font-size:20px;font-weight:800;margin-top:2px">${_fmtW(projSpend)}</div></div>
+      <div><div style="font-size:10px;color:var(--rp-mute);font-weight:700;letter-spacing:.3px">예상 매출</div><div style="font-size:20px;font-weight:800;margin-top:2px">${_fmtW(projRev)}</div></div>
+      <div><div style="font-size:10px;color:var(--rp-mute);font-weight:700;letter-spacing:.3px">예상 ROAS</div><div style="font-size:20px;font-weight:800;margin-top:2px">${fN(projRoas)}%</div></div>
+      <div><div style="font-size:10px;color:var(--rp-mute);font-weight:700;letter-spacing:.3px">월 목표 달성</div><div style="font-size:14px;font-weight:800;margin-top:6px;color:${verdictColor}">${verdict}</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--rp-mute);margin-top:10px">* 현재 ${daysE}일 일평균 × ${daysIn}일 기준 선형 예측. 계절성·프로모션 영향 미반영.</div>
+  </div>`;
+}
+
 function _getMediaData(){
   const types=['파워링크','쇼핑검색','콘텐츠','브랜드'];
   const camps=getCampData();
@@ -3146,10 +3301,9 @@ async function renderWeeklyReport(){
       <div class="rpt-goal-sub">${achievePct.toFixed(1)}% · ${daysE}일 경과(${elapsedPct.toFixed(0)}%) · <span class="${progressGap>=0?'ok':'warn'}">진도 ${progressGap>=0?'+':''}${progressGap.toFixed(1)}%p ${progressGap>=0?'선행':'지연'}</span></div>
     </div>
   </div>
-  <!-- HIGHLIGHT -->
+  <!-- HIGHLIGHT (WHAT 제거 — KPI와 중복) -->
   <div class="rpt-hl">
     <div class="rpt-hl-title">Highlight</div>
-    <div class="rpt-hl-line"><div class="rpt-hl-tag">WHAT</div><div class="rpt-hl-text">광고비 <b>${_wowHtml(wowCost,true)}</b> vs 매출 <b>${_wowHtml(wowRev,false)}</b>. ROAS <b>${fN(totROAS)}%</b>. ${bestMedia.name} ROAS ${fN(bestMedia.roas)}%(최고) / ${worstMedia.name} ${fN(worstMedia.roas)}%(최저).</div></div>
     <div class="rpt-hl-line"><div class="rpt-hl-tag">WHY</div><div class="rpt-hl-text">${bestMedia.name} 전환 효율이 ${fN(bestMedia.roas)}%로 전체 ROAS를 견인. ${checks.filter(c=>c.status!=='OK').length>0?checks.filter(c=>c.status!=='OK').map(c=>c.title).join(', ')+' 주의 필요.':'전체 지표 안정적.'}</div></div>
     <div class="rpt-hl-line"><div class="rpt-hl-tag">SO WHAT</div><div class="rpt-hl-text">월 목표 진도율 <b>${achievePct.toFixed(1)}%</b>. 남은 <b>${daysLeft}일</b> 일평균 매출 <b>${_fmtW(dailyNeed)}</b> 필요.</div></div>
   </div>
@@ -3164,6 +3318,14 @@ async function renderWeeklyReport(){
   ${_renderTopBottomCampaigns()}
   <!-- 낭비 키워드 Top10 -->
   ${_renderWasteKeywords()}
+  <!-- 매체 비중 -->
+  ${_renderMediaShare()}
+  <!-- 요일별 ROAS -->
+  ${_renderDayOfWeek('weekly')}
+  <!-- 브랜드 vs 일반 -->
+  ${_renderBrandVsGeneric()}
+  <!-- 이상치 감지 -->
+  ${_renderAnomalies()}
   <!-- 8주 추이 -->
   <div class="rpt-sec-title"><span class="rpt-sec-num">2</span> 8주 추이 · ROAS</div>
   <div class="rpt-sec-box"><div class="rpt-chart"><canvas id="rptTrendChart"></canvas></div></div>
@@ -3183,6 +3345,8 @@ async function renderWeeklyReport(){
   document.getElementById('reportContainer').innerHTML=html;
   ld.style.display='none';
   _renderWeeklyChart();
+  _initMediaShareCharts();
+  _initDowChart();
   // ForVis 응답은 비동기 업데이트 (마크다운 렌더링)
   povPromise.then(povText=>{
     const el=document.getElementById('rptPovText');
@@ -3299,6 +3463,14 @@ async function renderMonthlyReport(){
   ${_renderBudgetPace()}
   <!-- 낭비 키워드 Top10 -->
   ${_renderWasteKeywords()}
+  <!-- 매체 비중 -->
+  ${_renderMediaShare()}
+  <!-- 브랜드 vs 일반 -->
+  ${_renderBrandVsGeneric()}
+  <!-- 월말 예상 -->
+  ${_renderMonthlyProjection()}
+  <!-- 이상치 감지 -->
+  ${_renderAnomalies()}
   <!-- 매체별 -->
   <div class="rpt-sec-title"><span class="rpt-sec-num">2</span> 매체별 월간 성과</div>
   <div class="rpt-sec-box"><table class="rpt-table"><thead><tr><th>매체</th><th>캠페인</th><th>광고비</th><th>매출</th><th>ROAS</th><th>전환</th><th>CVR</th><th>CPA</th><th>MoM</th></tr></thead><tbody>${mRows}<tr class="mt-total"><td>합계</td><td>${media.reduce((s,m)=>s+m.campaigns,0)}</td><td>${_fmtW(totCost)}</td><td>${_fmtW(totRev)}</td><td>${fN(totROAS)}%</td><td>${fN(totConv)}</td><td>-</td><td>${_fmtW(totCPA)}</td><td>-</td></tr></tbody></table></div>
@@ -3328,6 +3500,7 @@ async function renderMonthlyReport(){
   ld.style.display='none';
   // 차트
   _renderMonthlyChart();
+  _initMediaShareCharts();
   // 포비서
   const povText=await povPromise;
   document.getElementById('rptPovText').innerHTML=_rptMd(povText);
