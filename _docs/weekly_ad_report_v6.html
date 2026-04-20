@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>포쿨 주간 광고 보고서</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #ffffff;
+  --surface: #f9fafb;
+  --border: #e5e7eb;
+  --border-soft: #f3f4f6;
+  --text: #1f2937;
+  --text-mute: #6b7280;
+  --text-light: #9ca3af;
+  --navy: #1e3a5f;
+  --navy-soft: #eef2f7;
+  --green: #047857;
+  --red: #b91c1c;
+  --amber: #b45309;
+  --amber-soft: #fef3c7;
+}
+
+body {
+  font-family: 'Pretendard', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 32px 24px;
+  line-height: 1.5;
+  font-size: 13px;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+
+.action-bar { position: fixed; top: 20px; right: 20px; z-index: 100; }
+.btn-pdf {
+  background: var(--navy); color: white; border: none;
+  padding: 10px 18px; border-radius: 6px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  font-family: inherit; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.btn-pdf:hover { background: #2a4a7a; }
+
+/* 헤더 */
+.report-head {
+  border-bottom: 2px solid var(--navy);
+  padding-bottom: 16px; margin-bottom: 24px; position: relative;
+}
+.report-badge {
+  display: inline-block; background: var(--navy); color: white;
+  font-size: 10px; font-weight: 800;
+  padding: 3px 10px; border-radius: 2px;
+  margin-bottom: 8px; letter-spacing: 0.5px;
+}
+.report-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.report-sub { font-size: 12px; color: var(--text-mute); }
+.report-meta { position: absolute; top: 0; right: 0; font-size: 10px; color: var(--text-light); text-align: right; }
+
+/* TOP */
+.top-wrap { display: grid; grid-template-columns: 2.2fr 1fr; gap: 12px; margin-bottom: 18px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.kpi-card { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
+.kpi-lbl { font-size: 10px; color: var(--text-mute); font-weight: 700; letter-spacing: 0.3px; margin-bottom: 4px; text-transform: uppercase; }
+.kpi-val { font-size: 22px; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
+.kpi-chg { font-size: 11px; color: var(--text-mute); }
+.kpi-chg .up { color: var(--green); font-weight: 700; }
+.kpi-chg .down { color: var(--red); font-weight: 700; }
+
+.goal-card {
+  background: var(--navy-soft); border: 1px solid var(--border);
+  border-radius: 6px; padding: 14px 16px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.goal-title { font-size: 10px; color: var(--navy); font-weight: 800; letter-spacing: 0.3px; margin-bottom: 4px; text-transform: uppercase; }
+.goal-main { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+.goal-val { font-size: 20px; font-weight: 800; }
+.goal-target { font-size: 12px; color: var(--text-mute); }
+.goal-bar { height: 6px; background: white; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+.goal-fill { height: 100%; background: var(--navy); }
+.goal-sub { font-size: 10px; color: var(--text-mute); }
+.goal-sub .warn { color: var(--amber); font-weight: 700; }
+.goal-sub .up { color: var(--green); font-weight: 700; }
+
+/* HIGHLIGHT */
+.highlight-wrap {
+  background: var(--navy-soft); border-left: 3px solid var(--navy);
+  padding: 14px 20px; margin-bottom: 20px; border-radius: 0 4px 4px 0;
+}
+.hl-title { font-size: 10px; font-weight: 800; color: var(--navy); letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+.hl-line { display: flex; gap: 12px; margin-bottom: 8px; align-items: flex-start; }
+.hl-line:last-child { margin-bottom: 0; }
+.hl-tag {
+  font-size: 10px; font-weight: 800;
+  padding: 2px 8px; border-radius: 2px;
+  flex-shrink: 0; margin-top: 1px;
+  min-width: 56px; text-align: center;
+  background: white; color: var(--navy); border: 1px solid var(--navy);
+}
+.hl-text { font-size: 13px; line-height: 1.6; }
+.hl-text b { font-weight: 700; }
+
+/* 섹션 */
+.section-title {
+  font-size: 12px; font-weight: 800; letter-spacing: 0.5px;
+  margin-bottom: 10px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  text-transform: uppercase;
+}
+.section-title .st-num {
+  display: inline-block; width: 20px; height: 20px;
+  background: var(--navy); color: white;
+  border-radius: 3px; text-align: center; line-height: 20px;
+  font-size: 11px; font-weight: 800;
+}
+.section-box {
+  background: white; border: 1px solid var(--border);
+  border-radius: 6px; padding: 16px 18px; margin-bottom: 20px;
+}
+
+/* 매체 표 */
+.media-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.media-table th {
+  text-align: left; color: var(--text-mute); font-weight: 700;
+  padding: 9px 8px; border-bottom: 1.5px solid var(--border);
+  font-size: 10px; letter-spacing: 0.3px; text-transform: uppercase;
+  background: var(--surface);
+}
+.media-table th:not(:first-child) { text-align: right; }
+.media-table td {
+  padding: 11px 8px; border-bottom: 1px solid var(--border-soft);
+}
+.media-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+.media-table tr:last-child td { border-bottom: none; }
+.mt-name { font-weight: 700; }
+.mt-name small { color: var(--text-mute); font-weight: 400; font-size: 10px; display: block; margin-top: 1px; }
+.mt-up { color: var(--green); font-weight: 700; }
+.mt-down { color: var(--red); font-weight: 700; }
+.mt-total { background: var(--surface); font-weight: 800; }
+.mt-total td { border-top: 1.5px solid var(--border); }
+.table-note { font-size: 10px; color: var(--text-mute); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); line-height: 1.6; }
+
+/* 추이 */
+.trend-wrap { height: 220px; position: relative; }
+.trend-note { font-size: 11px; color: var(--text-mute); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); line-height: 1.7; }
+
+/* 체크리스트 */
+.check-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.check-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+}
+.check-ico { font-size: 14px; flex-shrink: 0; margin-top: 1px; color: var(--text-mute); }
+.check-body { flex: 1; }
+.check-title { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+.check-desc { font-size: 11px; color: var(--text-mute); line-height: 1.5; }
+.check-threshold { font-size: 10px; color: var(--text-light); margin-top: 3px; font-style: italic; }
+.check-status {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 2px;
+  flex-shrink: 0; border: 1px solid;
+}
+.cs-ok { color: var(--green); border-color: var(--green); }
+.cs-warn { color: var(--amber); border-color: var(--amber); }
+.cs-bad { color: var(--red); border-color: var(--red); }
+
+/* 경쟁/시장 맥락 */
+.context-box {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+  padding: 12px 14px; margin-top: 10px; font-size: 12px; color: var(--text); line-height: 1.6;
+}
+.context-box b { color: var(--navy); font-weight: 700; }
+
+/* FOCUS */
+.focus-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.focus-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--navy); border-radius: 4px;
+  padding: 12px 14px;
+}
+.focus-num { font-size: 10px; color: var(--navy); font-weight: 800; margin-bottom: 4px; letter-spacing: 0.3px; }
+.focus-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.focus-desc { font-size: 11px; color: var(--text-mute); line-height: 1.5; }
+
+/* 포비서 - 흰 배경 + 테두리 */
+.poviser-box {
+  background: white;
+  border: 2px solid var(--navy);
+  border-radius: 6px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.pov-badge {
+  font-size: 10px; font-weight: 800;
+  background: var(--navy); color: white;
+  padding: 4px 10px; border-radius: 2px;
+  flex-shrink: 0; letter-spacing: 0.3px;
+  margin-top: 1px;
+}
+.pov-text { font-size: 12.5px; color: var(--text); line-height: 1.65; }
+.pov-text b { font-weight: 700; }
+
+/* 푸터 */
+.report-footer {
+  margin-top: 28px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 10px; color: var(--text-light); text-align: center;
+}
+
+@media (max-width: 900px) {
+  .top-wrap, .kpi-grid, .check-grid, .focus-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@page { size: A4; margin: 12mm 10mm; }
+@media print {
+  body { padding: 0; font-size: 11px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .container { max-width: 100%; }
+  .action-bar { display: none !important; }
+  .section-box, .highlight-wrap, .top-wrap, .poviser-box { page-break-inside: avoid; break-inside: avoid; }
+  .section-title { page-break-after: avoid; break-after: avoid; }
+  .report-title { font-size: 18px; }
+  .kpi-val { font-size: 18px; }
+  .goal-val { font-size: 16px; }
+  .trend-wrap { height: 180px; }
+  .media-table { font-size: 10px; }
+  .media-table th, .media-table td { padding: 7px 6px; }
+}
+</style>
+</head>
+<body>
+
+<div class="action-bar">
+  <button class="btn-pdf" onclick="window.print()">📄 PDF 저장 / 인쇄</button>
+</div>
+
+<div class="container">
+  <div class="report-head">
+    <span class="report-badge">WEEKLY REPORT</span>
+    <div class="report-title">포쿨 주간 광고 보고서</div>
+    <div class="report-sub" id="reportSub"></div>
+    <div class="report-meta" id="reportMeta"></div>
+  </div>
+
+  <div class="top-wrap">
+    <div class="kpi-grid" id="kpiGrid"></div>
+    <div class="goal-card" id="goalCard"></div>
+  </div>
+
+  <div class="highlight-wrap">
+    <div class="hl-title">이번 주 한눈에</div>
+    <div id="highlightLines"></div>
+  </div>
+
+  <div class="section-title"><span class="st-num">1</span> 매체별 성과</div>
+  <div class="section-box">
+    <table class="media-table">
+      <thead>
+        <tr>
+          <th>매체</th>
+          <th>캠페인</th>
+          <th>광고비</th>
+          <th>매출</th>
+          <th>ROAS</th>
+          <th>전환</th>
+          <th>CVR</th>
+          <th>CPA</th>
+          <th>WoW</th>
+        </tr>
+      </thead>
+      <tbody id="mediaTableBody"></tbody>
+    </table>
+    <div class="table-note" id="mediaNote"></div>
+  </div>
+
+  <div class="section-title"><span class="st-num">2</span> 8주 추이 · 매체별 ROAS</div>
+  <div class="section-box">
+    <div class="trend-wrap"><canvas id="c_trend"></canvas></div>
+    <div class="trend-note" id="trendNote"></div>
+  </div>
+
+  <div class="section-title"><span class="st-num">3</span> 이슈 체크리스트 · 임계치 기반 자동 판정</div>
+  <div class="section-box">
+    <div class="check-grid" id="checkGrid"></div>
+    <div class="context-box" id="contextBox"></div>
+  </div>
+
+  <div class="section-title"><span class="st-num">4</span> 다음 주 FOCUS</div>
+  <div class="section-box">
+    <div class="focus-grid" id="focusGrid"></div>
+  </div>
+
+  <div class="poviser-box">
+    <div class="pov-badge">포비서</div>
+    <div class="pov-text" id="poviserText"></div>
+  </div>
+
+  <div class="report-footer" id="reportFooter"></div>
+</div>
+
+<script>
+/* ========================================================
+   데이터 영역 — 매주 이 객체만 교체
+======================================================== */
+const data = {
+  week: '4월 3주차',
+  period: '2026.04.13 ~ 04.19',
+  periodPrev: '04.06 ~ 04.12',
+  manager: '김선명',
+  generated: '2026.04.21',
+
+  // 월 목표 (매월 1회 설정)
+  monthlyGoal: 1740000000,       // 17.4억
+  currentMonthAccum: 1030000000, // 10.3억
+  daysElapsed: 19,
+  daysInMonth: 30,
+  monthlyBudget: 15000000,       // 월 광고 예산 1,500만
+  budgetSpent: 11000000,         // 현재까지 소진 1,100만
+
+  // 매체별 (이번 주)
+  media: [
+    { name: '파워링크', type: '검색광고', campaigns: 12,
+      cost: 1332500, revenue: 64500000, conversions: 72,
+      prevCost: 1167540, prevRevenue: 56600000, prevConversions: 63
+    },
+    { name: 'ADVoost', type: '디스플레이', campaigns: 3,
+      cost: 1837500, revenue: 61000000, conversions: 68,
+      prevCost: 1803000, prevRevenue: 62980000, prevConversions: 70
+    },
+    { name: '카탈로그', type: '디스플레이', campaigns: 5,
+      cost: 2050000, revenue: 42000000, conversions: 70,
+      prevCost: 1910000, prevRevenue: 37000000, prevConversions: 64
+    },
+    { name: '쇼핑커넥트', type: '쇼핑광고', campaigns: 1,
+      cost: 280000, revenue: 12500000, conversions: 12,
+      prevCost: 242000, prevRevenue: 10000000, prevConversions: 10
+    }
+  ],
+
+  // 8주 추이 (ROAS %)
+  trend: {
+    labels: ['2월 4주', '3월 1주', '3월 2주', '3월 3주', '3월 4주', '4월 1주', '4월 2주', '4월 3주'],
+    datasets: [
+      { name: '파워링크', data: [3128, 3412, 3580, 3650, 3716, 4120, 4760, 4840], style: 'solid',  color: '#1e3a5f' },
+      { name: 'ADVoost', data: [2538, 2750, 2920, 3050, 3003, 3180, 3346, 3320], style: 'dashed', color: '#6b7280' },
+      { name: '카탈로그', data: [2484, 2660, 2980, 3200, 3545, 2400, 1898, 2049], style: 'dotted', color: '#9ca3af' },
+      { name: '쇼핑커넥트', data: [2800, 2950, 3100, 3150, 3200, 3850, 4200, 4464], style: 'solid',  color: '#047857' }
+    ]
+  },
+  trendComment: [
+    '· 파워링크 4주 연속 상승 (3,716% → 4,840%) — 시즌키워드 효과',
+    '· 카탈로그 2월 후반 급락 후 안정 — 디스플레이 변동 정상 범위',
+    '· 쇼핑커넥트 꾸준한 상승 — 유입량 증가가 ROAS에 반영'
+  ],
+
+  // 체크리스트 임계치 기반
+  checks: [
+    {
+      title: '전환 트래킹 이상치',
+      threshold: '판정 기준: 일자별 ROAS > 10,000% 또는 평균 ±3σ 초과',
+      desc: '금주 감지: 없음',
+      status: 'OK'
+    },
+    {
+      title: '소재 피로도',
+      threshold: '판정 기준: CTR 2주 연속 하락 + 매체 평균 대비 -15% 이상',
+      desc: 'ADVoost CTR 1.6→1.4→1.3% (3주 하락, 평균 대비 -19%)',
+      status: 'BAD'
+    },
+    {
+      title: '전환율 변동성',
+      threshold: '판정 기준: 주간 CVR 편차 ±20% 초과',
+      desc: '쇼핑커넥트 CVR 1.5→1.1→1.41% (편차 ±30%)',
+      status: 'WARN'
+    },
+    {
+      title: '예산-매출 효율',
+      threshold: '판정 기준: 예산 소진 % > 매출 진도 %',
+      desc: '예산 소진 73% vs 매출 진도 59% (격차 14%p)',
+      status: 'WARN'
+    }
+  ],
+
+  // 경쟁/시장 맥락 (매주 1줄 수동 입력)
+  marketContext: '네이버 PLA 업소용 냉장고 카테고리 평균 CPC 04월 기준 7% 상승 · 경쟁사 N사 4월 2주차부터 프로모션 시작 (ADVoost 경쟁입찰 심화 영향 주시).',
+
+  // 다음 주 FOCUS (매주 교체)
+  focus: [
+    { num: 1, title: '월 목표 진도 회복',
+      desc: '마지막 11일 일평균 매출 6,455만 필요. 파워링크 시즌키워드 예산 +10% 검토.' },
+    { num: 2, title: 'ADVoost 소재 긴급 교체',
+      desc: 'CTR 3주 연속 하락. 여름 성수기 컨셉 신규 5종 2주 테스트 시작.' },
+    { num: 3, title: '카탈로그 ROAS 재점검',
+      desc: '예산 비중 37%에 ROAS 2,049% → 세부 소재 단위 저효율 분류 분석.' }
+  ],
+
+  // 포비서 의견 (매주 교체, "구조적" 단어 금지)
+  poviserText: '이번 주는 <b>파워링크 시즌키워드가 본궤도에 진입</b>하며 통합 ROAS가 한 단계 올라섰으나, <b>예산 소진 속도(73%)가 매출 진도(59%)를 앞서는 효율 격차</b>가 관찰됩니다. ADVoost 소재 피로도까지 고려하면 다음 주는 <b>예산 증액보다 기존 소재 교체가 우선</b>이며, 매출 진도 회복의 키는 카탈로그 저효율 캠페인 정리에 있습니다.'
+};
+
+/* ========================================================
+   자동 계산 함수
+======================================================== */
+const fmt = {
+  num: n => n.toLocaleString('ko-KR'),
+  won: n => n.toLocaleString('ko-KR') + '원',
+  manWon: n => Math.round(n / 10000).toLocaleString('ko-KR') + '만',
+  eok: n => (n / 100000000).toFixed(2) + '억',
+  pct: n => n.toFixed(1) + '%',
+  pctPt: n => (n >= 0 ? '+' : '') + n.toFixed(0) + '%p'
+};
+
+function calc(m) {
+  const roas = m.cost ? Math.round(m.revenue / m.cost * 10000) / 100 : 0;
+  const cvr = m.conversions ? (m.conversions / (m.cost / 1000) * 100).toFixed(2) : 0; // 근사치
+  const cpa = m.conversions ? Math.round(m.cost / m.conversions) : 0;
+  const prevRoas = m.prevCost ? Math.round(m.prevRevenue / m.prevCost * 10000) / 100 : 0;
+  const wowRev = m.prevRevenue ? ((m.revenue - m.prevRevenue) / m.prevRevenue * 100) : 0;
+  return { roas, cvr, cpa, prevRoas, wowRev };
+}
+
+function sum(arr, field) { return arr.reduce((a,b) => a + b[field], 0); }
+
+/* ========================================================
+   렌더링
+======================================================== */
+function render() {
+  // 헤더
+  document.getElementById('reportSub').textContent =
+    `${data.week} · ${data.period} · 담당 ${data.manager} · 비교 전주(${data.periodPrev})`;
+  document.getElementById('reportMeta').innerHTML =
+    `generated ${data.generated}<br>* 샘플 데이터`;
+
+  // ========== TOP KPI ==========
+  const totCost = sum(data.media, 'cost');
+  const totRev = sum(data.media, 'revenue');
+  const totConv = sum(data.media, 'conversions');
+  const totPrevCost = sum(data.media, 'prevCost');
+  const totPrevRev = sum(data.media, 'prevRevenue');
+  const totPrevConv = sum(data.media, 'prevConversions');
+
+  const totROAS = Math.round(totRev / totCost * 10000) / 100;
+  const totPrevROAS = Math.round(totPrevRev / totPrevCost * 10000) / 100;
+  const totCPA = Math.round(totCost / totConv);
+  const totPrevCPA = Math.round(totPrevCost / totPrevConv);
+
+  const wowCost = (totCost - totPrevCost) / totPrevCost * 100;
+  const wowRev = (totRev - totPrevRev) / totPrevRev * 100;
+  const wowROASpt = totROAS - totPrevROAS;
+  const wowCPA = (totCPA - totPrevCPA) / totPrevCPA * 100;
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-lbl">광고비</div>
+      <div class="kpi-val">${fmt.manWon(totCost)}</div>
+      <div class="kpi-chg">전주 ${fmt.manWon(totPrevCost)} · <span class="${wowCost >= 0 ? 'up' : 'down'}">${wowCost >= 0 ? '+' : ''}${wowCost.toFixed(1)}%</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">광고매출</div>
+      <div class="kpi-val">${fmt.eok(totRev)}</div>
+      <div class="kpi-chg">전주 ${fmt.eok(totPrevRev)} · <span class="${wowRev >= 0 ? 'up' : 'down'}">${wowRev >= 0 ? '+' : ''}${wowRev.toFixed(1)}%</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">ROAS</div>
+      <div class="kpi-val">${fmt.num(Math.round(totROAS))}%</div>
+      <div class="kpi-chg">전주 ${fmt.num(Math.round(totPrevROAS))}% · <span class="${wowROASpt >= 0 ? 'up' : 'down'}">${wowROASpt >= 0 ? '+' : ''}${Math.round(wowROASpt)}%p</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">CPA</div>
+      <div class="kpi-val">${fmt.won(totCPA)}</div>
+      <div class="kpi-chg">전주 ${fmt.won(totPrevCPA)} · <span class="${wowCPA <= 0 ? 'up' : 'down'}">${wowCPA <= 0 ? '▼' : '▲'}${Math.abs(wowCPA).toFixed(1)}%</span></div>
+    </div>
+  `;
+
+  // ========== 월 목표 달성률 ==========
+  const achievePct = data.currentMonthAccum / data.monthlyGoal * 100;
+  const elapsedPct = data.daysElapsed / data.daysInMonth * 100;
+  const progressGap = achievePct - elapsedPct;
+  const remaining = data.monthlyGoal - data.currentMonthAccum;
+  const daysLeft = data.daysInMonth - data.daysElapsed;
+  const dailyNeed = Math.round(remaining / daysLeft);
+
+  document.getElementById('goalCard').innerHTML = `
+    <div class="goal-title">4월 매출 목표 달성률</div>
+    <div class="goal-main">
+      <div class="goal-val">${fmt.eok(data.currentMonthAccum)}</div>
+      <div class="goal-target">/ ${fmt.eok(data.monthlyGoal)}</div>
+    </div>
+    <div class="goal-bar"><div class="goal-fill" style="width: ${achievePct.toFixed(1)}%"></div></div>
+    <div class="goal-sub">${achievePct.toFixed(1)}% · ${data.daysElapsed}일 경과(${elapsedPct.toFixed(0)}%) · <span class="${progressGap >= 0 ? 'up' : 'warn'}">진도 ${fmt.pctPt(progressGap)} ${progressGap >= 0 ? '선행' : '지연'}</span></div>
+  `;
+
+  // ========== HIGHLIGHT (자동 생성) ==========
+  const bestMedia = [...data.media].sort((a,b) => (b.revenue - b.prevRevenue)/b.prevRevenue - (a.revenue - a.prevRevenue)/a.prevRevenue)[0];
+  const bestMediaWoW = (bestMedia.revenue - bestMedia.prevRevenue) / bestMedia.prevRevenue * 100;
+  const worstMedia = [...data.media].sort((a,b) => (a.revenue - a.prevRevenue)/a.prevRevenue - (b.revenue - b.prevRevenue)/b.prevRevenue)[0];
+  const worstMediaWoW = (worstMedia.revenue - worstMedia.prevRevenue) / worstMedia.prevRevenue * 100;
+
+  document.getElementById('highlightLines').innerHTML = `
+    <div class="hl-line">
+      <div class="hl-tag">WHAT</div>
+      <div class="hl-text">광고비 <b>${wowCost >= 0 ? '+' : ''}${wowCost.toFixed(1)}%</b> vs 매출 <b>${wowRev >= 0 ? '+' : ''}${wowRev.toFixed(1)}%</b>. ROAS ${fmt.num(Math.round(totROAS))}%. ${bestMedia.name} ${bestMediaWoW >= 0 ? '+' : ''}${bestMediaWoW.toFixed(1)}% / ${worstMedia.name} ${worstMediaWoW >= 0 ? '+' : ''}${worstMediaWoW.toFixed(1)}%.</div>
+    </div>
+    <div class="hl-line">
+      <div class="hl-tag">WHY</div>
+      <div class="hl-text">시즌키워드(소주냉동고·육수냉장고)가 파워링크 전환으로 본격화된 한편, <b>ADVoost는 소재 피로도로 역성장</b>. 매체 편차가 이번 주 WoW의 본질.</div>
+    </div>
+    <div class="hl-line">
+      <div class="hl-tag">SO WHAT</div>
+      <div class="hl-text">월 목표 진도율 <b>${fmt.pctPt(progressGap)}</b>. 남은 ${daysLeft}일 동안 일평균 매출 <b>${fmt.manWon(dailyNeed)}</b> 필요 (이번 주 ${fmt.manWon(totRev/7)}/일 수준 대비 ${((dailyNeed/(totRev/7)-1)*100).toFixed(0)}% 견인 필요).</div>
+    </div>
+  `;
+
+  // ========== 매체별 표 ==========
+  let tableBody = '';
+  data.media.forEach(m => {
+    const c = calc(m);
+    tableBody += `
+      <tr>
+        <td class="mt-name">${m.name}<small>${m.type}</small></td>
+        <td>${m.campaigns}</td>
+        <td>${fmt.manWon(m.cost)}</td>
+        <td>${fmt.manWon(m.revenue)}</td>
+        <td>${fmt.num(Math.round(c.roas))}%</td>
+        <td>${m.conversions}</td>
+        <td>${c.cvr}%</td>
+        <td>${fmt.won(c.cpa)}</td>
+        <td class="${c.wowRev >= 0 ? 'mt-up' : 'mt-down'}">${c.wowRev >= 0 ? '+' : ''}${c.wowRev.toFixed(1)}%</td>
+      </tr>
+    `;
+  });
+  tableBody += `
+    <tr class="mt-total">
+      <td class="mt-name">합계</td>
+      <td>${sum(data.media, 'campaigns')}</td>
+      <td>${fmt.manWon(totCost)}</td>
+      <td>${fmt.eok(totRev)}</td>
+      <td>${fmt.num(Math.round(totROAS))}%</td>
+      <td>${totConv}</td>
+      <td>${(totConv/(totCost/1000)*100).toFixed(2)}%</td>
+      <td>${fmt.won(totCPA)}</td>
+      <td class="${wowRev >= 0 ? 'mt-up' : 'mt-down'}">${wowRev >= 0 ? '+' : ''}${wowRev.toFixed(1)}%</td>
+    </tr>
+  `;
+  document.getElementById('mediaTableBody').innerHTML = tableBody;
+
+  // CVR 역전 체크 (해설)
+  const pwr = data.media.find(m => m.name === '파워링크');
+  const adv = data.media.find(m => m.name === 'ADVoost');
+  const pwrCVR = pwr ? pwr.conversions / (pwr.cost/1000) * 100 : 0;
+  const advCVR = adv ? adv.conversions / (adv.cost/1000) * 100 : 0;
+  let cvrNote = '';
+  if (advCVR > pwrCVR) {
+    cvrNote = `<b>※ CVR 해설:</b> ADVoost(${advCVR.toFixed(2)}%)가 파워링크(${pwrCVR.toFixed(2)}%)보다 높게 나타남. 일반적으로 검색이 디스플보다 CVR 높은 것이 정상이나, ADVoost의 기존 방문자 리타겟팅 비중이 높아 일시적 역전으로 해석됨.`;
+  }
+  document.getElementById('mediaNote').innerHTML = cvrNote;
+
+  // ========== 추이 차트 ==========
+  const datasets = data.trend.datasets.map(d => ({
+    label: d.name,
+    data: d.data,
+    borderColor: d.color,
+    backgroundColor: 'transparent',
+    tension: 0.3,
+    borderWidth: 2.2,
+    pointRadius: 2.5,
+    pointBackgroundColor: d.color,
+    borderDash: d.style === 'dashed' ? [5,3] : (d.style === 'dotted' ? [2,2] : [])
+  }));
+  new Chart(document.getElementById('c_trend'), {
+    type: 'line',
+    data: { labels: data.trend.labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10, padding: 12, color: '#6b7280' } },
+        tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.raw.toLocaleString() + '%' } }
+      },
+      scales: {
+        y: { grid: { color: '#f3f4f6' }, ticks: { callback: v => v.toLocaleString() + '%', color: '#9ca3af' } },
+        x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+      }
+    }
+  });
+  document.getElementById('trendNote').innerHTML = data.trendComment.join('<br>');
+
+  // ========== 체크리스트 ==========
+  const statusMap = {
+    'OK':   { cls: 'cs-ok',   label: 'OK' },
+    'WARN': { cls: 'cs-warn', label: '주의' },
+    'BAD':  { cls: 'cs-bad',  label: '경고' }
+  };
+  let checkHtml = '';
+  data.checks.forEach(c => {
+    const s = statusMap[c.status];
+    checkHtml += `
+      <div class="check-item">
+        <div class="check-ico">◆</div>
+        <div class="check-body">
+          <div class="check-title">${c.title}</div>
+          <div class="check-desc">${c.desc}</div>
+          <div class="check-threshold">${c.threshold}</div>
+        </div>
+        <span class="check-status ${s.cls}">${s.label}</span>
+      </div>
+    `;
+  });
+  document.getElementById('checkGrid').innerHTML = checkHtml;
+
+  document.getElementById('contextBox').innerHTML = `<b>경쟁/시장 맥락:</b> ${data.marketContext}`;
+
+  // ========== FOCUS ==========
+  let focusHtml = '';
+  data.focus.forEach(f => {
+    focusHtml += `
+      <div class="focus-card">
+        <div class="focus-num">FOCUS ${f.num}</div>
+        <div class="focus-title">${f.title}</div>
+        <div class="focus-desc">${f.desc}</div>
+      </div>
+    `;
+  });
+  document.getElementById('focusGrid').innerHTML = focusHtml;
+
+  // ========== 포비서 ==========
+  document.getElementById('poviserText').innerHTML = data.poviserText;
+
+  // ========== 푸터 ==========
+  document.getElementById('reportFooter').textContent =
+    `포쿨 광고팀 · 담당 ${data.manager} · ${data.generated} 작성`;
+}
+
+Chart.defaults.color = '#6b7280';
+Chart.defaults.borderColor = '#e5e7eb';
+Chart.defaults.font.family = 'Pretendard, sans-serif';
+Chart.defaults.font.size = 11;
+
+render();
+</script>
+
+</body>
+</html>

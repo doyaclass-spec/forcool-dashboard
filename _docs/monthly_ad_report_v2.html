@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>포쿨 월간 광고 보고서 — 4월 결산</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #ffffff;
+  --surface: #f9fafb;
+  --border: #e5e7eb;
+  --border-soft: #f3f4f6;
+  --text: #1f2937;
+  --text-mute: #6b7280;
+  --text-light: #9ca3af;
+  --navy: #1e3a5f;
+  --navy-soft: #eef2f7;
+  --green: #047857;
+  --red: #b91c1c;
+  --amber: #b45309;
+}
+
+body {
+  font-family: 'Pretendard', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 32px 24px;
+  line-height: 1.5;
+  font-size: 13px;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+
+/* PDF 버튼 */
+.action-bar {
+  position: fixed; top: 20px; right: 20px;
+  z-index: 100;
+}
+.btn-pdf {
+  background: var(--navy);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.btn-pdf:hover { background: #2a4a7a; }
+
+/* ==== 헤더 ==== */
+.report-head {
+  border-bottom: 2px solid var(--navy);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.report-badge {
+  display: inline-block;
+  background: var(--navy);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 2px;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+.report-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.report-sub { font-size: 12px; color: var(--text-mute); }
+.report-meta { position: absolute; top: 0; right: 0; font-size: 10px; color: var(--text-light); text-align: right; }
+
+/* ==== TOP ==== */
+.top-wrap { display: grid; grid-template-columns: 2.2fr 1fr; gap: 12px; margin-bottom: 18px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.kpi-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+.kpi-lbl { font-size: 10px; color: var(--text-mute); font-weight: 700; letter-spacing: 0.3px; margin-bottom: 4px; text-transform: uppercase; }
+.kpi-val { font-size: 22px; font-weight: 800; color: var(--text); line-height: 1.1; margin-bottom: 8px; }
+.kpi-cmp { font-size: 11px; color: var(--text-mute); margin-bottom: 3px; }
+.kpi-cmp .lbl { color: var(--text-light); font-weight: 700; font-size: 10px; }
+.kpi-cmp .up { color: var(--green); font-weight: 700; }
+.kpi-cmp .down { color: var(--red); font-weight: 700; }
+
+/* 연간 누적 */
+.year-card {
+  background: var(--navy-soft);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.year-title { font-size: 10px; color: var(--navy); font-weight: 800; letter-spacing: 0.3px; margin-bottom: 4px; text-transform: uppercase; }
+.year-main { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+.year-val { font-size: 20px; font-weight: 800; color: var(--text); }
+.year-target { font-size: 12px; color: var(--text-mute); }
+.year-bar {
+  height: 6px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.year-fill { height: 100%; background: var(--navy); }
+.year-sub { font-size: 10px; color: var(--text-mute); }
+.year-sub .up { color: var(--green); font-weight: 700; }
+
+/* ==== EXEC SUMMARY ==== */
+.exec-wrap {
+  background: var(--navy-soft);
+  border-left: 3px solid var(--navy);
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  border-radius: 0 4px 4px 0;
+}
+.exec-title { font-size: 10px; font-weight: 800; color: var(--navy); letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+.exec-line { display: flex; gap: 12px; margin-bottom: 8px; align-items: flex-start; }
+.exec-line:last-child { margin-bottom: 0; }
+.exec-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  min-width: 56px;
+  text-align: center;
+  background: white;
+  color: var(--navy);
+  border: 1px solid var(--navy);
+}
+.exec-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+.exec-text b { color: var(--text); font-weight: 700; }
+
+/* ==== 섹션 ==== */
+.section-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  text-transform: uppercase;
+}
+.section-title .st-num {
+  display: inline-block;
+  width: 20px; height: 20px;
+  background: var(--navy);
+  color: white;
+  border-radius: 3px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.section-box {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+
+/* ==== MoM 그리드 ==== */
+.mom-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.mom-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px 14px;
+}
+.mom-title { font-size: 11px; font-weight: 800; color: var(--text); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.mom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 11px;
+}
+.mom-label { color: var(--text-mute); }
+.mom-val { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+.mom-chg { font-size: 10px; font-weight: 700; margin-left: 6px; }
+.mom-chg.up { color: var(--green); }
+.mom-chg.down { color: var(--red); }
+
+/* ==== 매체 표 ==== */
+.media-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.media-table th {
+  text-align: left;
+  color: var(--text-mute);
+  font-weight: 700;
+  padding: 9px 10px;
+  border-bottom: 1.5px solid var(--border);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  background: var(--surface);
+}
+.media-table th:not(:first-child) { text-align: right; }
+.media-table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text);
+}
+.media-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+.media-table tr:last-child td { border-bottom: none; }
+.mt-name { font-weight: 700; color: var(--text); }
+.mt-name small { color: var(--text-mute); font-weight: 400; font-size: 10px; display: block; margin-top: 1px; }
+.mt-up { color: var(--green); font-weight: 700; }
+.mt-down { color: var(--red); font-weight: 700; }
+.mt-total { background: var(--surface); font-weight: 800; }
+.mt-total td { border-top: 1.5px solid var(--border); }
+
+/* ==== 6개월 추이 ==== */
+.chart-wrap { height: 240px; position: relative; }
+.chart-note {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  line-height: 1.7;
+}
+
+/* ==== 캠페인 ==== */
+.camp-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; }
+.camp-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px 14px;
+}
+.camp-head {
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.camp-head.bad { color: var(--red); }
+.camp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 11px;
+}
+.camp-item:last-child { border-bottom: none; }
+.camp-rank { color: var(--text-light); font-weight: 800; margin-right: 8px; font-size: 10px; }
+.camp-name { color: var(--text); flex: 1; }
+.camp-name small { color: var(--text-mute); display: block; font-size: 10px; margin-top: 1px; }
+.camp-val { font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+.camp-val .rev { color: var(--text); display: block; font-size: 12px; }
+.camp-val .roas { color: var(--green); font-size: 10px; font-weight: 700; }
+.camp-val .roas.low { color: var(--red); }
+.camp-note { font-size: 10px; color: var(--text-mute); margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); line-height: 1.5; }
+
+/* ==== 이슈 회고 ==== */
+.issue-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.issue-item:last-child { border-bottom: none; }
+.issue-date {
+  font-size: 10px;
+  color: var(--text-mute);
+  font-weight: 700;
+  width: 60px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.issue-date small { color: var(--text-light); display: block; font-size: 9px; margin-top: 2px; font-weight: 400; }
+.issue-body { flex: 1; }
+.issue-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.issue-desc { font-size: 11px; color: var(--text-mute); line-height: 1.5; }
+.issue-impact {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+  border: 1px solid;
+}
+.imp-pos { color: var(--green); border-color: var(--green); }
+.imp-neu { color: var(--text-mute); border-color: var(--text-mute); }
+.imp-neg { color: var(--red); border-color: var(--red); }
+
+/* ==== 다음 달 계획 ==== */
+.plan-summary {
+  padding: 10px 14px;
+  background: var(--navy-soft);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.plan-summary b { color: var(--navy); }
+.plan-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.plan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--navy);
+  border-radius: 4px;
+  padding: 12px 14px;
+}
+.plan-num { font-size: 10px; color: var(--navy); font-weight: 800; margin-bottom: 4px; letter-spacing: 0.3px; }
+.plan-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.plan-desc { font-size: 11px; color: var(--text-mute); line-height: 1.5; }
+.plan-budget { font-size: 10px; color: var(--navy); margin-top: 6px; font-weight: 700; }
+
+/* ==== 포비서 (문단) ==== */
+.poviser-wrap {
+  background: var(--navy);
+  color: white;
+  border-radius: 6px;
+  padding: 22px 26px;
+  position: relative;
+}
+.poviser-wrap::before {
+  content: "포비서 · 월간 전략 코멘트";
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  background: white;
+  color: var(--navy);
+  padding: 3px 12px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--navy);
+}
+.pov-section { margin-bottom: 14px; }
+.pov-section:last-child { margin-bottom: 0; }
+.pov-head {
+  font-size: 11px;
+  font-weight: 800;
+  color: #cbd5e1;
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.pov-text { font-size: 12.5px; color: white; line-height: 1.7; }
+.pov-text b { color: white; font-weight: 700; }
+
+/* 푸터 */
+.report-footer {
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+@media (max-width: 1000px) {
+  .top-wrap, .kpi-grid, .mom-grid, .plan-grid, .camp-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ==== 인쇄 / PDF ==== */
+@page {
+  size: A4;
+  margin: 12mm 10mm;
+}
+@media print {
+  body {
+    padding: 0;
+    font-size: 11px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .container { max-width: 100%; }
+  .action-bar { display: none !important; }
+
+  .section-box, .exec-wrap, .top-wrap, .poviser-wrap {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .section-title { page-break-after: avoid; break-after: avoid; }
+
+  .report-title { font-size: 18px; }
+  .kpi-val { font-size: 18px; }
+  .year-val { font-size: 16px; }
+  .chart-wrap { height: 180px; }
+  .media-table { font-size: 10px; }
+  .media-table th, .media-table td { padding: 7px 8px; }
+
+  .kpi-card, .section-box, .plan-card, .mom-card, .camp-card {
+    background: white !important;
+    border: 1px solid var(--border) !important;
+  }
+  .year-card { background: var(--navy-soft) !important; }
+  .exec-wrap { background: var(--navy-soft) !important; }
+  .poviser-wrap { background: var(--navy) !important; color: white !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="action-bar">
+  <button class="btn-pdf" onclick="window.print()">📄 PDF 저장 / 인쇄</button>
+</div>
+
+<div class="container">
+
+  <!-- 헤더 -->
+  <div class="report-head">
+    <span class="report-badge">MONTHLY REPORT</span>
+    <div class="report-title">포쿨 월간 광고 보고서 · 4월 결산</div>
+    <div class="report-sub">2026.04.01 ~ 04.30 · 담당 김선명 · 비교 3월(MoM) / 2025.4월(YoY)</div>
+    <div class="report-meta">generated 2026.05.02<br>* 샘플 데이터</div>
+  </div>
+
+  <!-- TOP -->
+  <div class="top-wrap">
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-lbl">4월 광고비</div>
+        <div class="kpi-val">2,155만</div>
+        <div class="kpi-cmp"><span class="lbl">MoM</span> <span class="up">+12.2%</span> <span class="lbl">(3월 1,920만)</span></div>
+        <div class="kpi-cmp"><span class="lbl">YoY</span> <span class="up">+23.1%</span> <span class="lbl">(25.4월 1,750만)</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">4월 광고매출</div>
+        <div class="kpi-val">7.01억</div>
+        <div class="kpi-cmp"><span class="lbl">MoM</span> <span class="up">+18.2%</span> <span class="lbl">(3월 5.93억)</span></div>
+        <div class="kpi-cmp"><span class="lbl">YoY</span> <span class="up">+37.5%</span> <span class="lbl">(25.4월 5.10억)</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">월 ROAS</div>
+        <div class="kpi-val">3,252%</div>
+        <div class="kpi-cmp"><span class="lbl">MoM</span> <span class="up">+165%p</span> <span class="lbl">(3월 3,087%)</span></div>
+        <div class="kpi-cmp"><span class="lbl">YoY</span> <span class="up">+336%p</span> <span class="lbl">(25.4월 2,916%)</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">평균 CPA</div>
+        <div class="kpi-val">24,600원</div>
+        <div class="kpi-cmp"><span class="lbl">MoM</span> <span class="up">▼8.2%</span> <span class="lbl">(3월 26,800원)</span></div>
+        <div class="kpi-cmp"><span class="lbl">YoY</span> <span class="up">▼15.5%</span> <span class="lbl">(25.4월 29,100원)</span></div>
+      </div>
+    </div>
+
+    <div class="year-card">
+      <div class="year-title">2026년 누적 매출 달성률</div>
+      <div class="year-main">
+        <div class="year-val">58.4억</div>
+        <div class="year-target">/ 180억 (연 목표)</div>
+      </div>
+      <div class="year-bar">
+        <div class="year-fill" style="width: 32.4%"></div>
+      </div>
+      <div class="year-sub">32.4% · 4개월 경과(33.3%) · <span class="up">진도 -0.9%p (정상 범위)</span></div>
+    </div>
+
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="exec-wrap">
+    <div class="exec-title">Executive Summary</div>
+
+    <div class="exec-line">
+      <div class="exec-tag">달성</div>
+      <div class="exec-text">4월 광고매출 <b>7.01억</b>으로 월 매출 목표 17.4억의 <b>40.3%를 광고가 기여</b> (3월 38.0% 대비 +2.3%p). 전년 동월 대비 <b>+37.5%</b> 성장으로 시즌 진입 구간에서 YoY 모멘텀 견고.</div>
+    </div>
+    <div class="exec-line">
+      <div class="exec-tag">변화</div>
+      <div class="exec-text">월 ROAS <b>3,252%</b>로 MoM +165%p · YoY +336%p 개선. 시즌키워드(소주·육수·참치냉동고) 세팅과 <b>파워링크 전환율 구조적 상승</b>(3.18% → 3.48%)이 주요 동인.</div>
+    </div>
+    <div class="exec-line">
+      <div class="exec-tag">방향</div>
+      <div class="exec-text">5월은 여름 성수기 진입기. 파워링크 예산 <b>+15%</b> 증액과 ADVoost 소재 리뉴얼로 <b>월 목표 21억</b> (YoY +27%) 설정 가능.</div>
+    </div>
+  </div>
+
+  <!-- 1. MoM / YoY -->
+  <div class="section-title"><span class="st-num">1</span> 월간 지표 상세 · MoM vs YoY</div>
+  <div class="section-box">
+    <div class="mom-grid">
+
+      <div class="mom-card">
+        <div class="mom-title">광고비</div>
+        <div class="mom-row"><span class="mom-label">4월</span><span class="mom-val">2,155만</span></div>
+        <div class="mom-row"><span class="mom-label">3월 MoM</span><span class="mom-val">1,920만<span class="mom-chg up">+12.2%</span></span></div>
+        <div class="mom-row"><span class="mom-label">25.4월 YoY</span><span class="mom-val">1,750만<span class="mom-chg up">+23.1%</span></span></div>
+      </div>
+
+      <div class="mom-card">
+        <div class="mom-title">광고매출</div>
+        <div class="mom-row"><span class="mom-label">4월</span><span class="mom-val">7.01억</span></div>
+        <div class="mom-row"><span class="mom-label">3월 MoM</span><span class="mom-val">5.93억<span class="mom-chg up">+18.2%</span></span></div>
+        <div class="mom-row"><span class="mom-label">25.4월 YoY</span><span class="mom-val">5.10억<span class="mom-chg up">+37.5%</span></span></div>
+      </div>
+
+      <div class="mom-card">
+        <div class="mom-title">ROAS</div>
+        <div class="mom-row"><span class="mom-label">4월</span><span class="mom-val">3,252%</span></div>
+        <div class="mom-row"><span class="mom-label">3월 MoM</span><span class="mom-val">3,087%<span class="mom-chg up">+165%p</span></span></div>
+        <div class="mom-row"><span class="mom-label">25.4월 YoY</span><span class="mom-val">2,916%<span class="mom-chg up">+336%p</span></span></div>
+      </div>
+
+      <div class="mom-card">
+        <div class="mom-title">전환수</div>
+        <div class="mom-row"><span class="mom-label">4월</span><span class="mom-val">876건</span></div>
+        <div class="mom-row"><span class="mom-label">3월 MoM</span><span class="mom-val">716건<span class="mom-chg up">+22.3%</span></span></div>
+        <div class="mom-row"><span class="mom-label">25.4월 YoY</span><span class="mom-val">601건<span class="mom-chg up">+45.8%</span></span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. 매체별 -->
+  <div class="section-title"><span class="st-num">2</span> 매체별 월간 성과</div>
+  <div class="section-box">
+    <table class="media-table">
+      <thead>
+        <tr>
+          <th>매체</th>
+          <th>광고비</th>
+          <th>매출</th>
+          <th>ROAS</th>
+          <th>전환</th>
+          <th>CVR</th>
+          <th>CPA</th>
+          <th>MoM 매출</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mt-name">파워링크<small>검색광고</small></td>
+          <td>540만</td>
+          <td>2.55억</td>
+          <td>4,722%</td>
+          <td>288</td>
+          <td>3.48%</td>
+          <td>18,750원</td>
+          <td class="mt-up">+21.4%</td>
+        </tr>
+        <tr>
+          <td class="mt-name">ADVoost<small>디스플레이</small></td>
+          <td>720만</td>
+          <td>2.38억</td>
+          <td>3,306%</td>
+          <td>260</td>
+          <td>3.82%</td>
+          <td>27,692원</td>
+          <td class="mt-up">+15.6%</td>
+        </tr>
+        <tr>
+          <td class="mt-name">카탈로그<small>디스플레이</small></td>
+          <td>800만</td>
+          <td>1.68억</td>
+          <td>2,100%</td>
+          <td>280</td>
+          <td>2.78%</td>
+          <td>28,571원</td>
+          <td class="mt-up">+11.2%</td>
+        </tr>
+        <tr>
+          <td class="mt-name">쇼핑커넥트<small>쇼핑광고</small></td>
+          <td>95만</td>
+          <td>5,000만</td>
+          <td>5,263%</td>
+          <td>48</td>
+          <td>1.45%</td>
+          <td>19,792원</td>
+          <td class="mt-up">+38.9%</td>
+        </tr>
+        <tr class="mt-total">
+          <td class="mt-name">합계</td>
+          <td>2,155만</td>
+          <td>7.01억</td>
+          <td>3,252%</td>
+          <td>876</td>
+          <td>2.88%</td>
+          <td>24,600원</td>
+          <td class="mt-up">+18.2%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. 6개월 추이 -->
+  <div class="section-title"><span class="st-num">3</span> 6개월 추이 · 광고비 vs 매출 vs ROAS</div>
+  <div class="section-box">
+    <div class="chart-wrap"><canvas id="c_6m"></canvas></div>
+    <div class="chart-note">
+      · 광고비는 시즌 진입에 따라 2월부터 점진 증액, 4월 2,155만 최고<br>
+      · 광고매출은 ROAS 동반 상승, 4월 7.01억 (역대 최대)<br>
+      · ROAS는 11월 최저점(2,721%) 이후 5개월 연속 상승세
+    </div>
+  </div>
+
+  <!-- 4. Top/Bottom -->
+  <div class="section-title"><span class="st-num">4</span> 캠페인 성과 · Top 5 / Bottom 3</div>
+  <div class="section-box">
+    <div class="camp-grid">
+
+      <div class="camp-card">
+        <div class="camp-head">Top 5 · 고성과 캠페인</div>
+        <div class="camp-item">
+          <span class="camp-rank">1</span>
+          <div class="camp-name">소주냉동고_시즌키워드<small>파워링크 · 검색</small></div>
+          <div class="camp-val"><span class="rev">4,800만</span><span class="roas">ROAS 6,200%</span></div>
+        </div>
+        <div class="camp-item">
+          <span class="camp-rank">2</span>
+          <div class="camp-name">업소용냉장고_메인<small>파워링크 · 검색</small></div>
+          <div class="camp-val"><span class="rev">4,200만</span><span class="roas">ROAS 5,100%</span></div>
+        </div>
+        <div class="camp-item">
+          <span class="camp-rank">3</span>
+          <div class="camp-name">라셀르 간냉_리타겟팅<small>파워링크 · 검색</small></div>
+          <div class="camp-val"><span class="rev">3,500만</span><span class="roas">ROAS 5,800%</span></div>
+        </div>
+        <div class="camp-item">
+          <span class="camp-rank">4</span>
+          <div class="camp-name">스타리온 신상품<small>ADVoost · 디스플레이</small></div>
+          <div class="camp-val"><span class="rev">3,900만</span><span class="roas">ROAS 4,300%</span></div>
+        </div>
+        <div class="camp-item">
+          <span class="camp-rank">5</span>
+          <div class="camp-name">프레스코 쇼케이스<small>카탈로그 · 디스플레이</small></div>
+          <div class="camp-val"><span class="rev">3,200만</span><span class="roas">ROAS 2,400%</span></div>
+        </div>
+      </div>
+
+      <div class="camp-card">
+        <div class="camp-head bad">Bottom 3 · 저성과 캠페인</div>
+        <div class="camp-item">
+          <span class="camp-rank">B1</span>
+          <div class="camp-name">냉동고 일반 광범위<small>카탈로그 · 디스플레이</small></div>
+          <div class="camp-val"><span class="rev">1,200만</span><span class="roas low">ROAS 1,400%</span></div>
+        </div>
+        <div class="camp-item">
+          <span class="camp-rank">B2</span>
+          <div class="camp-name">기타 일반 키워드<small>파워링크 · 검색</small></div>
+          <div class="camp-val"><span class="rev">950만</span><span class="roas low">ROAS 2,100%</span></div>
+        </div>
+        <div class="camp-item">
+          <span class="camp-rank">B3</span>
+          <div class="camp-name">일반 쇼핑 유입<small>쇼핑커넥트 · 쇼핑</small></div>
+          <div class="camp-val"><span class="rev">700만</span><span class="roas low">ROAS 2,800%</span></div>
+        </div>
+        <div class="camp-note">
+          * Bottom 3는 매체별 평균 대비 하회 캠페인<br>
+          디스플 평균 3,200% / 검색 평균 4,700% 기준
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 5. 월간 이슈 회고 -->
+  <div class="section-title"><span class="st-num">5</span> 4월 이슈 회고</div>
+  <div class="section-box">
+
+    <div class="issue-item">
+      <div class="issue-date">04.03<small>1주차</small></div>
+      <div class="issue-body">
+        <div class="issue-title">쇼케이스냉장고 유료배송 지역 3→4만원 변경</div>
+        <div class="issue-desc">4주간 모니터링 결과 지방 판매 비중 변화 없음. 전 품목 확대 적용 결정.</div>
+      </div>
+      <span class="issue-impact imp-pos">긍정</span>
+    </div>
+
+    <div class="issue-item">
+      <div class="issue-date">04.13<small>2주차</small></div>
+      <div class="issue-body">
+        <div class="issue-title">네이버 포토리뷰 이벤트 재오픈</div>
+        <div class="issue-desc">쿠팡이츠 삭제, N포인트·신세계상품권만 운영. 리뷰 수집 속도 +42% 상승.</div>
+      </div>
+      <span class="issue-impact imp-pos">긍정</span>
+    </div>
+
+    <div class="issue-item">
+      <div class="issue-date">04.15<small>3주차</small></div>
+      <div class="issue-body">
+        <div class="issue-title">스타리온 25박스 모음전 운영</div>
+        <div class="issue-desc">업소용냉장고 키워드 72위 → 8위 진입. 파워링크 전환율 상승에 기여.</div>
+      </div>
+      <span class="issue-impact imp-pos">긍정</span>
+    </div>
+
+    <div class="issue-item">
+      <div class="issue-date">04.20<small>4주차</small></div>
+      <div class="issue-body">
+        <div class="issue-title">ADVoost 소재 피로도 감지</div>
+        <div class="issue-desc">클릭률 2주 연속 하락. 5월 초 전면 리뉴얼 필요.</div>
+      </div>
+      <span class="issue-impact imp-neg">부정</span>
+    </div>
+
+    <div class="issue-item">
+      <div class="issue-date">04.25<small>4주차</small></div>
+      <div class="issue-body">
+        <div class="issue-title">참치냉동고 신상 (쎄미르 98L/198L) 판매 기획 완료</div>
+        <div class="issue-desc">단가 18~22만원대 책정, 5월 1주차 론칭 예정.</div>
+      </div>
+      <span class="issue-impact imp-neu">중립</span>
+    </div>
+
+  </div>
+
+  <!-- 6. 다음 달 계획 -->
+  <div class="section-title"><span class="st-num">6</span> 5월 계획 · 예산 · 목표</div>
+  <div class="section-box">
+    <div class="plan-summary">
+      <b>5월 광고비 예산: 2,480만</b> (4월 대비 +15%) · <b>매출 목표: 21.0억</b> (YoY +27%)
+    </div>
+
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-num">PLAN 1</div>
+        <div class="plan-title">파워링크 예산 +15% 증액</div>
+        <div class="plan-desc">시즌키워드 CVR 구조적 상승 구간. 소주·육수·참치냉동고 계열 키워드 입찰 확대.</div>
+        <div class="plan-budget">예산: 540만 → 620만</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-num">PLAN 2</div>
+        <div class="plan-title">ADVoost 소재 전면 리뉴얼</div>
+        <div class="plan-desc">4월 4주차 CTR 하락 감지. 여름 성수기 컨셉 신규 소재 5종 제작.</div>
+        <div class="plan-budget">예산: 720만 유지</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-num">PLAN 3</div>
+        <div class="plan-title">참치냉동고 신상 광고 집행</div>
+        <div class="plan-desc">5월 1주차 론칭. 파워링크 단독 2주 후 반응 보고 디스플레이 확대 판단.</div>
+        <div class="plan-budget">신규 예산: 150만</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-num">PLAN 4</div>
+        <div class="plan-title">카탈로그 ROAS 재점검</div>
+        <div class="plan-desc">월 예산 37% 점유 매체의 ROAS 2,100% 추가 최적화 여지 탐색.</div>
+        <div class="plan-budget">예산: 800만 유지</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 포비서 -->
+  <div class="poviser-wrap">
+
+    <div class="pov-section">
+      <div class="pov-head">▸ 4월 총평</div>
+      <div class="pov-text">
+        4월은 <b>YoY +37.5% 매출 성장</b>과 <b>ROAS 3,252% 달성</b>으로 2026년 1분기 대비 광고 효율이 구조적으로 한 단계 상승한 달입니다.
+        특히 파워링크 전환율이 분기 내 <b>3.08% → 3.48%</b>로 꾸준히 상승한 것은 시즌키워드 세팅 효과가
+        1회성이 아닌 <b>검색 품질 지수 개선</b>으로 이어졌다는 신호로 해석됩니다.
+        연간 목표 180억 대비 진도율 32.4%로 4개월 경과 진도(33.3%) 대비 -0.9%p 수준이라 정상 범위 내입니다.
+      </div>
+    </div>
+
+    <div class="pov-section">
+      <div class="pov-head">▸ 매체 전략 방향</div>
+      <div class="pov-text">
+        <b>파워링크</b>는 ROAS 4,722%·CVR 3.48%로 전 매체 최고 효율. 시즌키워드 중심으로 예산 +15% 증액이 타당하되,
+        키워드 검색량 상한 있으므로 +20% 이상은 비효율 구간 진입 가능.
+        <b>ADVoost</b>는 소재 피로도가 이미 지표에 나타나므로 5월 초 전면 리뉴얼은 필수.
+        <b>카탈로그</b>는 ROAS 2,100%로 디스플 평균 상회하지만 4월 예산 37% 비중 대비 인지 기여도 추적 어려움이 과제.
+      </div>
+    </div>
+
+    <div class="pov-section">
+      <div class="pov-head">▸ 다음 달 주목 포인트</div>
+      <div class="pov-text">
+        <b>(1)</b> 파워링크 시즌키워드 효과가 5월에도 지속되는지 — 지속 시 하반기 브랜드 키워드 전략 재설계 검토.
+        <b>(2)</b> ADVoost 신규 소재 초기 2주 CTR — 기존 1.4% 대비 개선 여부.
+        <b>(3)</b> 참치냉동고 신상 광고 초기 반응 — ROAS 2,500% 도달 여부로 시장 반응 판정.
+        <b>(4)</b> 연간 진도율 -0.9%p를 5월 말까지 ±0%p로 회복시키는 것이 2분기 최우선 과제.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 푸터 -->
+  <div class="report-footer">
+    포쿨 광고팀 · 담당 김선명 · 2026.05.02 작성
+  </div>
+
+</div>
+
+<script>
+Chart.defaults.color = '#6b7280';
+Chart.defaults.borderColor = '#e5e7eb';
+Chart.defaults.font.family = 'Pretendard, sans-serif';
+Chart.defaults.font.size = 11;
+
+/* 6개월 추이 */
+new Chart(document.getElementById('c_6m'), {
+  type: 'bar',
+  data: {
+    labels: ['11월', '12월', '1월', '2월', '3월', '4월'],
+    datasets: [
+      { type: 'bar', label: '광고비(만원)', data: [1700, 1550, 1680, 1820, 1920, 2155], backgroundColor: '#9ca3af', borderRadius: 3, yAxisID: 'y', order: 2 },
+      { type: 'bar', label: '광고매출(억)', data: [4.62, 4.18, 5.02, 5.38, 5.93, 7.01], backgroundColor: '#1e3a5f', borderRadius: 3, yAxisID: 'y1', order: 1 },
+      { type: 'line', label: 'ROAS (%)', data: [2721, 2697, 2988, 2956, 3087, 3252], borderColor: '#047857', backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.3, yAxisID: 'y2', pointRadius: 4, pointBackgroundColor: '#047857', order: 0 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10, padding: 14, color: '#6b7280' } }
+    },
+    scales: {
+      y:  { position: 'left', beginAtZero: true, max: 2500, grid: { color: '#f3f4f6' }, title: { display: true, text: '광고비(만)', color: '#9ca3af', font: { size: 10 } }, ticks: { color: '#9ca3af' } },
+      y1: { position: 'left', display: false, beginAtZero: true, max: 8 },
+      y2: { position: 'right', beginAtZero: true, max: 4000, grid: { display: false }, title: { display: true, text: 'ROAS', color: '#047857', font: { size: 10 } }, ticks: { callback: v => v.toLocaleString() + '%', color: '#047857' } },
+      x:  { grid: { display: false }, ticks: { color: '#9ca3af' } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

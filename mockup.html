@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포쿨 대시보드 — 리디자인 목업</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css">
+<style>
+:root{
+  --bg:#f8fafc;--sf:#ffffff;--navy:#0f172a;--navy2:#1e293b;
+  --green:#16a34a;--red:#dc2626;--blue:#2563eb;--purple:#7c3aed;
+  --t1:#0f172a;--t2:#475569;--t3:#94a3b8;
+  --bd:#e2e8f0;--r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'SUIT',sans-serif;background:var(--bg);color:var(--t1);font-size:15px;line-height:1.6}
+
+/* ─── Sticky Header ─── */
+.header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--bd);padding:14px 32px;display:flex;align-items:center;gap:16px}
+.header h1{font-size:18px;font-weight:900;color:var(--navy);letter-spacing:-.3px}
+.header h1 span{color:var(--purple);font-weight:900}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.date-range{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--t1);cursor:pointer}
+.phobis-btn{background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;border:none;border-radius:12px;padding:8px 18px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(168,85,247,.3)}
+.phobis-btn:hover{filter:brightness(1.06)}
+
+/* ─── Hero Section ─── */
+.hero{padding:28px 32px 20px;background:#fff;border-bottom:1px solid #f1f5f9}
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1200px}
+.hero-card{background:var(--bg);border-radius:var(--r);padding:24px 28px;position:relative;border:1px solid #e2e8f0;transition:box-shadow .2s}
+.hero-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.hero-card.primary{background:linear-gradient(135deg,#eff6ff 0%,#f5f3ff 100%);border-color:#c7d2fe}
+.hero-label{font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.hero-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.hero-val{font-size:42px;font-weight:900;letter-spacing:-1px;color:var(--t1);line-height:1.1;font-variant-numeric:tabular-nums}
+.hero-val .unit{font-size:22px;font-weight:700;color:var(--t2);margin-left:2px}
+.hero-val .sym{font-size:26px;font-weight:600;color:var(--t2)}
+.hero-chg{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:800}
+.hero-chg.up{background:#dcfce7;color:#15803d}
+.hero-chg.down{background:#fee2e2;color:#b91c1c}
+.hero-chg.neutral{background:#f1f5f9;color:#64748b}
+.hero-sub{font-size:11.5px;color:var(--t3);margin-top:6px}
+
+/* ─── Chart Section ─── */
+.chart-section{padding:24px 32px;background:#fff;margin-bottom:8px}
+.chart-title{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.chart-box{height:260px;background:linear-gradient(180deg,#fafbfc 0%,#fff 100%);border:1px solid var(--bd);border-radius:var(--r);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.chart-mock{width:90%;height:80%;position:relative}
+.chart-line{position:absolute;bottom:0;left:0;right:0;height:100%}
+.chart-line svg{width:100%;height:100%}
+
+/* ─── Tab Navigation ─── */
+.tab-nav{padding:0 32px;background:#fff;border-bottom:1px solid var(--bd);display:flex;gap:0;position:sticky;top:57px;z-index:99}
+.tab-item{padding:13px 22px;font-size:14px;font-weight:700;color:var(--t2);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s}
+.tab-item:hover{color:var(--t1);background:#f8fafc}
+.tab-item.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:800}
+
+/* ─── Content ─── */
+.content{padding:24px 32px;max-width:1200px}
+.section-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* ─── Alert Cards ─── */
+.alert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-bottom:24px}
+.alert-card{padding:16px 20px;border-radius:14px;border-left:4px solid;font-size:13.5px;line-height:1.6}
+.alert-card.warn{background:#fffbeb;border-color:#f59e0b;color:#92400e}
+.alert-card.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.alert-card b{font-weight:800}
+
+/* ─── KPI Sub Grid ─── */
+.kpi-sub{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+.kpi-mini{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:14px 16px}
+.kpi-mini-label{font-size:11.5px;font-weight:700;color:var(--t3);margin-bottom:4px}
+.kpi-mini-val{font-size:22px;font-weight:900;color:var(--t1);font-variant-numeric:tabular-nums}
+.kpi-mini-chg{font-size:11px;font-weight:700;margin-top:2px}
+.kpi-mini-chg.up{color:#16a34a}.kpi-mini-chg.down{color:#dc2626}
+
+/* ─── Table ─── */
+.data-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--bd);border-radius:14px;overflow:hidden;font-size:13px;margin-bottom:24px}
+.data-table thead th{background:#f8fafc;padding:12px 14px;font-weight:800;color:var(--t2);text-align:left;border-bottom:1px solid var(--bd);font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+.data-table tbody td{padding:12px 14px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover td{background:#fafbfe}
+.data-table .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.badge.shop{background:#dbeafe;color:#1e40af}
+.badge.power{background:#dcfce7;color:#15803d}
+.badge.roas-good{background:#dcfce7;color:#15803d}
+.badge.roas-warn{background:#fef3c7;color:#a16207}
+
+/* ─── Phobis FAB (미리보기) ─── */
+.fab{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#a855f7,#6366f1);color:#fff;border:none;cursor:pointer;box-shadow:0 10px 28px rgba(236,72,153,.45);z-index:900;display:flex;align-items:center;justify-content:center;font-size:28px;animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 10px 28px rgba(236,72,153,.45),0 0 0 0 rgba(168,85,247,.55)}50%{box-shadow:0 10px 28px rgba(236,72,153,.45),0 0 0 16px rgba(168,85,247,0)}}
+
+/* ─── Footer Spacer ─── */
+.footer-spacer{height:80px}
+
+@media(max-width:768px){
+  .hero-grid{grid-template-columns:1fr}
+  .header{padding:12px 16px}
+  .hero,.chart-section,.content{padding-left:16px;padding-right:16px}
+  .hero-val{font-size:32px}
+}
+</style>
+</head>
+<body>
+
+<!-- Sticky Header -->
+<header class="header">
+  <h1>📊 포쿨 <span>광고 대시보드</span></h1>
+  <div class="header-right">
+    <div class="date-range">📅 2026.04.09 → 2026.04.15</div>
+    <button class="phobis-btn">💁‍♀️ 포비스</button>
+  </div>
+</header>
+
+<!-- Hero: Big 3 Numbers -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-card primary">
+      <div class="hero-label"><span class="hero-dot" style="background:#7c3aed"></span>광고수익률 (ROAS)</div>
+      <div class="hero-val">13,181<span class="unit">%</span></div>
+      <span class="hero-chg down">▼ 16% vs 전주</span>
+      <div class="hero-sub">전환매출 ₩10.5억 ÷ 광고비 ₩800만</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-label"><span class="hero-dot" style="background:#2563eb"></span>이번 주 광고비</div>
+      <div class="hero-val"><span class="sym">₩</span>7,999,565</div>
+      <span class="hero-chg up">▲ 10% vs 전주</span>
+      <div class="hero-sub">일 평균 ₩1,142,795</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-label"><span class="hero-dot" style="background:#16a34a"></span>전환매출</div>
+      <div class="hero-val"><span class="sym">₩</span>1,054,388,370</div>
+      <span class="hero-chg up">▲ 5% vs 전주</span>
+      <div class="hero-sub">전환 602건 · 전환당 ₩1,751,475</div>
+    </div>
+  </div>
+</section>
+
+<!-- Chart: Immediately Visible -->
+<section class="chart-section">
+  <div class="chart-title">📈 일별 추이 <span style="font-weight:500;color:#94a3b8;font-size:13px">— 최근 7일</span></div>
+  <div class="chart-box">
+    <div class="chart-mock">
+      <svg viewBox="0 0 700 200" preserveAspectRatio="none">
+        <!-- 격자 -->
+        <line x1="0" y1="50" x2="700" y2="50" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="0" y1="100" x2="700" y2="100" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="0" y1="150" x2="700" y2="150" stroke="#f1f5f9" stroke-width="1"/>
+        <!-- 광고비 (파랑) -->
+        <polyline points="0,120 117,95 233,140 350,110 467,85 583,100 700,90" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- ROAS (보라) -->
+        <polyline points="0,80 117,60 233,130 350,100 467,50 583,70 700,55" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- 전환 (초록) -->
+        <polyline points="0,160 117,140 233,170 350,150 467,130 583,135 700,125" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 4"/>
+        <!-- 포인트 -->
+        <circle cx="583" cy="100" r="4" fill="#2563eb"/>
+        <circle cx="583" cy="70" r="4" fill="#7c3aed"/>
+      </svg>
+      <!-- 범례 -->
+      <div style="position:absolute;top:12px;right:16px;display:flex;gap:16px;font-size:12px;font-weight:700">
+        <span style="color:#2563eb">● 광고비</span>
+        <span style="color:#7c3aed">● ROAS</span>
+        <span style="color:#16a34a">● 전환</span>
+      </div>
+      <!-- 날짜 라벨 -->
+      <div style="position:absolute;bottom:4px;left:0;right:0;display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;padding:0 10px">
+        <span>4.9</span><span>4.10</span><span>4.11</span><span>4.12</span><span>4.13</span><span>4.14</span><span>4.15</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+  <div class="tab-item active">📊 현황</div>
+  <div class="tab-item">📈 트렌드</div>
+  <div class="tab-item">🔍 키워드</div>
+  <div class="tab-item">📋 캠페인</div>
+  <div class="tab-item">🎯 AI 전략</div>
+</nav>
+
+<!-- Content: 현황 탭 -->
+<div class="content">
+
+  <!-- 경고 -->
+  <div class="section-title">⚠️ 즉시 확인 필요 <span style="background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:6px;font-size:12px">2건</span></div>
+  <div class="alert-grid">
+    <div class="alert-card danger">
+      <b>전환 0 캠페인 ₩503,548 소진</b><br>
+      파워#고효율기기/자사몰 (₩314,677) + 캐리어 가격비교 437 (₩188,871)
+    </div>
+    <div class="alert-card warn">
+      <b>고효율기기 키워드 4종 낭비 ₩136,730</b><br>
+      소상공인고효율기기, 한전고효율가전환급 등 — 클릭 있으나 전환 0
+    </div>
+  </div>
+
+  <!-- KPI 서브 그리드 -->
+  <div class="section-title">📊 세부 지표</div>
+  <div class="kpi-sub">
+    <div class="kpi-mini">
+      <div class="kpi-mini-label">노출수</div>
+      <div class="kpi-mini-val">449,398</div>
+      <div class="kpi-mini-chg down">▼ 26%</div>
+    </div>
+    <div class="kpi-mini">
+      <div class="kpi-mini-label">클릭수</div>
+      <div class="kpi-mini-val">5,198</div>
+      <div class="kpi-mini-chg down">▼ 3%</div>
+    </div>
+    <div class="kpi-mini">
+      <div class="kpi-mini-label">클릭률 (CTR)</div>
+      <div class="kpi-mini-val">1.16%</div>
+      <div class="kpi-mini-chg up">▲ 32%</div>
+    </div>
+    <div class="kpi-mini">
+      <div class="kpi-mini-label">평균 CPC</div>
+      <div class="kpi-mini-val">₩1,539</div>
+      <div class="kpi-mini-chg up" style="color:var(--red)">▲ 13%</div>
+    </div>
+    <div class="kpi-mini">
+      <div class="kpi-mini-label">전환수</div>
+      <div class="kpi-mini-val">602</div>
+      <div class="kpi-mini-chg neutral" style="color:#64748b">— 0%</div>
+    </div>
+    <div class="kpi-mini">
+      <div class="kpi-mini-label">전환율</div>
+      <div class="kpi-mini-val">11.58%</div>
+      <div class="kpi-mini-chg up">▲ 3%</div>
+    </div>
+  </div>
+
+  <!-- 캠페인 TOP 5 -->
+  <div class="section-title">🏆 광고비 TOP 5 캠페인</div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>캠페인</th>
+        <th>유형</th>
+        <th class="num">광고비</th>
+        <th class="num">전환</th>
+        <th class="num">ROAS</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-weight:700">006. 쇼검#스타리온/E45BAR/업소용</td>
+        <td><span class="badge shop">쇼핑검색</span></td>
+        <td class="num">₩2,923,495</td>
+        <td class="num">57</td>
+        <td class="num"><span class="badge roas-good">4,025%</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:700">007. 쇼검#스타리온/B45ES/1등급</td>
+        <td><span class="badge shop">쇼핑검색</span></td>
+        <td class="num">₩833,397</td>
+        <td class="num">45</td>
+        <td class="num"><span class="badge roas-good">10,747%</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:700">001. 가/유니카달로그</td>
+        <td><span class="badge shop">쇼핑검색</span></td>
+        <td class="num">₩520,505</td>
+        <td class="num">38</td>
+        <td class="num"><span class="badge roas-good">13,397%</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:700">21. 프레스코 FRE-465RFAB</td>
+        <td><span class="badge shop">쇼핑검색</span></td>
+        <td class="num">₩328,278</td>
+        <td class="num">28</td>
+        <td class="num"><span class="badge roas-good">17,055%</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:700;color:#dc2626">0001. 파워#고효율기기/자사몰</td>
+        <td><span class="badge power">파워링크</span></td>
+        <td class="num">₩314,677</td>
+        <td class="num" style="color:#dc2626;font-weight:800">0</td>
+        <td class="num"><span class="badge roas-warn">0%</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<!-- Phobis FAB -->
+<button class="fab" title="포비스에게 물어보기">💁‍♀️</button>
+
+<div class="footer-spacer"></div>
+</body>
+</html>
