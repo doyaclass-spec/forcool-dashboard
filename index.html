@@ -531,7 +531,55 @@ td{padding:8px 11px;color:var(--t1);white-space:nowrap;font-variant-numeric:tabu
 @media(max-width:900px){.rpt-top{grid-template-columns:1fr}.rpt-kpi-grid{grid-template-columns:repeat(2,1fr)}.rpt-check-grid{grid-template-columns:1fr}.rpt-focus-grid{grid-template-columns:1fr}.rpt-plan-grid{grid-template-columns:1fr}.rpt-camp-grid{grid-template-columns:1fr}.rpt-mom-grid{grid-template-columns:repeat(2,1fr)}}
 /* 인쇄 */
 @page{size:A4;margin:12mm 10mm}
-@media print{.ai-controls{display:none!important}.rpt-sec-box,.rpt-hl,.rpt-top,.rpt-pov{page-break-inside:avoid;break-inside:avoid}.rpt-sec-title{page-break-after:avoid;break-after:avoid}#aiTab{font-size:11px}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.rpt-chart{height:180px}.rpt-context-input{border:1px solid #ccc}}
+@media print{
+  /* ─── 프리미엄 PDF 인쇄 최적화 ─── */
+  @page{size:A4;margin:15mm 14mm}
+  @page:first{margin:0}
+  body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}
+  /* 대시보드 다른 UI 전부 숨김 */
+  .hdr,.header,.hero,.tab-nav,.phase,.card:not(#reportContainer *),#dpOv,#jvFab,#jvPanel,.hm-tip,.upd,.alert-hd,.alert-body,.tab-content:not(#secStratTab),.ai-controls,.rpt-context,.exec-edit-hint,.dec-actions button,.dec-note-input,.ceo-note-input{display:none!important}
+  .main{max-width:none!important;padding:0!important;margin:0!important}
+  #aiTab{padding:0!important;font-size:10.5px;line-height:1.55}
+  #reportContainer{max-width:none!important;margin:0!important;color:#111827!important}
+  /* 표지 페이지 */
+  .pdf-cover{display:flex!important;flex-direction:column;align-items:center;justify-content:center;width:210mm;height:297mm;padding:40mm 28mm;box-sizing:border-box;background:linear-gradient(180deg,#1e1b4b 0%,#312e81 50%,#4c1d95 100%);color:#fff;page-break-after:always;break-after:page;text-align:center;position:relative;overflow:hidden}
+  .pdf-cover::before{content:"";position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(168,85,247,.3),transparent 70%);pointer-events:none}
+  .pdf-cover::after{content:"";position:absolute;bottom:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#ec4899,#a855f7,#6366f1)}
+  .pdf-cover-logo{font-size:28px;font-weight:900;letter-spacing:-.5px;margin-bottom:32px;color:#fff;opacity:.92}
+  .pdf-cover-type{font-size:11px;font-weight:800;letter-spacing:6px;color:rgba(168,85,247,.85);margin-bottom:14px;text-transform:uppercase}
+  .pdf-cover-title{font-size:48px;font-weight:900;letter-spacing:-1.2px;line-height:1.15;margin-bottom:20px;max-width:160mm}
+  .pdf-cover-period{font-size:18px;font-weight:700;color:rgba(255,255,255,.88);padding:10px 28px;border:1px solid rgba(255,255,255,.3);border-radius:999px;margin-bottom:80px;letter-spacing:.5px}
+  .pdf-cover-footer{position:absolute;bottom:40mm;left:28mm;right:28mm;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.5px}
+  /* 목차 */
+  .pdf-toc{padding:20mm 14mm;page-break-after:always;break-after:page}
+  .pdf-toc-title{font-size:22px;font-weight:900;letter-spacing:-.3px;margin-bottom:18px;color:#1e1b4b}
+  .pdf-toc-title::after{content:"";display:block;width:60px;height:3px;background:linear-gradient(90deg,#6366f1,#a855f7);margin-top:8px}
+  .pdf-toc ol{list-style:none;padding:0;margin:0}
+  .pdf-toc li{padding:8px 0;border-bottom:1px dotted #d1d5db;font-size:13px;display:flex;justify-content:space-between;color:#374151}
+  .pdf-toc li b{color:#1e1b4b;font-weight:800}
+
+  /* Executive Overview 인쇄 시 톤 조정 */
+  .rpt-exec{background:linear-gradient(135deg,#1e1b4b,#312e81)!important;color:#fff!important;page-break-after:always;break-after:page;padding:20mm!important;margin:-15mm -14mm 0!important;border-radius:0!important;min-height:200mm}
+  .rpt-exec *{color:inherit}
+  .rpt-exec .exec-sum-text,.rpt-exec .dec-q,.rpt-exec .risk-title{color:#fff!important}
+
+  /* 일반 섹션 인쇄 */
+  .rpt-sec-box,.rpt-hl,.rpt-top,.rpt-pov,.dec-card,.risk-card,.kp-score{page-break-inside:avoid;break-inside:avoid}
+  .rpt-sec-title{page-break-after:avoid;break-after:avoid;font-size:14px!important}
+  .rpt-pov{background:linear-gradient(135deg,#f5f3ff,#fdf2f8)!important}
+  .rpt-pov::before{display:none}
+  .rpt-pov-badge{margin-left:0!important}
+  .rpt-chart{height:140px}
+  .rpt-context-input{border:1px solid #ccc;display:none}
+
+  /* 페이지 나누기 힌트 */
+  .rpt-hl,.bm-table,.rpt-exec{page-break-before:avoid}
+
+  /* 링크 URL 숨김 */
+  a[href]:after{content:""}
+}
+/* 화면에선 표지·목차 숨김 (인쇄 시에만) */
+.pdf-cover,.pdf-toc{display:none}
 
 /* ─── 접기/펴기 공통 ─── */
 .sec-hd{
@@ -1461,6 +1509,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <div class="ai-actions">
       <button onclick="generateReport()">✨ 보고서 생성</button>
       <button onclick="window.print()">📄 PDF 저장</button>
+      <button onclick="openBrandModal()" title="브랜드 설정" aria-label="브랜드 설정" style="padding:9px 12px!important;background:#fff!important;color:var(--rp-text)!important;border:1px solid var(--rp-border)!important">⚙️</button>
     </div>
   </div>
   <div id="reportLoading" class="rpt-loading" style="display:none"><div class="spinner"></div>보고서 생성 중… (약 5~10초)</div>
@@ -3369,6 +3418,114 @@ function _renderDriverDecomposition(){
 }
 
 /* ══════════════════════════════════════════════════════════════════
+   White-label 브랜드 설정 + PDF 표지/목차 (수익화 핵심)
+   ══════════════════════════════════════════════════════════════════ */
+const BRAND_KEY='fc_brand_v1';
+function _getBrand(){
+  try{const b=JSON.parse(localStorage.getItem(BRAND_KEY)||'{}');return{companyName:b.companyName||'포쿨',reportName:b.reportName||'포쿨 네이버 광고',clientName:b.clientName||'',authorName:b.authorName||'',logoEmoji:b.logoEmoji||'📊',tagline:b.tagline||'네이버 검색광고 성과 분석 보고서'};}catch{return{companyName:'포쿨',reportName:'포쿨 네이버 광고',clientName:'',authorName:'',logoEmoji:'📊',tagline:'네이버 검색광고 성과 분석 보고서'};}
+}
+function _saveBrand(b){try{localStorage.setItem(BRAND_KEY,JSON.stringify(b));}catch{}}
+
+function openBrandModal(){
+  const b=_getBrand();
+  let overlay=document.getElementById('brandOv');
+  if(!overlay){
+    overlay=document.createElement('div');overlay.id='brandOv';
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px';
+    overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML=`<div style="background:#fff;border-radius:16px;padding:28px 32px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="margin:0;font-size:20px;font-weight:900;color:#1e1b4b">🏷️ 브랜드 설정</h3>
+      <button onclick="document.getElementById('brandOv').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#6b7280">×</button>
+    </div>
+    <div style="font-size:12px;color:#6b7280;margin-bottom:20px;line-height:1.6">PDF 표지·보고서 헤더에 표시됩니다. 다른 광고주에게 보고서 제공 시 클라이언트명을 바꿔서 쓸 수 있습니다.</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <label><div style="font-size:11px;font-weight:800;color:#374151;margin-bottom:4px">회사명 / 로고 이모지</div><div style="display:flex;gap:8px"><input id="bf_logo" value="${b.logoEmoji}" style="width:60px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;text-align:center;font-size:18px"><input id="bf_company" value="${b.companyName}" style="flex:1;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-weight:600"></div></label>
+      <label><div style="font-size:11px;font-weight:800;color:#374151;margin-bottom:4px">보고서 명칭 (타이틀에 사용)</div><input id="bf_report" value="${b.reportName}" placeholder="예: 포쿨 네이버 광고" style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px"></label>
+      <label><div style="font-size:11px;font-weight:800;color:#374151;margin-bottom:4px">클라이언트명 (수신자, 선택)</div><input id="bf_client" value="${b.clientName}" placeholder="예: 대표 이재용" style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px"></label>
+      <label><div style="font-size:11px;font-weight:800;color:#374151;margin-bottom:4px">작성자 (선택)</div><input id="bf_author" value="${b.authorName}" placeholder="예: 도야마케팅" style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px"></label>
+      <label><div style="font-size:11px;font-weight:800;color:#374151;margin-bottom:4px">부제 (PDF 표지)</div><input id="bf_tagline" value="${b.tagline}" style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px"></label>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
+      <button onclick="document.getElementById('brandOv').remove()" style="padding:10px 18px;border:1px solid #e5e7eb;background:#fff;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="(function(){const b={logoEmoji:document.getElementById('bf_logo').value,companyName:document.getElementById('bf_company').value,reportName:document.getElementById('bf_report').value,clientName:document.getElementById('bf_client').value,authorName:document.getElementById('bf_author').value,tagline:document.getElementById('bf_tagline').value};_saveBrand(b);document.getElementById('brandOv').remove();showToast&&showToast('✓ 브랜드 설정 저장됨');})()" style="padding:10px 22px;border:none;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(99,102,241,.3)">저장</button>
+    </div>
+  </div>`;
+}
+window.openBrandModal=openBrandModal;
+
+function _renderPdfCover(mode,brand){
+  const title=mode==='weekly'?`${brand.reportName} 주간 보고서`:`${brand.reportName} 월간 보고서`;
+  const type=mode==='weekly'?'WEEKLY REPORT':'MONTHLY REPORT';
+  const period=mode==='weekly'?`${_getWeekLabel()} · ${_getPeriodStr()}`:`${_getMonthLabel()} · ${_getPeriodStr()}`;
+  const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+  return`<div class="pdf-cover">
+    <div class="pdf-cover-logo">${brand.logoEmoji} ${brand.companyName}</div>
+    <div class="pdf-cover-type">${type}</div>
+    <div class="pdf-cover-title">${title}</div>
+    <div class="pdf-cover-period">${period}</div>
+    <div class="pdf-cover-footer">
+      <div>${brand.tagline||''}</div>
+      <div>${brand.clientName?`To. ${brand.clientName} · `:''}${brand.authorName||''} · ${today}</div>
+    </div>
+  </div>`;
+}
+
+function _renderPdfToc(mode){
+  const sections=mode==='weekly'?[
+    ['Executive Overview','결정 사항 · 긴급 리스크'],
+    ['KPI 벤치마크','이동평균 · 목표 대비'],
+    ['매출 드라이버 분해','매체별 기여도'],
+    ['핵심 KPI + 월 목표',''],
+    ['구매완료 실적',''],
+    ['예산 소진 페이스',''],
+    ['매체별 주간 성과',''],
+    ['캠페인 Top 5 / Bottom 5',''],
+    ['낭비 키워드 Top 10',''],
+    ['매체 포트폴리오 비중',''],
+    ['요일별 ROAS 분포',''],
+    ['브랜드 vs 일반 키워드',''],
+    ['이상치 감지',''],
+    ['시나리오 플래닝','예산 변화 시뮬'],
+    ['리스크 레지스터',''],
+    ['키워드 포트폴리오 건강도',''],
+    ['품질 지수 추론',''],
+    ['8주 추이 · ROAS',''],
+    ['이슈 체크리스트',''],
+    ['다음 주 FOCUS',''],
+    ['ForVis 전문가 코멘트','']
+  ]:[
+    ['Executive Overview','결정 사항 · 긴급 리스크'],
+    ['KPI 벤치마크','이동평균 · 목표 대비'],
+    ['매출 드라이버 분해','매체별 기여도'],
+    ['핵심 KPI + 연간 목표',''],
+    ['Executive Summary',''],
+    ['MoM 상세 비교',''],
+    ['구매완료 실적',''],
+    ['예산 소진 페이스',''],
+    ['낭비 키워드 Top 10',''],
+    ['매체 포트폴리오 비중',''],
+    ['브랜드 vs 일반',''],
+    ['월말 예상',''],
+    ['이상치 감지',''],
+    ['시나리오 플래닝',''],
+    ['리스크 레지스터',''],
+    ['키워드 포트폴리오 건강도',''],
+    ['품질 지수 추론',''],
+    ['매체별 월간 성과',''],
+    ['6개월 추이',''],
+    ['ForVis 전문가 코멘트','']
+  ];
+  const rows=sections.map((s,i)=>`<li><span><b>${String(i+1).padStart(2,'0')}.</b> ${s[0]}${s[1]?` <span style="color:#9ca3af;font-size:11px">— ${s[1]}</span>`:''}</span></li>`).join('');
+  return`<div class="pdf-toc">
+    <div class="pdf-toc-title">CONTENTS · 목차</div>
+    <ol>${rows}</ol>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════
    SaaS급 고도화: What-If / Risk Matrix / Keyword Portfolio / QS 추론
    ══════════════════════════════════════════════════════════════════ */
 
@@ -3935,10 +4092,13 @@ async function renderWeeklyReport(){
   // FOCUS
   let focusHtml='';focus.forEach(f=>{focusHtml+=`<div class="rpt-focus-card"><div class="rpt-focus-num">FOCUS ${f.num}</div><div class="rpt-focus-title">${f.title}</div><div class="rpt-focus-desc">${f.desc}</div></div>`});
 
+  const brand=_getBrand();
   const html=`
+  ${_renderPdfCover('weekly',brand)}
+  ${_renderPdfToc('weekly')}
   <div class="rpt-head">
-    <div><div class="rpt-badge">WEEKLY REPORT</div><div class="rpt-title">포쿨 네이버 광고 주간 보고서</div></div>
-    <div class="rpt-sub">${_getWeekLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}</div>
+    <div><div class="rpt-badge">WEEKLY REPORT</div><div class="rpt-title">${brand.reportName||'포쿨 네이버 광고'} 주간 보고서</div></div>
+    <div class="rpt-sub">${_getWeekLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}${brand.clientName?`<br>To: ${brand.clientName}`:''}</div>
   </div>
   <!-- ① Executive Overview (대표 결정 중심) -->
   ${_renderExecutiveOverview('weekly')}
@@ -4090,10 +4250,13 @@ async function renderMonthlyReport(){
   ];
   let planHtml='';plans.forEach(p=>{planHtml+=`<div class="rpt-focus-card"><div class="rpt-focus-num">${p.num}</div><div class="rpt-focus-title">${p.title}</div><div class="rpt-focus-desc">${p.desc}</div><div class="rpt-focus-budget">${p.budget}</div></div>`});
 
+  const brand=_getBrand();
   const html=`
+  ${_renderPdfCover('monthly',brand)}
+  ${_renderPdfToc('monthly')}
   <div class="rpt-head monthly">
-    <div><div class="rpt-badge">▣ MONTHLY REPORT</div><div class="rpt-title">포쿨 네이버 광고 월간 보고서</div></div>
-    <div class="rpt-sub">${_getMonthLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}</div>
+    <div><div class="rpt-badge">▣ MONTHLY REPORT</div><div class="rpt-title">${brand.reportName||'포쿨 네이버 광고'} 월간 보고서</div></div>
+    <div class="rpt-sub">${_getMonthLabel()} · ${_getPeriodStr()}<br>생성: ${new Date().toLocaleDateString('ko-KR')}${brand.clientName?`<br>To: ${brand.clientName}`:''}</div>
   </div>
   <!-- ① Executive Overview (대표 결정 중심) -->
   ${_renderExecutiveOverview('monthly')}
