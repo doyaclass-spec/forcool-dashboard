@@ -5405,7 +5405,11 @@ async function init(){
   updateHeaderDate();
   try{populateReportSelectors()}catch(e){console.warn('populateReportSelectors:',e?.message||e)}
   await fetchDashboardData();
-  renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();renderWeeklyReport();
+  // 각 렌더는 한 함수 에러가 전체 흐름을 막지 않도록 try/catch
+  const safe=(fn,name)=>{try{fn();}catch(e){console.warn('init '+name+' fail:',e?.message||e);}};
+  safe(renderHero,'renderHero');safe(renderAlerts,'renderAlerts');safe(renderKpi,'renderKpi');
+  safe(initTrend,'initTrend');safe(renderHm,'renderHm');safe(renderKw,'renderKw');safe(renderCmp,'renderCmp');
+  safe(renderLog,'renderLog');safe(renderWeeklyReport,'renderWeeklyReport');
   try{populateReportSelectors()}catch(e){console.warn('populateReportSelectors:',e?.message||e)}
   // 초기 렌더 후 자주 쓰는 기간 프리페치 (유휴 시)
   if('requestIdleCallback' in window)requestIdleCallback(()=>prefetchCommonRanges(),{timeout:3000});
