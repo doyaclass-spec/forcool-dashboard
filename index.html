@@ -1117,39 +1117,54 @@ button:disabled{opacity:.55;cursor:not-allowed}
   </div>
 
   <div class="sb-section">
-    <div class="sb-section-title">화면 모드</div>
-    <button class="sb-btn sb-mode-btn active" data-mode="dashboard" onclick="setMode('dashboard')">
-      <span class="sb-icon">📊</span><span>광고 대시보드</span>
-    </button>
-    <button class="sb-btn sb-mode-btn" data-mode="report" onclick="setMode('report')">
-      <span class="sb-icon">📒</span><span>광고 보고서</span>
-    </button>
-  </div>
-
-  <div class="sb-section">
-    <div class="sb-section-title">광고 채널</div>
-    <button class="sb-btn sb-ch-btn active" data-type="전체" onclick="switchChannel('전체')">
+    <div class="sb-group-title"><span>📊</span> 광고 대시보드</div>
+    <button class="sb-btn sb-view-btn active" data-mode="dashboard" data-type="전체" onclick="setView('dashboard','전체')">
       <span class="sb-ch-dot" style="background:#2563eb"></span><span>통합</span>
     </button>
-    <button class="sb-btn sb-ch-btn" data-type="파워링크" onclick="switchChannel('파워링크')">
+    <button class="sb-btn sb-view-btn" data-mode="dashboard" data-type="파워링크" onclick="setView('dashboard','파워링크')">
       <span class="sb-ch-dot" style="background:#16a34a"></span><span>파워링크</span>
     </button>
-    <button class="sb-btn sb-ch-btn" data-type="쇼핑검색" onclick="switchChannel('쇼핑검색')">
+    <button class="sb-btn sb-view-btn" data-mode="dashboard" data-type="쇼핑검색" onclick="setView('dashboard','쇼핑검색')">
       <span class="sb-ch-dot" style="background:#f97316"></span><span>쇼핑검색</span>
     </button>
-    <button class="sb-btn sb-ch-btn" data-type="GFA" onclick="switchChannel('GFA')">
+    <button class="sb-btn sb-view-btn" data-mode="dashboard" data-type="GFA" onclick="setView('dashboard','GFA')">
       <span class="sb-ch-dot" style="background:#a855f7"></span><span>GFA</span>
     </button>
-    <button class="sb-btn sb-ch-btn sb-disabled" data-type="쿠팡" onclick="alert('쿠팡 광고는 곧 추가됩니다 (CSV 업로드 예정)')">
+    <button class="sb-btn sb-view-btn sb-disabled" data-mode="dashboard" data-type="쿠팡" onclick="alert('쿠팡 광고는 곧 추가됩니다 (CSV 업로드 예정)')">
       <span class="sb-ch-dot" style="background:#facc15"></span><span>쿠팡</span><span class="sb-soon">준비중</span>
     </button>
-    <button class="sb-btn sb-ch-btn sb-disabled" data-type="자사몰" onclick="alert('자사몰은 곧 추가됩니다')">
+    <button class="sb-btn sb-view-btn sb-disabled" data-mode="dashboard" data-type="자사몰" onclick="alert('자사몰은 곧 추가됩니다')">
       <span class="sb-ch-dot" style="background:#dc2626"></span><span>자사몰</span><span class="sb-soon">준비중</span>
     </button>
   </div>
 
+  <div class="sb-divider"></div>
+
   <div class="sb-section">
-    <div class="sb-section-title">도구</div>
+    <div class="sb-group-title"><span>📒</span> 광고 보고서</div>
+    <button class="sb-btn sb-view-btn" data-mode="report" data-type="전체" onclick="setView('report','전체')">
+      <span class="sb-ch-dot" style="background:#2563eb"></span><span>통합</span>
+    </button>
+    <button class="sb-btn sb-view-btn" data-mode="report" data-type="파워링크" onclick="setView('report','파워링크')">
+      <span class="sb-ch-dot" style="background:#16a34a"></span><span>파워링크</span>
+    </button>
+    <button class="sb-btn sb-view-btn" data-mode="report" data-type="쇼핑검색" onclick="setView('report','쇼핑검색')">
+      <span class="sb-ch-dot" style="background:#f97316"></span><span>쇼핑검색</span>
+    </button>
+    <button class="sb-btn sb-view-btn" data-mode="report" data-type="GFA" onclick="setView('report','GFA')">
+      <span class="sb-ch-dot" style="background:#a855f7"></span><span>GFA</span>
+    </button>
+    <button class="sb-btn sb-view-btn sb-disabled" data-mode="report" data-type="쿠팡" onclick="alert('쿠팡 광고는 곧 추가됩니다 (CSV 업로드 예정)')">
+      <span class="sb-ch-dot" style="background:#facc15"></span><span>쿠팡</span><span class="sb-soon">준비중</span>
+    </button>
+    <button class="sb-btn sb-view-btn sb-disabled" data-mode="report" data-type="자사몰" onclick="alert('자사몰은 곧 추가됩니다')">
+      <span class="sb-ch-dot" style="background:#dc2626"></span><span>자사몰</span><span class="sb-soon">준비중</span>
+    </button>
+  </div>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-section">
     <button class="sb-btn sb-tool-btn" onclick="jvOpen()">
       <span class="sb-icon">💁‍♀️</span><span>포비스 호출</span>
     </button>
@@ -1184,6 +1199,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
   .sb-close:hover{background:#1e293b}
   .sb-section{display:flex;flex-direction:column;gap:3px}
   .sb-section-title{font-size:10.5px;font-weight:800;color:#64748b;letter-spacing:.5px;text-transform:uppercase;padding:0 10px 6px}
+  .sb-group-title{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:900;color:#f1f5f9;padding:4px 10px 8px;letter-spacing:-.2px}
+  .sb-group-title span{font-size:15px}
+  .sb-divider{height:1px;background:#1e293b;margin:6px 8px}
   .sb-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;background:transparent;color:#cbd5e1;border:none;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left;transition:all .12s;width:100%}
   .sb-btn:hover:not(.sb-disabled){background:#1e293b;color:#fff}
   .sb-btn.active{background:linear-gradient(135deg,rgba(124,58,237,.18),rgba(37,99,235,.18));color:#fff;box-shadow:inset 3px 0 0 #7c3aed}
@@ -5567,15 +5585,21 @@ window.GFA_CATALOG_DAILY = {
 // 현재 선택 채널 (전체/파워링크/쇼핑검색/GFA)
 window.CURRENT_CHANNEL = 'GFA' === (window.WR_STATE && window.WR_STATE.type) ? 'GFA' : '전체';
 
+// 모드 + 채널 한 번에 설정 (사이드바 통합 메뉴용)
+function setView(mode, channel){
+  setMode(mode);
+  switchChannel(channel);
+  // 사이드바 view 버튼 active 동기화
+  document.querySelectorAll('.sb-view-btn').forEach(b=>{
+    const isActive = b.dataset.mode===mode && b.dataset.type===channel;
+    b.classList.toggle('active', isActive);
+  });
+}
+
 function setMode(mode){
   // 'dashboard' | 'report'
   document.body.classList.remove('mode-dashboard','mode-report');
   document.body.classList.add('mode-'+mode);
-  // 사이드바 + 헤더 토글 active 동기화
-  document.querySelectorAll('.sb-mode-btn').forEach(b=>{
-    const isActive = b.dataset.mode===mode;
-    b.classList.toggle('active', isActive);
-  });
   try{localStorage.setItem('fc_mode', mode);}catch{}
   updatePageTitle();
   if(mode==='report'){
@@ -5633,8 +5657,10 @@ function closeSidebar(){
   const savedCh = localStorage.getItem('fc_channel');
   if(savedCh && ['전체','파워링크','쇼핑검색','GFA'].includes(savedCh)) window.CURRENT_CHANNEL = savedCh;
   setTimeout(()=>{
-    document.querySelectorAll('.sb-mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
-    document.querySelectorAll('.sb-ch-btn').forEach(b=>b.classList.toggle('active', b.dataset.type===window.CURRENT_CHANNEL));
+    // 통합 메뉴(sb-view-btn) active 동기화
+    document.querySelectorAll('.sb-view-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.mode===mode && b.dataset.type===window.CURRENT_CHANNEL);
+    });
     updatePageTitle();
     if(mode==='report'){try{renderWeeklyReport();}catch{}}
   },100);
