@@ -5269,7 +5269,11 @@ async function renderWeeklyReport(){
     }
 
     // 주별/월별 집계
-    const weeks=wrGroupByWeek(labels, mets).map(wrCalc);
+    // 7일 모두 채워진 완성된 주차만 사용 (진행 중인 주차 제외)
+    const weeks=wrGroupByWeek(labels, mets).map(wrCalc).filter(w=>{
+      const diffDays = Math.round((w.weekEnd - w.weekStart) / 86400000);
+      return diffDays >= 6; // 6일 차이 = 7일 묶음
+    });
     const months=wrGroupByMonth(labels, mets).map(wrCalc);
 
     // 드롭다운에 주차 옵션 채우기 (최신 → 과거 순서)
