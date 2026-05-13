@@ -5449,8 +5449,15 @@ async function copyWeeklyReport(){
       if(!txt.startsWith('⚪'))el.textContent='⚪ '+txt;
       el.style.color='#64748b';el.style.fontWeight='600';
     });
-    // 강조 행 (현재 주차)
-    wrap.querySelectorAll('tr.hl td').forEach(el=>{el.style.background='#fffbeb';el.style.fontWeight='700';});
+    // 강조 행 (현재 주차) — 노션이 셀 배경색 미지원이라 첫 셀에 ⭐ 이모지 추가
+    wrap.querySelectorAll('tr.hl').forEach(tr=>{
+      const firstCell=tr.querySelector('td');
+      if(firstCell){
+        const txt=firstCell.textContent.trim();
+        if(!txt.startsWith('⭐'))firstCell.textContent='⭐ '+txt;
+      }
+      tr.querySelectorAll('td').forEach(el=>{el.style.background='#fffbeb';el.style.fontWeight='700';});
+    });
     // 표 헤더
     wrap.querySelectorAll('thead th').forEach(el=>{el.style.background='#f8fafc';el.style.color='#475569';el.style.fontWeight='800';el.style.padding='9px 11px';el.style.textAlign='left';el.style.fontSize='12px';});
     // 표 본문 셀
