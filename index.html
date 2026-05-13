@@ -1141,6 +1141,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('trend')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('trend')}">📈 트렌드</div>
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('keyword')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('keyword')}">🔍 키워드</div>
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('campaign')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('campaign')}">📋 캠페인</div>
+  <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('report')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('report')}">📒 포쿨 광고 보고서</div>
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('strategy')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('strategy')}">🎯 AI 전략 보고서</div>
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('gfa')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('gfa')}">📺 GFA 디스플레이</div>
 </nav>
@@ -1499,38 +1500,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 <div class="card-body" id="secStrat" style="max-height:3000px">
 
-<!-- ⑦ 포쿨 광고보고서 (노션 복사용) -->
-<div id="weeklyReportTab" style="padding:0 16px 16px;border-bottom:1px solid #e2e8f0;margin-bottom:16px">
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 0 12px;border-bottom:1px dashed #e2e8f0;margin-bottom:14px">
-    <div style="font-size:18px;font-weight:900;color:#0f172a">📒 포쿨 광고보고서</div>
-    <span style="font-size:12px;color:#64748b;font-weight:500">노션 바로 복사 · 매주 업데이트</span>
-    <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
-      <button class="wr-tab active" data-type="파워링크" onclick="switchWrType('파워링크')" style="padding:7px 14px;background:#0f172a;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">파워링크</button>
-      <button class="wr-tab" data-type="쇼핑검색" onclick="switchWrType('쇼핑검색')" style="padding:7px 14px;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">쇼핑검색</button>
-      <button class="wr-tab" data-type="브랜드" onclick="switchWrType('브랜드')" style="padding:7px 14px;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">브랜드</button>
-      <button class="wr-tab" data-type="콘텐츠" onclick="switchWrType('콘텐츠')" style="padding:7px 14px;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">콘텐츠</button>
-      <button onclick="copyWeeklyReport()" id="wrCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,.25)">📋 노션에 복사</button>
-    </div>
-  </div>
-  <div id="weeklyReportLoading" style="display:none;padding:20px;text-align:center;color:#64748b;font-size:13px"><span style="display:inline-block;width:18px;height:18px;border:2px solid #e2e8f0;border-top-color:#7c3aed;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:8px"></span>데이터 집계 중...</div>
-  <div id="weeklyReportBody"></div>
-</div>
-<style>
-  .wr-tab.active{background:#0f172a!important;color:#fff!important;border-color:#0f172a!important}
-  .wr-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;margin-bottom:18px}
-  .wr-card h3{font-size:16px;font-weight:900;color:#0f172a;margin:0 0 14px;display:flex;align-items:center;gap:8px}
-  .wr-tbl{width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
-  .wr-tbl thead th{background:#f8fafc;color:#475569;font-weight:800;padding:9px 11px;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap;font-size:12px}
-  .wr-tbl tbody td{padding:9px 11px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap;font-variant-numeric:tabular-nums}
-  .wr-tbl tbody tr:last-child td{border-bottom:none}
-  .wr-tbl tbody tr.hl td{background:#fffbeb;font-weight:700}
-  .wr-tbl .chg-up{color:#dc2626;font-weight:700}
-  .wr-tbl .chg-dn{color:#2563eb;font-weight:700}
-  .wr-tbl .chg-eq{color:#64748b;font-weight:600}
-  .wr-empty{padding:20px;text-align:center;color:#94a3b8;font-size:13px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-</style>
-
 <!-- ⑧ AI 전략 보고서 (주간/월간) -->
 <div id="aiTab" style="padding:0 16px 16px">
   <div class="ai-controls">
@@ -1555,6 +1524,43 @@ button:disabled{opacity:.55;cursor:not-allowed}
 </div><!-- /secStrat -->
 
 </div><!-- /secStratTab tab-content -->
+
+<!-- 📒 포쿨 광고 보고서 (Tab: report) -->
+<div id="secReportTab" class="tab-content">
+<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn1">📒</div><span class="p-title">포쿨 광고 보고서</span><span class="p-date" style="font-size:13px;color:var(--t2)">노션 바로 복사 · 매주 업데이트</span></div></div>
+<div class="card-body" style="max-height:none">
+<div id="weeklyReportTab" style="padding:0 16px 16px">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 0 12px;border-bottom:1px dashed #e2e8f0;margin-bottom:14px">
+    <div style="font-size:18px;font-weight:900;color:#0f172a">📒 포쿨 광고보고서</div>
+    <span style="font-size:12px;color:#64748b;font-weight:500">유형 선택 → 노션에 복사</span>
+    <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="wr-tab active" data-type="파워링크" onclick="switchWrType('파워링크')" style="padding:7px 14px;background:#0f172a;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">파워링크</button>
+      <button class="wr-tab" data-type="쇼핑검색" onclick="switchWrType('쇼핑검색')" style="padding:7px 14px;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">쇼핑검색</button>
+      <button class="wr-tab" data-type="브랜드" onclick="switchWrType('브랜드')" style="padding:7px 14px;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">브랜드</button>
+      <button class="wr-tab" data-type="콘텐츠" onclick="switchWrType('콘텐츠')" style="padding:7px 14px;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">콘텐츠</button>
+      <button onclick="copyWeeklyReport()" id="wrCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,.25)">📋 노션에 복사</button>
+    </div>
+  </div>
+  <div id="weeklyReportLoading" style="display:none;padding:20px;text-align:center;color:#64748b;font-size:13px"><span style="display:inline-block;width:18px;height:18px;border:2px solid #e2e8f0;border-top-color:#7c3aed;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:8px"></span>데이터 집계 중...</div>
+  <div id="weeklyReportBody"></div>
+</div>
+</div>
+</div><!-- /secReportTab -->
+<style>
+  .wr-tab.active{background:#0f172a!important;color:#fff!important;border-color:#0f172a!important}
+  .wr-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;margin-bottom:18px}
+  .wr-card h3{font-size:16px;font-weight:900;color:#0f172a;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+  .wr-tbl{width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
+  .wr-tbl thead th{background:#f8fafc;color:#475569;font-weight:800;padding:9px 11px;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap;font-size:12px}
+  .wr-tbl tbody td{padding:9px 11px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .wr-tbl tbody tr:last-child td{border-bottom:none}
+  .wr-tbl tbody tr.hl td{background:#fffbeb;font-weight:700}
+  .wr-tbl .chg-up{color:#dc2626;font-weight:700}
+  .wr-tbl .chg-dn{color:#2563eb;font-weight:700}
+  .wr-tbl .chg-eq{color:#64748b;font-weight:600}
+  .wr-empty{padding:20px;text-align:center;color:#94a3b8;font-size:13px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
 
 <!-- 📺 GFA 디스플레이 (Tab: gfa) -->
 <div id="secGfaTab" class="tab-content">
@@ -4983,17 +4989,17 @@ function renderHero(){
 
 /* ================================================================ TAB SWITCHING */
 function switchTab(tabId){
-  const map={status:'secStatus',trend:'secTrendTab',keyword:'secDetailTab',campaign:'secDetailTab',strategy:'secStratTab',gfa:'secGfaTab'};
+  const map={status:'secStatus',trend:'secTrendTab',keyword:'secDetailTab',campaign:'secDetailTab',strategy:'secStratTab',report:'secReportTab',gfa:'secGfaTab'};
   document.querySelectorAll('.tab-content').forEach(el=>{el.classList.remove('active')});
   const targetId=map[tabId];
   if(targetId){const t=document.getElementById(targetId);if(t)t.classList.add('active')}
   document.querySelectorAll('.tab-item').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false')});
   if(event&&event.target){event.target.classList.add('active');event.target.setAttribute('aria-selected','true')}
   if(tabId==='gfa') loadGfaData();
-  if(tabId==='strategy'){try{
+  if(tabId==='report'){try{
     const body=document.getElementById('weeklyReportBody');
     if(!body || body.innerHTML.trim().length<50) renderWeeklyReport();
-  }catch(e){console.warn('strategy tab wr fail:',e?.message);}}
+  }catch(e){console.warn('report tab wr fail:',e?.message);}}
 }
 
 /* ================================================================ GFA */
