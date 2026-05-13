@@ -1105,7 +1105,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 <!-- NEW sticky header -->
 <header class="header">
-  <h1>📊 포쿨 <span>광고 대시보드</span></h1>
+  <h1 style="display:flex;align-items:center;gap:14px">
+    <span>📊 포쿨</span>
+    <div class="mode-toggle" role="tablist" aria-label="화면 모드 전환" style="display:inline-flex;background:#f1f5f9;border-radius:10px;padding:3px;gap:2px">
+      <button class="mode-btn active" data-mode="dashboard" onclick="setMode('dashboard')" role="tab" aria-selected="true">📊 광고 대시보드</button>
+      <button class="mode-btn" data-mode="report" onclick="setMode('report')" role="tab" aria-selected="false">📒 광고 보고서</button>
+    </div>
+  </h1>
   <div class="header-right">
     <button class="date-btn" id="dateBtnMain" onclick="toggleDp()" aria-label="분석 기간 선택" style="background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">
       <span class="date-range-txt" id="dateRangeTxt">최근 7일(오늘 포함) : 2026.03.15. ~ 2026.03.21.</span>
@@ -1113,6 +1119,21 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <button class="phobis-btn" onclick="jvOpen()" aria-label="AI 어시스턴트 포비스 열기"><span aria-hidden="true">💁‍♀️</span> 포비스</button>
   </div>
 </header>
+<style>
+  .mode-btn{padding:8px 14px;background:transparent;color:#64748b;border:none;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s;letter-spacing:-.2px}
+  .mode-btn:hover{color:#0f172a}
+  .mode-btn.active{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  body.mode-report .hero,
+  body.mode-report .chart-section,
+  body.mode-report .tab-nav,
+  body.mode-report #secStatus,
+  body.mode-report #secTrendTab,
+  body.mode-report #secDetailTab,
+  body.mode-report #secStratTab,
+  body.mode-report #secGfaTab{display:none!important}
+  body.mode-report #secReportTab{display:block!important}
+  body.mode-dashboard #secReportTab{display:none!important}
+</style>
 
 <!-- Hero: Big 3 Numbers -->
 <section class="hero">
@@ -1143,7 +1164,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('campaign')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('campaign')}">📋 캠페인</div>
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('strategy')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('strategy')}">🎯 AI 전략 보고서</div>
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('gfa')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('gfa')}">📺 GFA 디스플레이</div>
-  <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('report')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('report')}">📒 포쿨 광고 보고서</div>
 </nav>
 
 <!-- DATE PICKER -->
@@ -5061,6 +5081,39 @@ window.FIXED_MONTHLY_DATA = {
   '파워링크|2026-03': {impressions:421422, clicks:6754, ctr:1.61, cpc:561, adSpend:3787070, purchaseCnt:208, crto:3.08, purchaseAmt:156583510, roas:4135, cpConv:18207},
   '파워링크|2026-04': {impressions:556335, clicks:8390, ctr:1.51, cpc:679, adSpend:5693631, purchaseCnt:278, crto:3.31, purchaseAmt:224602180, roas:3945, cpConv:20481},
 };
+
+function setMode(mode){
+  // 'dashboard' | 'report'
+  document.body.classList.remove('mode-dashboard','mode-report');
+  document.body.classList.add('mode-'+mode);
+  document.querySelectorAll('.mode-btn').forEach(b=>{
+    const isActive = b.dataset.mode===mode;
+    b.classList.toggle('active', isActive);
+    b.setAttribute('aria-selected', isActive?'true':'false');
+  });
+  try{localStorage.setItem('fc_mode', mode);}catch{}
+  if(mode==='report'){
+    const body=document.getElementById('weeklyReportBody');
+    if(!body || body.innerHTML.trim().length<50){try{renderWeeklyReport();}catch{}}
+    window.scrollTo({top:0,behavior:'smooth'});
+  } else {
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+// 초기 모드 복원 (기본: dashboard)
+(function(){try{
+  const saved=localStorage.getItem('fc_mode');
+  const mode = (saved==='report') ? 'report' : 'dashboard';
+  document.body.classList.add('mode-'+mode);
+  setTimeout(()=>{
+    document.querySelectorAll('.mode-btn').forEach(b=>{
+      const isActive=b.dataset.mode===mode;
+      b.classList.toggle('active',isActive);
+      b.setAttribute('aria-selected', isActive?'true':'false');
+    });
+    if(mode==='report'){try{renderWeeklyReport();}catch{}}
+  },100);
+}catch{}})();
 
 function onWrWeekChange(val){
   // val: 빈 문자열이면 최신 주차로, 아니면 weeks 배열 인덱스
