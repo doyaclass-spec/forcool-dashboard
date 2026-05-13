@@ -5433,10 +5433,22 @@ async function copyWeeklyReport(){
     // 클래스 기반 색상/스타일을 inline style로 변환해서 노션이 색상을 인식하도록
     const wrap=document.createElement('div');
     wrap.innerHTML=body.innerHTML;
-    // 변화율 색상
-    wrap.querySelectorAll('.chg-up').forEach(el=>{el.style.color='#dc2626';el.style.fontWeight='700';});
-    wrap.querySelectorAll('.chg-dn').forEach(el=>{el.style.color='#2563eb';el.style.fontWeight='700';});
-    wrap.querySelectorAll('.chg-eq').forEach(el=>{el.style.color='#64748b';el.style.fontWeight='600';});
+    // 변화율 색상 — 노션 표는 셀별 색상 미지원이라 이모지로 대체 표시
+    wrap.querySelectorAll('.chg-up').forEach(el=>{
+      const txt=el.textContent.trim();
+      if(!txt.startsWith('🔴'))el.textContent='🔴 '+txt;
+      el.style.color='#dc2626';el.style.fontWeight='700';
+    });
+    wrap.querySelectorAll('.chg-dn').forEach(el=>{
+      const txt=el.textContent.trim();
+      if(!txt.startsWith('🔵'))el.textContent='🔵 '+txt;
+      el.style.color='#2563eb';el.style.fontWeight='700';
+    });
+    wrap.querySelectorAll('.chg-eq').forEach(el=>{
+      const txt=el.textContent.trim();
+      if(!txt.startsWith('⚪'))el.textContent='⚪ '+txt;
+      el.style.color='#64748b';el.style.fontWeight='600';
+    });
     // 강조 행 (현재 주차)
     wrap.querySelectorAll('tr.hl td').forEach(el=>{el.style.background='#fffbeb';el.style.fontWeight='700';});
     // 표 헤더
