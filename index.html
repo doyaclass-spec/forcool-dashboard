@@ -5049,10 +5049,21 @@ function showGfaDetail(date){
 function reloadAll(){renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();updateBidRecommend();fetchMonthlySpend();checkAiMinDays();renderWeeklyReport()}
 
 /* ================================================================ 포쿨 광고보고서 (노션 복사용) */
-const WR_STATE={type:'파워링크',data:null};
+const WR_STATE={type:'파워링크',data:null,selectedWeekIdx:null}; // selectedWeekIdx: null=최신주차
+
+function selectWeek(idx){
+  WR_STATE.selectedWeekIdx=idx; // null이면 최신 주차로 복귀
+  renderWeeklyReport();
+  // 상단 비교 카드로 부드럽게 스크롤
+  setTimeout(()=>{
+    const card=document.querySelector('#weeklyReportBody .wr-card');
+    if(card && typeof card.scrollIntoView==='function') card.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },200);
+}
 
 function switchWrType(type){
   WR_STATE.type=type;
+  WR_STATE.selectedWeekIdx=null; // 유형 바꾸면 최신 주차로 리셋
   document.querySelectorAll('.wr-tab').forEach(b=>{
     b.classList.toggle('active', b.dataset.type===type);
   });
@@ -5183,9 +5194,12 @@ async function renderWeeklyReport(){
     const weeks=wrGroupByWeek(labels, mets).map(wrCalc);
     const months=wrGroupByMonth(labels, mets).map(wrCalc);
 
-    // 현재주(=마지막 주) vs 전주
-    const cur=weeks[weeks.length-1];
-    const prev=weeks[weeks.length-2];
+    // 현재 선택 주차 (selectedWeekIdx가 null이면 마지막 주차)
+    const lastIdx=weeks.length-1;
+    const selIdx=(WR_STATE.selectedWeekIdx!=null && WR_STATE.selectedWeekIdx>=0 && WR_STATE.selectedWeekIdx<weeks.length)
+      ? WR_STATE.selectedWeekIdx : lastIdx;
+    const cur=weeks[selIdx];
+    const prev=weeks[selIdx-1];
 
     let html='';
 
@@ -5195,8 +5209,12 @@ async function renderWeeklyReport(){
       const prevLabel=`${wrFmtDate(prev.weekStart)}~${wrFmtDate(prev.weekEnd)}`;
       const curWeekNo=Math.ceil(cur.weekStart.getDate()/7);
       const prevWeekNo=Math.ceil(prev.weekStart.getDate()/7);
+      const isLatestSelected = selIdx===lastIdx;
+      const hintTxt = isLatestSelected
+        ? `<span style="font-size:12px;font-weight:500;color:#94a3b8;margin-left:8px">👉 아래 주차를 클릭하면 그 주 비교로 바뀌어요</span>`
+        : `<button onclick="selectWeek(null)" style="margin-left:8px;padding:4px 10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;font-weight:700;color:#475569;cursor:pointer">↩ 최신 주차로</button>`;
       html+=`<div class="wr-card">
-        <h3>📊 주별 비교 (${curWeekNo}주차 vs ${prevWeekNo}주차)</h3>
+        <h3>📊 주별 비교 (${curWeekNo}주차 vs ${prevWeekNo}주차)${hintTxt}</h3>
         <table class="wr-tbl">
           <thead><tr>
             <th>주차</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>CPC</th><th>💰 광고비</th>
@@ -5229,19 +5247,19 @@ async function renderWeeklyReport(){
       html+=`<div class="wr-empty">주별 비교 데이터가 부족합니다 (최소 2주 필요)</div>`;
     }
 
-    // 2) 이번달 주차별 추이
+    // 2) 이번달 주차별 추이 (클릭 가능)
     const curMonthNo=today.getMonth()+1;
-    const thisMonthWeeks=weeks.filter(w=>w.weekStart.getMonth()+1===curMonthNo || w.weekEnd.getMonth()+1===curMonthNo);
+    const thisMonthWeeks=weeks.map((w,i)=>({...w,idx:i})).filter(w=>w.weekStart.getMonth()+1===curMonthNo || w.weekEnd.getMonth()+1===curMonthNo);
     if(thisMonthWeeks.length>0){
       html+=`<div class="wr-card">
-        <h3>📅 ${curMonthNo}월 주차별 추이</h3>
+        <h3>📅 ${curMonthNo}월 주차별 추이 <span style="font-size:12px;font-weight:500;color:#94a3b8">— 행을 클릭하면 위 비교가 바뀝니다</span></h3>
         <table class="wr-tbl">
           <thead><tr><th>주차</th><th>기간</th><th>광고비</th><th>클릭수</th><th>구매완료 전환수</th><th>매출</th><th>광고수익률</th><th>전환당 비용</th></tr></thead>
           <tbody>
             ${thisMonthWeeks.slice().reverse().map((w,idx)=>{
               const weekNo=thisMonthWeeks.length-idx;
-              const isLatest=idx===0;
-              return `<tr${isLatest?' class="hl"':''}><td><b>${weekNo}주차</b></td>
+              const isSelected=w.idx===selIdx;
+              return `<tr${isSelected?' class="hl"':''} onclick="selectWeek(${w.idx})" style="cursor:pointer" title="클릭하면 이 주차 vs 전주 비교로 바뀌어요"><td><b>${weekNo}주차</b></td>
                 <td>${wrFmtDate(w.weekStart)}~${wrFmtDate(w.weekEnd)}</td>
                 <td>${wrFmtCur(w.adSpend)}</td><td>${wrFmtN(w.clicks)}</td>
                 <td>${wrFmtN(w.purchaseCnt)}</td><td>${wrFmtCur(w.purchaseAmt)}</td>
