@@ -5425,8 +5425,28 @@ async function copyWeeklyReport(){
   const btn=document.getElementById('wrCopyBtn');
   const orig=btn.textContent;
   try{
-    // 제목 없이 표만 복사
-    const html=`<div style="font-family:'SUIT',sans-serif">${body.innerHTML}</div>`;
+    // 클래스 기반 색상/스타일을 inline style로 변환해서 노션이 색상을 인식하도록
+    const wrap=document.createElement('div');
+    wrap.innerHTML=body.innerHTML;
+    // 변화율 색상
+    wrap.querySelectorAll('.chg-up').forEach(el=>{el.style.color='#dc2626';el.style.fontWeight='700';});
+    wrap.querySelectorAll('.chg-dn').forEach(el=>{el.style.color='#2563eb';el.style.fontWeight='700';});
+    wrap.querySelectorAll('.chg-eq').forEach(el=>{el.style.color='#64748b';el.style.fontWeight='600';});
+    // 강조 행 (현재 주차)
+    wrap.querySelectorAll('tr.hl td').forEach(el=>{el.style.background='#fffbeb';el.style.fontWeight='700';});
+    // 표 헤더
+    wrap.querySelectorAll('thead th').forEach(el=>{el.style.background='#f8fafc';el.style.color='#475569';el.style.fontWeight='800';el.style.padding='9px 11px';el.style.textAlign='left';el.style.fontSize='12px';});
+    // 표 본문 셀
+    wrap.querySelectorAll('tbody td').forEach(el=>{
+      if(!el.style.padding)el.style.padding='9px 11px';
+      if(!el.style.borderBottom)el.style.borderBottom='1px solid #f1f5f9';
+    });
+    // 표 자체
+    wrap.querySelectorAll('table.wr-tbl').forEach(el=>{el.style.borderCollapse='collapse';el.style.width='100%';el.style.fontSize='13px';el.style.border='1px solid #e2e8f0';});
+    // 카드 제목
+    wrap.querySelectorAll('.wr-card h3').forEach(el=>{el.style.fontSize='16px';el.style.fontWeight='900';el.style.color='#0f172a';el.style.marginBottom='14px';});
+
+    const html=`<div style="font-family:'SUIT',sans-serif">${wrap.innerHTML}</div>`;
     // ClipboardItem으로 HTML + 텍스트 둘 다 복사
     if(navigator.clipboard && window.ClipboardItem){
       const blob=new Blob([html],{type:'text/html'});
