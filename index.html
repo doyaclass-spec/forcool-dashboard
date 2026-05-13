@@ -5132,6 +5132,58 @@ function onWrWeekChange(val){
   },200);
 }
 
+// 이번 주 핵심 요약 카드 생성 (자동 인사이트)
+function wrBuildSummary(cur, prev, curWeekNo, prevWeekNo, type){
+  const pct=(c,p)=>p?((c-p)/Math.abs(p)*100):0;
+  const arrow=(v,inv)=>{
+    const isGood=inv?v<0:v>0;
+    const sym=v>0?'▲':v<0?'▼':'—';
+    const cls=v===0?'chg-eq':isGood?'chg-up':'chg-dn';
+    return `<span class="${cls}">${sym} ${Math.abs(Math.round(v*10)/10)}%</span>`;
+  };
+  const adChg=pct(cur.adSpend,prev.adSpend);
+  const revChg=pct(cur.purchaseAmt,prev.purchaseAmt);
+  const roasChg=pct(cur.roas,prev.roas);
+  const purChg=pct(cur.purchaseCnt,prev.purchaseCnt);
+  const cpcChg=pct(cur.cpc,prev.cpc);
+  const ctrChg=pct(cur.ctr,prev.ctr);
+
+  // 인사이트 라벨 결정 (성과 평가)
+  const insights=[];
+  // 1) ROAS 평가
+  if(roasChg>=10) insights.push(`🚀 <b>ROAS ${arrow(roasChg)} 큰 폭 개선</b> — 전주 ${wrFmtPct(prev.roas)} → 이번 주 ${wrFmtPct(cur.roas)}`);
+  else if(roasChg>=2) insights.push(`📈 <b>ROAS ${arrow(roasChg)} 소폭 개선</b> — ${wrFmtPct(cur.roas)} (전주 대비 효율 ↑)`);
+  else if(roasChg<=-10) insights.push(`⚠️ <b>ROAS ${arrow(roasChg)} 큰 폭 하락</b> — ${wrFmtPct(cur.roas)} (전주 ${wrFmtPct(prev.roas)}) · 점검 필요`);
+  else if(roasChg<=-2) insights.push(`📉 <b>ROAS ${arrow(roasChg)} 소폭 하락</b> — ${wrFmtPct(cur.roas)} (전주 대비 효율 ↓)`);
+  else insights.push(`➡️ <b>ROAS 유지</b> — ${wrFmtPct(cur.roas)} (전주 대비 거의 변화 없음)`);
+
+  // 2) 광고비 vs 매출 흐름 평가
+  if(adChg<-5 && revChg<-5) insights.push(`💰 <b>광고비·매출 동반 감소</b> — 광고비 ${arrow(adChg,true)} / 매출 ${arrow(revChg)} · 거래량 축소 흐름`);
+  else if(adChg>5 && revChg>adChg) insights.push(`📊 <b>광고 확장 성공</b> — 광고비 ${arrow(adChg,true)}, 매출은 더 큰 폭 ${arrow(revChg)} 증가`);
+  else if(adChg>5 && revChg<adChg) insights.push(`⚠️ <b>광고 확장 효율 저하</b> — 광고비 ${arrow(adChg,true)} 늘었지만 매출은 ${arrow(revChg)}만 증가`);
+  else if(adChg<-5 && revChg>=-2) insights.push(`✅ <b>효율 운영 성공</b> — 광고비 ${arrow(adChg,true)} 감소했지만 매출은 ${arrow(revChg)} 방어`);
+  else insights.push(`📊 <b>광고비/매출</b> — 광고비 ${arrow(adChg,true)} · 매출 ${arrow(revChg)}`);
+
+  // 3) 구매완료 전환 흐름
+  if(purChg<=-20) insights.push(`🛒 <b>구매완료 ${arrow(purChg)} 감소</b> — 전주 ${prev.purchaseCnt}건 → 이번 주 ${cur.purchaseCnt}건 (전환 흐름 약화)`);
+  else if(purChg>=20) insights.push(`🛒 <b>구매완료 ${arrow(purChg)} 급증</b> — ${prev.purchaseCnt}건 → ${cur.purchaseCnt}건`);
+  else insights.push(`🛒 <b>구매완료 ${cur.purchaseCnt}건</b> (전주 ${prev.purchaseCnt}건, ${arrow(purChg)})`);
+
+  // 4) CPC/CTR 보조 코멘트 (조건부)
+  if(Math.abs(ctrChg)>=10 || Math.abs(cpcChg)>=10){
+    const ctrPart = Math.abs(ctrChg)>=10 ? `CTR ${arrow(ctrChg)} (${wrFmtPct(cur.ctr)})` : '';
+    const cpcPart = Math.abs(cpcChg)>=10 ? `CPC ${arrow(cpcChg,true)} (${wrFmtCur(cur.cpc)})` : '';
+    insights.push(`🔍 <b>트래픽 품질</b> — ${[ctrPart,cpcPart].filter(Boolean).join(' · ')}`);
+  }
+
+  return `<div class="wr-card" style="background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);border-color:#fde68a">
+    <h3>📈 ${type} ${curWeekNo}주차 핵심 요약 <span style="font-size:12px;font-weight:500;color:#78716c;margin-left:6px">vs ${prevWeekNo}주차 비교</span></h3>
+    <ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.9;color:#1c1917">
+      ${insights.map(s=>`<li style="margin-bottom:4px">${s}</li>`).join('')}
+    </ul>
+  </div>`;
+}
+
 function selectWeek(idx){
   WR_STATE.selectedWeekIdx=idx; // null이면 최신 주차로 복귀
   // 드롭다운도 같이 갱신
@@ -5309,6 +5361,14 @@ async function renderWeeklyReport(){
     const prev=weeks[selIdx-1];
 
     let html='';
+
+    // 0) 이번 주 핵심 요약 (자동 인사이트)
+    if(cur && prev){
+      const curWeekNo=Math.ceil(cur.weekStart.getDate()/7);
+      const prevWeekNo=Math.ceil(prev.weekStart.getDate()/7);
+      const sumHtml = wrBuildSummary(cur, prev, curWeekNo, prevWeekNo, type);
+      html += sumHtml;
+    }
 
     // 1) 주별 비교
     if(cur && prev){
