@@ -5177,7 +5177,7 @@ function wrBuildSummary(cur, prev, curWeekNo, prevWeekNo, type){
   }
 
   return `<div class="wr-card" style="background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);border-color:#fde68a">
-    <h3>📈 ${type} ${curWeekNo}주차 핵심 요약 <span style="font-size:12px;font-weight:500;color:#78716c;margin-left:6px">vs ${prevWeekNo}주차 비교</span></h3>
+    <h3>📈 ${type} ${curWeekNo}주차 핵심 요약</h3>
     <ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.9;color:#1c1917">
       ${insights.map(s=>`<li style="margin-bottom:4px">${s}</li>`).join('')}
     </ul>
