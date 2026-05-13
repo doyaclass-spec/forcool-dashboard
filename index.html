@@ -5405,7 +5405,7 @@ async function renderWeeklyReport(){
     }
 
     body.innerHTML=html;
-    WR_STATE.data={weeks,months,cur,prev,thisMonthWeeks,yearMonths,type,curMonthNo};
+    WR_STATE.data={weeks,months,cur,prev,monthWeeks,yearMonths,type,targetMonth};
   } catch(e){
     body.innerHTML=`<div class="wr-empty">❌ 데이터 로드 실패: ${e.message||e}</div>`;
     console.warn('weeklyReport fail:', e);
