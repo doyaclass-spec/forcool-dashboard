@@ -5521,11 +5521,25 @@ async function renderWeeklyReport(){
     // 3) 분기 기록 (월별) — 파워링크 1~4월은 노션 검증치 사용 (사용자 제공)
     // 자동 집계와 노션 정리 수치가 다를 수 있어 파워링크는 사용자 입력값을 우선
     const FIXED_MONTHLY = window.FIXED_MONTHLY_DATA || {};
-    const yearMonths=months.filter(m=>m.year===year).map(m=>{
+    // 1) months(자동 집계) 기반 + FIXED 덮어쓰기
+    const yearMonthsAuto=months.filter(m=>m.year===year).map(m=>{
       const key=`${type}|${m.year}-${String(m.month).padStart(2,'0')}`;
       const fixed=FIXED_MONTHLY[key];
       return fixed ? {...m, ...fixed, _fixed:true} : m;
     });
+    // 2) FIXED에만 있고 자동 집계엔 없는 월도 추가 (예: GFA 1~3월)
+    const autoMonthKeys = new Set(yearMonthsAuto.map(m=>`${m.year}-${String(m.month).padStart(2,'0')}`));
+    Object.keys(FIXED_MONTHLY)
+      .filter(k=>k.startsWith(type+'|'+year+'-'))
+      .forEach(k=>{
+        const ym=k.split('|')[1];
+        if(autoMonthKeys.has(ym))return;
+        const [y,m]=ym.split('-').map(Number);
+        yearMonthsAuto.push({year:y,month:m,...FIXED_MONTHLY[k],_fixed:true});
+      });
+    // 정렬
+    yearMonthsAuto.sort((a,b)=>a.year-b.year||a.month-b.month);
+    const yearMonths = yearMonthsAuto;
     if(yearMonths.length>0){
       const startMonth=yearMonths[0].month;
       const endMonth=yearMonths[yearMonths.length-1].month;
