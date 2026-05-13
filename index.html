@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>포쿨 네이버 광고 대시보드</title>
+<title>포쿨 광고 운영실</title>
 <!-- Preconnect: Worker API · CDN 연결 선점으로 ~500ms 단축 -->
 <link rel="preconnect" href="https://naver-ad-proxy.pokool-ad.workers.dev" crossorigin>
 <link rel="dns-prefetch" href="https://naver-ad-proxy.pokool-ad.workers.dev">
@@ -1103,14 +1103,66 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <div class="upd"><div class="upd-dot"></div><span id="updTxt">데이터 로딩 중...</span></div>
 </div>
 
-<!-- NEW sticky header -->
-<header class="header">
-  <h1 style="display:flex;align-items:center;gap:14px">
-    <span>📊 포쿨</span>
-    <div class="mode-toggle" role="tablist" aria-label="화면 모드 전환" style="display:inline-flex;background:#f1f5f9;border-radius:10px;padding:3px;gap:2px">
-      <button class="mode-btn active" data-mode="dashboard" onclick="setMode('dashboard')" role="tab" aria-selected="true">📊 광고 대시보드</button>
-      <button class="mode-btn" data-mode="report" onclick="setMode('report')" role="tab" aria-selected="false">📒 광고 보고서</button>
+<!-- 좌측 사이드바 -->
+<aside class="sidebar" id="sidebar" aria-label="메인 네비게이션">
+  <div class="sb-brand">
+    <div class="sb-logo-wrap">
+      <div class="sb-logo">📊</div>
+      <div class="sb-title-wrap">
+        <div class="sb-title">포쿨</div>
+        <div class="sb-subtitle">광고 운영실</div>
+      </div>
     </div>
+    <button class="sb-close" onclick="toggleSidebar()" aria-label="메뉴 닫기">×</button>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">화면 모드</div>
+    <button class="sb-btn sb-mode-btn active" data-mode="dashboard" onclick="setMode('dashboard')">
+      <span class="sb-icon">📊</span><span>광고 대시보드</span>
+    </button>
+    <button class="sb-btn sb-mode-btn" data-mode="report" onclick="setMode('report')">
+      <span class="sb-icon">📒</span><span>광고 보고서</span>
+    </button>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">광고 채널</div>
+    <button class="sb-btn sb-ch-btn active" data-type="전체" onclick="switchChannel('전체')">
+      <span class="sb-ch-dot" style="background:#2563eb"></span><span>통합</span>
+    </button>
+    <button class="sb-btn sb-ch-btn" data-type="파워링크" onclick="switchChannel('파워링크')">
+      <span class="sb-ch-dot" style="background:#16a34a"></span><span>파워링크</span>
+    </button>
+    <button class="sb-btn sb-ch-btn" data-type="쇼핑검색" onclick="switchChannel('쇼핑검색')">
+      <span class="sb-ch-dot" style="background:#f97316"></span><span>쇼핑검색</span>
+    </button>
+    <button class="sb-btn sb-ch-btn" data-type="GFA" onclick="switchChannel('GFA')">
+      <span class="sb-ch-dot" style="background:#a855f7"></span><span>GFA</span>
+    </button>
+    <button class="sb-btn sb-ch-btn sb-disabled" data-type="쿠팡" onclick="alert('쿠팡 광고는 곧 추가됩니다 (CSV 업로드 예정)')">
+      <span class="sb-ch-dot" style="background:#facc15"></span><span>쿠팡</span><span class="sb-soon">준비중</span>
+    </button>
+    <button class="sb-btn sb-ch-btn sb-disabled" data-type="자사몰" onclick="alert('자사몰은 곧 추가됩니다')">
+      <span class="sb-ch-dot" style="background:#dc2626"></span><span>자사몰</span><span class="sb-soon">준비중</span>
+    </button>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">도구</div>
+    <button class="sb-btn sb-tool-btn" onclick="jvOpen()">
+      <span class="sb-icon">💁‍♀️</span><span>포비스 호출</span>
+    </button>
+  </div>
+</aside>
+
+<!-- 모바일 햄버거 -->
+<button class="sb-toggle" onclick="toggleSidebar()" aria-label="메뉴 열기">☰</button>
+
+<!-- 상단 헤더 (사이드바 우측) -->
+<header class="header">
+  <h1 style="display:flex;align-items:center;gap:14px;font-size:16px">
+    <span id="pageTitle">광고 대시보드 · <span style="color:#7c3aed">통합</span></span>
   </h1>
   <div class="header-right">
     <button class="date-btn" id="dateBtnMain" onclick="toggleDp()" aria-label="분석 기간 선택" style="background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">
@@ -1120,9 +1172,28 @@ button:disabled{opacity:.55;cursor:not-allowed}
   </div>
 </header>
 <style>
-  .mode-btn{padding:8px 14px;background:transparent;color:#64748b;border:none;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s;letter-spacing:-.2px}
-  .mode-btn:hover{color:#0f172a}
-  .mode-btn.active{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  /* ─── 사이드바 ─── */
+  body{padding-left:236px;transition:padding-left .25s}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:236px;background:#0f172a;color:#e2e8f0;padding:20px 14px 24px;overflow-y:auto;z-index:100;display:flex;flex-direction:column;gap:18px;box-shadow:2px 0 12px rgba(0,0,0,.06)}
+  .sb-brand{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 14px;border-bottom:1px solid #1e293b}
+  .sb-logo-wrap{display:flex;align-items:center;gap:10px}
+  .sb-logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#2563eb);display:flex;align-items:center;justify-content:center;font-size:20px}
+  .sb-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:-.3px;line-height:1}
+  .sb-subtitle{font-size:11.5px;font-weight:600;color:#94a3b8;margin-top:3px}
+  .sb-close{display:none;background:transparent;border:none;color:#cbd5e1;font-size:22px;cursor:pointer;width:30px;height:30px;border-radius:6px}
+  .sb-close:hover{background:#1e293b}
+  .sb-section{display:flex;flex-direction:column;gap:3px}
+  .sb-section-title{font-size:10.5px;font-weight:800;color:#64748b;letter-spacing:.5px;text-transform:uppercase;padding:0 10px 6px}
+  .sb-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;background:transparent;color:#cbd5e1;border:none;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left;transition:all .12s;width:100%}
+  .sb-btn:hover:not(.sb-disabled){background:#1e293b;color:#fff}
+  .sb-btn.active{background:linear-gradient(135deg,rgba(124,58,237,.18),rgba(37,99,235,.18));color:#fff;box-shadow:inset 3px 0 0 #7c3aed}
+  .sb-btn.sb-disabled{opacity:.45;cursor:not-allowed}
+  .sb-icon{font-size:15px;width:18px;text-align:center}
+  .sb-ch-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;margin-left:4px}
+  .sb-soon{margin-left:auto;font-size:10px;background:#374151;color:#9ca3af;padding:2px 6px;border-radius:6px;font-weight:700}
+  .sb-toggle{display:none;position:fixed;top:14px;left:14px;z-index:200;width:40px;height:40px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+  /* 모드별 표시/숨김 */
   body.mode-report .hero,
   body.mode-report .chart-section,
   body.mode-report .tab-nav,
@@ -1134,6 +1205,16 @@ button:disabled{opacity:.55;cursor:not-allowed}
   body.mode-report #secGfaTab{display:none!important}
   body.mode-report #secReportTab{display:block!important}
   body.mode-dashboard #secReportTab{display:none!important}
+
+  /* 모바일 반응형 */
+  @media(max-width:900px){
+    body{padding-left:0}
+    .sidebar{transform:translateX(-100%);transition:transform .25s}
+    .sidebar.open{transform:translateX(0)}
+    .sb-close{display:flex;align-items:center;justify-content:center}
+    .sb-toggle{display:block}
+    .header{padding-left:62px}
+  }
 </style>
 
 <!-- Hero: Big 3 Numbers -->
@@ -1230,14 +1311,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <div style="font-size:13px;font-weight:700;color:var(--blue)">파워링크</div>
         <div id="ms-powerlink" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
       </div>
-      <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px">
-        <div style="font-size:13px;font-weight:700;color:var(--orange)">콘텐츠</div>
-        <div id="ms-content" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
+      <div class="ms-item" style="border-right:1px solid var(--bd);padding:16px 18px;display:none">
+        <div style="font-size:13px;font-weight:700;color:var(--orange)">GFA</div>
+        <div id="ms-gfa" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
       </div>
-      <div class="ms-item" style="padding:16px 18px">
-        <div style="font-size:13px;font-weight:700;color:var(--purple)">브랜드</div>
-        <div id="ms-brand" style="font-size:22px;font-weight:800;color:var(--t1);margin-top:4px">-</div>
-      </div>
+      <!-- 콘텐츠/브랜드 제거됨 (2026-05-14 운영실 개편) -->
+      <div id="ms-content" style="display:none"></div>
+      <div id="ms-brand" style="display:none"></div>
     </div>
     <!-- 예산 소진율 게이지 -->
     <div id="msBudgetArea" style="padding:16px 18px;border-top:1px solid var(--bd)">
@@ -1285,8 +1365,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <button class="trend-type-tab active" data-type="전체">전체</button>
       <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
       <button class="trend-type-tab" data-type="파워링크">파워링크</button>
-      <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
-      <button class="trend-type-tab" data-type="브랜드">브랜드</button>
       <div style="border-left:2px solid var(--bd);height:20px;margin:0 6px"></div>
       <button class="btn-goal" onclick="openGoalModal()">🎯 월별 목표 설정</button>
       <button onclick="openKpiToggleModal()" style="padding:5px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">👁 표시 설정</button>
@@ -1323,8 +1401,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <button class="trend-type-tab active" data-type="전체">전체</button>
         <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
         <button class="trend-type-tab" data-type="파워링크">파워링크</button>
-        <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
-        <button class="trend-type-tab" data-type="브랜드">브랜드</button>
       </div>
       <div style="border-left:2px solid var(--bd);height:20px;flex-shrink:0;margin:0 4px"></div>
       <div class="metric-chk-grp" id="metricChkGrp" style="border:none;background:transparent;padding:0;flex-shrink:0">
@@ -1377,8 +1453,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <button class="trend-type-tab active" data-type="전체">전체</button>
           <button class="trend-type-tab" data-type="쇼핑검색">쇼핑검색</button>
           <button class="trend-type-tab" data-type="파워링크">파워링크</button>
-          <button class="trend-type-tab" data-type="콘텐츠">콘텐츠</button>
-          <button class="trend-type-tab" data-type="브랜드">브랜드</button>
         </div>
       </div>
       <!-- TOP3 최고/최저 -->
@@ -1418,7 +1492,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <div id="kwSummaryCards" style="display:flex;gap:10px;padding:12px 16px;flex-wrap:wrap"></div>
   <div class="tbl-bar">
     <div class="sw"><span class="si">🔍</span><input type="text" id="kwSearch" placeholder="키워드 검색…" oninput="renderKw()"></div>
-    <select class="fsel" id="kwTypeF" onchange="renderKw()"><option value="all">전체 유형</option><option value="파워링크">파워링크</option><option value="콘텐츠">콘텐츠</option></select>
+    <select class="fsel" id="kwTypeF" onchange="renderKw()"><option value="all">전체 유형</option><option value="파워링크">파워링크</option></select>
     <select class="fsel" id="kwCampF" onchange="renderKw()"><option value="all">전체 캠페인</option><option value="스타리온 업소용냉장고">스타리온 업소용냉장고</option><option value="라셀르 카페냉장고">라셀르 카페냉장고</option><option value="업소용냉장고 파워링크">업소용냉장고 파워링크</option><option value="포쿨 브랜드검색">포쿨 브랜드검색</option></select>
     <select class="fsel" id="kwWasteF" onchange="renderKw()"><option value="all">전체 낭비지수</option><option value="high">🔴 낭비높음</option><option value="mid">🟡 낭비중간</option><option value="low">🟢 효율좋음</option></select>
     <select class="fsel" id="kwSpendF" onchange="renderKw()">
@@ -1467,7 +1541,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <div class="card-body" id="cmpCardBody" style="max-height:2000px">
   <div class="tbl-bar">
     <div class="sw"><span class="si">🔍</span><input type="text" id="cmpSearch" placeholder="캠페인명 검색…" oninput="onSearch()"></div>
-    <select class="fsel" id="cmpTypeF" onchange="onFilter()"><option value="all">전체 유형</option><option value="쇼핑검색">쇼핑검색</option><option value="파워링크">파워링크</option><option value="콘텐츠">콘텐츠</option><option value="브랜드">브랜드</option></select>
+    <select class="fsel" id="cmpTypeF" onchange="onFilter()"><option value="all">전체 유형</option><option value="쇼핑검색">쇼핑검색</option><option value="파워링크">파워링크</option></select>
     <div class="onoff-grp"><button class="onoff-btn on" id="btnOn" onclick="toggleOnOff('on')"><div class="od"></div>ON</button><button class="onoff-btn off" id="btnOff" onclick="toggleOnOff('off')"><div class="od"></div>OFF</button></div>
     <button class="alo-btn" id="aloBtn" onclick="toggleAlo()"><div class="dot"></div>경고만</button>
     <select class="fsel" id="cmpSpendF" onchange="ST.cmpPage=1;renderCmp()">
@@ -4490,7 +4564,7 @@ function _oldRunAi_DELETED(){/*
   document.getElementById('aiLd').classList.add('show');
 
   // 데이터 수집
-  const kpi={};const types=['전체','쇼핑검색','파워링크','콘텐츠','브랜드'];
+  const kpi={};const types=['전체','쇼핑검색','파워링크'];
   types.forEach(t=>{kpi[t]=getKpiData(t)});
   const camps=getCampData();
   const kws=getKwData().filter(k=>k.type!=='쇼핑검색');
@@ -4950,7 +5024,7 @@ function _unusedAnsQ(q){
     const from=`${tm}-01`,to=`${tm}-${String(lastDay).padStart(2,'0')}`;
     fetch(WORKER_URL+`/api/dashboard-fast?from=${from}&to=${to}`,{headers:{'Origin':location.origin}})
       .then(r=>r.json()).then(d=>{
-        const types=['전체','쇼핑검색','파워링크','콘텐츠','브랜드'];
+        const types=['전체','쇼핑검색','파워링크'];
         if(ft&&d.kpi&&d.kpi[ft]){
           const k=d.kpi[ft];
           if(t.includes('광고비')){addMsg(`📅 <b>${ym} ${ft}</b> 광고비<br>→ <b>${fC(k.adSpend)}</b>`,'bot');return}
@@ -5490,35 +5564,78 @@ window.GFA_CATALOG_DAILY = {
   '2026-05-12':{imp:40669,clk:331,cost:247199,purCnt:9,purAmt:6002980},
 };
 
+// 현재 선택 채널 (전체/파워링크/쇼핑검색/GFA)
+window.CURRENT_CHANNEL = 'GFA' === (window.WR_STATE && window.WR_STATE.type) ? 'GFA' : '전체';
+
 function setMode(mode){
   // 'dashboard' | 'report'
   document.body.classList.remove('mode-dashboard','mode-report');
   document.body.classList.add('mode-'+mode);
-  document.querySelectorAll('.mode-btn').forEach(b=>{
+  // 사이드바 + 헤더 토글 active 동기화
+  document.querySelectorAll('.sb-mode-btn').forEach(b=>{
     const isActive = b.dataset.mode===mode;
     b.classList.toggle('active', isActive);
-    b.setAttribute('aria-selected', isActive?'true':'false');
   });
   try{localStorage.setItem('fc_mode', mode);}catch{}
+  updatePageTitle();
   if(mode==='report'){
     const body=document.getElementById('weeklyReportBody');
     if(!body || body.innerHTML.trim().length<50){try{renderWeeklyReport();}catch{}}
-    window.scrollTo({top:0,behavior:'smooth'});
-  } else {
-    window.scrollTo({top:0,behavior:'smooth'});
   }
+  // 모바일에서 사이드바 닫기
+  if(window.innerWidth<=900) closeSidebar();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-// 초기 모드 복원 (기본: dashboard)
+
+function switchChannel(ch){
+  // ch: '전체' | '파워링크' | '쇼핑검색' | 'GFA'
+  window.CURRENT_CHANNEL = ch;
+  document.querySelectorAll('.sb-ch-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.type===ch);
+  });
+  try{localStorage.setItem('fc_channel', ch);}catch{}
+  updatePageTitle();
+  // 광고 보고서 모드: 라디오/타입 갱신 (전체는 파워링크 기본)
+  if(typeof WR_STATE !== 'undefined'){
+    const reportType = ch==='전체' ? '파워링크' : ch;
+    WR_STATE.type = reportType;
+    WR_STATE.selectedWeekIdx = null;
+    // 라디오 동기화 (광고보고서 패널 안의 라디오)
+    const radio = document.querySelector(`input[name="wrType"][value="${reportType}"]`);
+    if(radio) radio.checked = true;
+    if(document.body.classList.contains('mode-report')){try{renderWeeklyReport();}catch{}}
+  }
+  if(window.innerWidth<=900) closeSidebar();
+}
+
+function updatePageTitle(){
+  const el = document.getElementById('pageTitle');
+  if(!el) return;
+  const isReport = document.body.classList.contains('mode-report');
+  const modeLabel = isReport ? '광고 보고서' : '광고 대시보드';
+  const ch = window.CURRENT_CHANNEL || '전체';
+  const chColor = ch==='파워링크'?'#16a34a':ch==='쇼핑검색'?'#f97316':ch==='GFA'?'#a855f7':'#2563eb';
+  el.innerHTML = `${modeLabel} · <span style="color:${chColor}">${ch==='전체'?'통합':ch}</span>`;
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+// 초기 모드 복원 (기본: dashboard) + 채널 복원
 (function(){try{
-  const saved=localStorage.getItem('fc_mode');
-  const mode = (saved==='report') ? 'report' : 'dashboard';
+  const savedMode=localStorage.getItem('fc_mode');
+  const mode = (savedMode==='report') ? 'report' : 'dashboard';
   document.body.classList.add('mode-'+mode);
+  const savedCh = localStorage.getItem('fc_channel');
+  if(savedCh && ['전체','파워링크','쇼핑검색','GFA'].includes(savedCh)) window.CURRENT_CHANNEL = savedCh;
   setTimeout(()=>{
-    document.querySelectorAll('.mode-btn').forEach(b=>{
-      const isActive=b.dataset.mode===mode;
-      b.classList.toggle('active',isActive);
-      b.setAttribute('aria-selected', isActive?'true':'false');
-    });
+    document.querySelectorAll('.sb-mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+    document.querySelectorAll('.sb-ch-btn').forEach(b=>b.classList.toggle('active', b.dataset.type===window.CURRENT_CHANNEL));
+    updatePageTitle();
     if(mode==='report'){try{renderWeeklyReport();}catch{}}
   },100);
 }catch{}})();
@@ -6499,7 +6616,7 @@ function jvBuildContext(){
     kpi:{},
     monthlySpend:{total:ST._monthlyTotal||0,day:ST._monthlyDay||0},
   };
-  const types=['전체','쇼핑검색','파워링크','콘텐츠','브랜드'];
+  const types=['전체','쇼핑검색','파워링크'];
   types.forEach(t=>{
     const k=LIVE_DATA.kpi?.[t]||{};
     ctx.kpi[t]={
