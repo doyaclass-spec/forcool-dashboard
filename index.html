@@ -1532,7 +1532,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <div id="weeklyReportTab" style="padding:0 16px 16px">
   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 0 12px;border-bottom:1px dashed #e2e8f0;margin-bottom:14px">
     <div style="font-size:18px;font-weight:900;color:#0f172a">📒 포쿨 광고보고서</div>
-    <span style="font-size:12px;color:#64748b;font-weight:500">유형 선택 → 노션에 복사</span>
+    <select id="wrWeekSelect" onchange="onWrWeekChange(this.value)" style="padding:7px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;color:#0f172a;background:#fff;cursor:pointer;min-width:200px">
+      <option value="">주차 선택 (기본: 최신 주차)</option>
+    </select>
     <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
       <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#475569;cursor:pointer">
         <input type="radio" name="wrType" value="파워링크" checked onchange="switchWrType(this.value)" style="accent-color:#0f172a;width:16px;height:16px;cursor:pointer">
@@ -5060,8 +5062,21 @@ window.FIXED_MONTHLY_DATA = {
   '파워링크|2026-04': {impressions:556335, clicks:8390, ctr:1.51, cpc:679, adSpend:5693631, purchaseCnt:278, crto:3.31, purchaseAmt:224602180, roas:3945, cpConv:20481},
 };
 
+function onWrWeekChange(val){
+  // val: 빈 문자열이면 최신 주차로, 아니면 weeks 배열 인덱스
+  WR_STATE.selectedWeekIdx = val==='' ? null : parseInt(val,10);
+  renderWeeklyReport();
+  setTimeout(()=>{
+    const card=document.querySelector('#weeklyReportBody .wr-card');
+    if(card && typeof card.scrollIntoView==='function') card.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },200);
+}
+
 function selectWeek(idx){
   WR_STATE.selectedWeekIdx=idx; // null이면 최신 주차로 복귀
+  // 드롭다운도 같이 갱신
+  const sel=document.getElementById('wrWeekSelect');
+  if(sel) sel.value = idx===null ? '' : String(idx);
   renderWeeklyReport();
   // 상단 비교 카드로 부드럽게 스크롤
   setTimeout(()=>{
@@ -5202,6 +5217,25 @@ async function renderWeeklyReport(){
     // 주별/월별 집계
     const weeks=wrGroupByWeek(labels, mets).map(wrCalc);
     const months=wrGroupByMonth(labels, mets).map(wrCalc);
+
+    // 드롭다운에 주차 옵션 채우기 (최신 → 과거 순서)
+    const sel=document.getElementById('wrWeekSelect');
+    if(sel){
+      const curSelVal = WR_STATE.selectedWeekIdx===null ? '' : String(WR_STATE.selectedWeekIdx);
+      // 월별로 그룹핑해서 표시 (예: "5월 2주차 (5/11~5/17)")
+      const opts = weeks.map((w,i)=>{
+        const mn=w.weekStart.getMonth()+1;
+        // 해당 월에서 몇 번째 주인지
+        const weekNoInMonth=Math.ceil(w.weekStart.getDate()/7);
+        const label=`${mn}월 ${weekNoInMonth}주차 (${wrFmtDate(w.weekStart)}~${wrFmtDate(w.weekEnd)})`;
+        return {i,label,key:w.weekStart.toISOString().slice(0,10)};
+      });
+      // 최신부터 위로 정렬
+      opts.reverse();
+      sel.innerHTML = `<option value="">📍 최신 주차 (자동)</option>` +
+        opts.map(o=>`<option value="${o.i}">${o.label}</option>`).join('');
+      sel.value = curSelVal;
+    }
 
     // 현재 선택 주차 (selectedWeekIdx가 null이면 마지막 주차)
     const lastIdx=weeks.length-1;
