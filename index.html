@@ -5312,7 +5312,7 @@ async function renderWeeklyReport(){
       const prevWeekNo=Math.ceil(prev.weekStart.getDate()/7);
       const isLatestSelected = selIdx===lastIdx;
       const hintTxt = isLatestSelected
-        ? `<span style="font-size:12px;font-weight:500;color:#94a3b8;margin-left:8px">👉 아래 주차를 클릭하면 그 주 비교로 바뀌어요</span>`
+        ? ``
         : `<button onclick="selectWeek(null)" style="margin-left:8px;padding:4px 10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;font-weight:700;color:#475569;cursor:pointer">↩ 최신 주차로</button>`;
       html+=`<div class="wr-card">
         <h3>📊 주별 비교 (${curWeekNo}주차 vs ${prevWeekNo}주차)${hintTxt}</h3>
@@ -5360,7 +5360,7 @@ async function renderWeeklyReport(){
                 && w.weekStart.getTime()<=refTime);
     if(monthWeeks.length>0){
       html+=`<div class="wr-card">
-        <h3>📅 ${targetMonth}월 주차별 추이 <span style="font-size:12px;font-weight:500;color:#94a3b8">— 행을 클릭하면 위 비교가 바뀝니다</span></h3>
+        <h3>📅 ${targetMonth}월 주차별 추이</h3>
         <table class="wr-tbl">
           <thead><tr><th>주차</th><th>기간</th><th>광고비</th><th>클릭수</th><th>구매완료 전환수</th><th>매출</th><th>광고수익률</th><th>전환당 비용</th></tr></thead>
           <tbody>
@@ -5392,7 +5392,7 @@ async function renderWeeklyReport(){
       const endMonth=yearMonths[yearMonths.length-1].month;
       const period=`${String(year).slice(2)}년 ${startMonth}월 ~ ${endMonth}월`;
       const hasFixed = yearMonths.some(m=>m._fixed);
-      const note = hasFixed ? `<span style="font-size:11px;font-weight:500;color:#94a3b8;margin-left:8px">● = 노션 정리 수치</span>` : '';
+      const note = '';
       html+=`<div class="wr-card">
         <h3>📅 ${year>=2026?'분기':'올해'} 기록 (${period})${note}</h3>
         <table class="wr-tbl">
