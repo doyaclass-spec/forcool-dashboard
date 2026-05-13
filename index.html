@@ -5078,10 +5078,15 @@ const WR_STATE={type:'파워링크',data:null,selectedWeekIdx:null}; // selected
 // 노션 검증 수치 (사용자 제공) — 자동 집계 대신 우선 사용
 // 키: "유형|YYYY-MM"
 window.FIXED_MONTHLY_DATA = {
+  // 파워링크 (1~4월 노션 검증치)
   '파워링크|2026-01': {impressions:588763, clicks:3794, ctr:0.65, cpc:436, adSpend:1655940, purchaseCnt:118, crto:3.11, purchaseAmt:80074110, roas:4836, cpConv:14033},
   '파워링크|2026-02': {impressions:384132, clicks:5962, ctr:1.56, cpc:469, adSpend:2793318, purchaseCnt:126, crto:2.11, purchaseAmt:87387440, roas:3128, cpConv:22169},
   '파워링크|2026-03': {impressions:421422, clicks:6754, ctr:1.61, cpc:561, adSpend:3787070, purchaseCnt:208, crto:3.08, purchaseAmt:156583510, roas:4135, cpConv:18207},
   '파워링크|2026-04': {impressions:556335, clicks:8390, ctr:1.51, cpc:679, adSpend:5693631, purchaseCnt:278, crto:3.31, purchaseAmt:224602180, roas:3945, cpConv:20481},
+  // 쇼핑검색 (1~3월 노션 검증치)
+  '쇼핑검색|2026-01': {impressions:1362102, clicks:10968, ctr:0.81, cpc:1202, adSpend:13183599, purchaseCnt:302, crto:2.75, purchaseAmt:232691310, roas:1765, cpConv:43654},
+  '쇼핑검색|2026-02': {impressions:823538, clicks:8913, ctr:1.08, cpc:1209, adSpend:10778955, purchaseCnt:307, crto:3.44, purchaseAmt:234082210, roas:2172, cpConv:35111},
+  '쇼핑검색|2026-03': {impressions:1316470, clicks:13515, ctr:1.03, cpc:1575, adSpend:21289026, purchaseCnt:488, crto:3.61, purchaseAmt:497935390, roas:2339, cpConv:43625},
 };
 
 function setMode(mode){
