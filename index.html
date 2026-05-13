@@ -1565,7 +1565,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <input type="radio" name="wrType" value="쇼핑검색" onchange="switchWrType(this.value)" style="accent-color:#0f172a;width:16px;height:16px;cursor:pointer">
         <span>쇼핑검색</span>
       </label>
-      <button onclick="copyWeeklyReport()" id="wrCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,.25)">📋 노션에 복사</button>
+      <button onclick="copyWeeklyReport()" id="wrCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,.25)" title="표 텍스트로 복사 (편집 가능)">📋 텍스트 복사</button>
+      <button onclick="copyWeeklyReportAsImage()" id="wrImgCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#7c3aed,#6b21a8);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(124,58,237,.25)" title="화면 그대로 이미지로 복사 (색상 그대로)">🖼 이미지 복사</button>
     </div>
   </div>
   <div id="weeklyReportLoading" style="display:none;padding:20px;text-align:center;color:#64748b;font-size:13px"><span style="display:inline-block;width:18px;height:18px;border:2px solid #e2e8f0;border-top-color:#7c3aed;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:8px"></span>데이터 집계 중...</div>
@@ -5424,6 +5425,50 @@ async function renderWeeklyReport(){
 }
 
 // 노션 복사 (HTML 표 형식 → 노션이 자동 인식)
+// 이미지로 복사 (html2canvas) — 노션 표 색상 한계를 우회
+async function copyWeeklyReportAsImage(){
+  const body=document.getElementById('weeklyReportBody');
+  const btn=document.getElementById('wrImgCopyBtn');
+  if(!body || !body.innerHTML.trim()){alert('보고서를 먼저 생성해주세요');return;}
+  if(typeof html2canvas==='undefined'){alert('html2canvas 라이브러리가 아직 로드 중입니다. 잠시 후 다시 시도해주세요.');return;}
+  const orig=btn.textContent;
+  btn.textContent='🖼 캡처 중...';
+  try{
+    const canvas=await html2canvas(body,{
+      backgroundColor:'#ffffff',
+      scale:2, // 고해상도
+      useCORS:true,
+      logging:false,
+    });
+    canvas.toBlob(async (blob)=>{
+      if(!blob){btn.textContent='❌ 캡처 실패';setTimeout(()=>btn.textContent=orig,2000);return;}
+      try{
+        if(navigator.clipboard && window.ClipboardItem){
+          await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+          btn.textContent='✅ 이미지 복사됨!';
+          setTimeout(()=>btn.textContent=orig,2200);
+        } else {
+          // fallback: 다운로드
+          const url=URL.createObjectURL(blob);
+          const a=document.createElement('a');
+          a.href=url;a.download=`보고서_${new Date().toISOString().slice(0,10)}.png`;a.click();
+          URL.revokeObjectURL(url);
+          btn.textContent='💾 다운로드됨';
+          setTimeout(()=>btn.textContent=orig,2200);
+        }
+      } catch(e){
+        btn.textContent='❌ 복사 실패';
+        setTimeout(()=>btn.textContent=orig,2000);
+        console.warn('img copy fail:',e);
+      }
+    }, 'image/png');
+  } catch(e){
+    btn.textContent='❌ 캡처 실패';
+    setTimeout(()=>btn.textContent=orig,2000);
+    console.warn('html2canvas fail:',e);
+  }
+}
+
 async function copyWeeklyReport(){
   const body=document.getElementById('weeklyReportBody');
   if(!body || !body.innerHTML.trim()){alert('보고서를 먼저 생성해주세요');return;}
