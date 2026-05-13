@@ -5398,11 +5398,16 @@ async function renderWeeklyReport(){
         <table class="wr-tbl">
           <thead><tr><th>월</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>CPC</th><th>광고비</th><th>구매완료 전환수</th><th>구매완료 전환율</th><th>매출</th><th>광고수익률</th><th>전환당 비용</th></tr></thead>
           <tbody>
-            ${yearMonths.map(m=>`<tr><td>${String(m.year).slice(2)}년 ${m.month}월</td>
+            ${yearMonths.map(m=>{
+              const _now=new Date();
+              const _isCur=m.year===_now.getFullYear() && m.month===_now.getMonth()+1;
+              const _monthLabel=_isCur?`${String(m.year).slice(2)}년 ${m.month}월 (누적 중)`:`${String(m.year).slice(2)}년 ${m.month}월`;
+              return `<tr><td>${_monthLabel}</td>
               <td>${wrFmtN(m.impressions)}</td><td>${wrFmtN(m.clicks)}</td><td>${wrFmtPct(m.ctr)}</td>
               <td>${wrFmtCur(m.cpc)}</td><td>${wrFmtCur(m.adSpend)}</td>
               <td>${wrFmtN(m.purchaseCnt)}</td><td>${wrFmtPct(m.crto)}</td>
-              <td>${wrFmtCur(m.purchaseAmt)}</td><td>${wrFmtPct(m.roas)}</td><td>${wrFmtCur(m.cpConv)}</td></tr>`).join('')}
+              <td>${wrFmtCur(m.purchaseAmt)}</td><td>${wrFmtPct(m.roas)}</td><td>${wrFmtCur(m.cpConv)}</td></tr>`;
+            }).join('')}
           </tbody>
         </table>
       </div>`;
