@@ -5425,11 +5425,8 @@ async function copyWeeklyReport(){
   const btn=document.getElementById('wrCopyBtn');
   const orig=btn.textContent;
   try{
-    // 헤더 추가
-    const typeName=WR_STATE.type;
-    const today=new Date();
-    const title=`<h2>${typeName} 주간 보고서 (${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')} 기준)</h2>`;
-    const html=`<div style="font-family:'SUIT',sans-serif">${title}${body.innerHTML}</div>`;
+    // 제목 없이 표만 복사
+    const html=`<div style="font-family:'SUIT',sans-serif">${body.innerHTML}</div>`;
     // ClipboardItem으로 HTML + 텍스트 둘 다 복사
     if(navigator.clipboard && window.ClipboardItem){
       const blob=new Blob([html],{type:'text/html'});
