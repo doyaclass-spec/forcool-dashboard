@@ -1567,15 +1567,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </label>
       <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#475569;cursor:pointer">
         <input type="radio" name="wrType" value="GFA" onchange="switchWrType(this.value)" style="accent-color:#0f172a;width:16px;height:16px;cursor:pointer">
-        <span>GFA 전체</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#475569;cursor:pointer">
-        <input type="radio" name="wrType" value="ADVoost 쇼핑" onchange="switchWrType(this.value)" style="accent-color:#0f172a;width:16px;height:16px;cursor:pointer">
-        <span>GFA · ADVoost 쇼핑</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#475569;cursor:pointer">
-        <input type="radio" name="wrType" value="카탈로그 배너" onchange="switchWrType(this.value)" style="accent-color:#0f172a;width:16px;height:16px;cursor:pointer">
-        <span>GFA · 카탈로그 배너</span>
+        <span>GFA (성과형)</span>
       </label>
       <button onclick="copyWeeklyReport()" id="wrCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,.25)" title="표 텍스트로 복사 (편집 가능)">📋 텍스트 복사</button>
       <button onclick="copyWeeklyReportAsImage()" id="wrImgCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#7c3aed,#6b21a8);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(124,58,237,.25)" title="화면 그대로 이미지로 복사 (색상 그대로)">🖼 이미지 복사</button>
@@ -5720,14 +5712,10 @@ async function renderWeeklyReport(){
     const d=await res.json();
     if(d.error)throw new Error(d.error);
 
-    // ── GFA 전용: window.GFA_*_DATA에서 daily 만들기 ──
+    // ── GFA 전용: window.GFA_DAILY_DATA(합계) 사용 ──
     let typeData = d.daily?.[type];
-    const GFA_SRC = type==='GFA' ? window.GFA_DAILY_DATA
-                  : type==='ADVoost 쇼핑' ? window.GFA_ADVOOST_DAILY
-                  : type==='카탈로그 배너' ? window.GFA_CATALOG_DAILY
-                  : null;
-    if(GFA_SRC){
-      const G = GFA_SRC;
+    if(type==='GFA' && window.GFA_DAILY_DATA){
+      const G = window.GFA_DAILY_DATA;
       const dates = Object.keys(G).sort();
       typeData = {
         labels: dates.map(k=>k.slice(2)), // "26-04-01" 형식 (다른 타입과 동일)
@@ -5905,17 +5893,59 @@ async function renderWeeklyReport(){
       const startMonth=yearMonths[0].month;
       const endMonth=yearMonths[yearMonths.length-1].month;
       const period=`${String(year).slice(2)}년 ${startMonth}월 ~ ${endMonth}월`;
-      const hasFixed = yearMonths.some(m=>m._fixed);
-      const note = '';
+
+      // GFA 전용: 캠페인별 월별 데이터 보조 집계
+      const isGFA = type==='GFA';
+      const advMonths = {}, catMonths = {};
+      if(isGFA){
+        const collect = (src, target) => {
+          Object.keys(src||{}).forEach(d=>{
+            const [yy,mm] = d.split('-');
+            if(parseInt(yy)!==year) return;
+            const key = `${yy}-${mm}`;
+            if(!target[key]) target[key]={impressions:0,clicks:0,adSpend:0,purchaseCnt:0,purchaseAmt:0};
+            const v = src[d];
+            target[key].impressions += v.imp||0;
+            target[key].clicks += v.clk||0;
+            target[key].adSpend += v.cost||0;
+            target[key].purchaseCnt += v.purCnt||0;
+            target[key].purchaseAmt += v.purAmt||0;
+          });
+          Object.keys(target).forEach(k=>{
+            const t=target[k];
+            t.ctr = t.impressions>0 ? t.clicks/t.impressions*100 : 0;
+            t.cpc = t.clicks>0 ? t.adSpend/t.clicks : 0;
+            t.crto = t.clicks>0 ? t.purchaseCnt/t.clicks*100 : 0;
+            t.roas = t.adSpend>0 ? t.purchaseAmt/t.adSpend*100 : 0;
+            t.cpConv = t.purchaseCnt>0 ? t.adSpend/t.purchaseCnt : 0;
+          });
+        };
+        collect(window.GFA_ADVOOST_DAILY, advMonths);
+        collect(window.GFA_CATALOG_DAILY, catMonths);
+      }
+
       html+=`<div class="wr-card">
-        <h3>📅 ${year>=2026?'분기':'올해'} 기록 (${period})${note}</h3>
+        <h3>📅 ${year>=2026?'분기':'올해'} 기록 (${period})</h3>
         <table class="wr-tbl">
-          <thead><tr><th>월</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>CPC</th><th>광고비</th><th>구매완료 전환수</th><th>구매완료 전환율</th><th>매출</th><th>광고수익률</th><th>전환당 비용</th></tr></thead>
+          <thead><tr><th>월</th>${isGFA?'<th>캠페인</th>':''}<th>노출수</th><th>클릭수</th><th>클릭률</th><th>CPC</th><th>광고비</th><th>구매완료 전환수</th><th>구매완료 전환율</th><th>매출</th><th>광고수익률</th><th>전환당 비용</th></tr></thead>
           <tbody>
             ${yearMonths.slice().reverse().map(m=>{
               const _now=new Date();
               const _isCur=m.year===_now.getFullYear() && m.month===_now.getMonth()+1;
               const _monthLabel=_isCur?`${String(m.year).slice(2)}년 ${m.month}월 (누적 중)`:`${String(m.year).slice(2)}년 ${m.month}월`;
+              const monthKey = `${m.year}-${String(m.month).padStart(2,'0')}`;
+              if(isGFA){
+                const adv = advMonths[monthKey] || {impressions:0,clicks:0,adSpend:0,purchaseCnt:0,purchaseAmt:0,ctr:0,cpc:0,crto:0,roas:0,cpConv:0};
+                const cat = catMonths[monthKey] || {impressions:0,clicks:0,adSpend:0,purchaseCnt:0,purchaseAmt:0,ctr:0,cpc:0,crto:0,roas:0,cpConv:0};
+                const rowFor = (data, label, isFirst, isSum) => `<tr${_isCur && isSum?' class="hl"':''}${isSum?' style="border-top:2px solid #cbd5e1;font-weight:700;background:#f8fafc"':''}>
+                  ${isFirst?`<td rowspan="3" style="vertical-align:middle;font-weight:700">${_monthLabel}</td>`:''}
+                  <td style="font-size:12px;color:${isSum?'#0f172a':'#64748b'}">${label}</td>
+                  <td>${wrFmtN(data.impressions)}</td><td>${wrFmtN(data.clicks)}</td><td>${wrFmtPct(data.ctr)}</td>
+                  <td>${wrFmtCur(data.cpc)}</td><td>${wrFmtCur(data.adSpend)}</td>
+                  <td>${wrFmtN(data.purchaseCnt)}</td><td>${wrFmtPct(data.crto)}</td>
+                  <td>${wrFmtCur(data.purchaseAmt)}</td><td>${wrFmtPct(data.roas)}</td><td>${wrFmtCur(data.cpConv)}</td></tr>`;
+                return rowFor(adv, 'ADVoost 쇼핑', true, false) + rowFor(cat, '카탈로그 배너', false, false) + rowFor(m, '합계', false, true);
+              }
               return `<tr${_isCur?' class="hl"':''}><td>${_monthLabel}</td>
               <td>${wrFmtN(m.impressions)}</td><td>${wrFmtN(m.clicks)}</td><td>${wrFmtPct(m.ctr)}</td>
               <td>${wrFmtCur(m.cpc)}</td><td>${wrFmtCur(m.adSpend)}</td>
