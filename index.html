@@ -1142,6 +1142,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('keyword')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('keyword')}">🔍 키워드</div>
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('campaign')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('campaign')}">📋 캠페인</div>
   <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('strategy')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('strategy')}">🎯 AI 전략 보고서</div>
+  <div class="tab-item" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('gfa')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('gfa')}">📺 GFA 디스플레이</div>
 </nav>
 
 <!-- DATE PICKER -->
@@ -1498,6 +1499,38 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 <div class="card-body" id="secStrat" style="max-height:3000px">
 
+<!-- ⑦ 포쿨 광고보고서 (노션 복사용) -->
+<div id="weeklyReportTab" style="padding:0 16px 16px;border-bottom:1px solid #e2e8f0;margin-bottom:16px">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 0 12px;border-bottom:1px dashed #e2e8f0;margin-bottom:14px">
+    <div style="font-size:18px;font-weight:900;color:#0f172a">📒 포쿨 광고보고서</div>
+    <span style="font-size:12px;color:#64748b;font-weight:500">노션 바로 복사 · 매주 업데이트</span>
+    <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="wr-tab active" data-type="파워링크" onclick="switchWrType('파워링크')" style="padding:7px 14px;background:#0f172a;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">파워링크</button>
+      <button class="wr-tab" data-type="쇼핑검색" onclick="switchWrType('쇼핑검색')" style="padding:7px 14px;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">쇼핑검색</button>
+      <button class="wr-tab" data-type="브랜드" onclick="switchWrType('브랜드')" style="padding:7px 14px;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">브랜드</button>
+      <button class="wr-tab" data-type="콘텐츠" onclick="switchWrType('콘텐츠')" style="padding:7px 14px;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">콘텐츠</button>
+      <button onclick="copyWeeklyReport()" id="wrCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,.25)">📋 노션에 복사</button>
+    </div>
+  </div>
+  <div id="weeklyReportLoading" style="display:none;padding:20px;text-align:center;color:#64748b;font-size:13px"><span style="display:inline-block;width:18px;height:18px;border:2px solid #e2e8f0;border-top-color:#7c3aed;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:8px"></span>데이터 집계 중...</div>
+  <div id="weeklyReportBody"></div>
+</div>
+<style>
+  .wr-tab.active{background:#0f172a!important;color:#fff!important;border-color:#0f172a!important}
+  .wr-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;margin-bottom:18px}
+  .wr-card h3{font-size:16px;font-weight:900;color:#0f172a;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+  .wr-tbl{width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
+  .wr-tbl thead th{background:#f8fafc;color:#475569;font-weight:800;padding:9px 11px;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap;font-size:12px}
+  .wr-tbl tbody td{padding:9px 11px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .wr-tbl tbody tr:last-child td{border-bottom:none}
+  .wr-tbl tbody tr.hl td{background:#fffbeb;font-weight:700}
+  .wr-tbl .chg-up{color:#dc2626;font-weight:700}
+  .wr-tbl .chg-dn{color:#2563eb;font-weight:700}
+  .wr-tbl .chg-eq{color:#64748b;font-weight:600}
+  .wr-empty{padding:20px;text-align:center;color:#94a3b8;font-size:13px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+
 <!-- ⑧ AI 전략 보고서 (주간/월간) -->
 <div id="aiTab" style="padding:0 16px 16px">
   <div class="ai-controls">
@@ -1522,6 +1555,32 @@ button:disabled{opacity:.55;cursor:not-allowed}
 </div><!-- /secStrat -->
 
 </div><!-- /secStratTab tab-content -->
+
+<!-- 📺 GFA 디스플레이 (Tab: gfa) -->
+<div id="secGfaTab" class="tab-content">
+<div class="phase"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><div class="p-num pn1">📺</div><span class="p-title">GFA 성과형 디스플레이 광고</span><span class="p-date" style="font-size:13px;color:var(--t2)">크롬 확장 자동 수집</span></div></div>
+
+<div style="background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:14px;font-size:12px;color:var(--t2);line-height:1.7">
+  <b style="color:var(--t1)">데이터 소스</b>: <code style="background:var(--sf);padding:1px 6px;border-radius:4px">forcool-gfa-collector</code> 크롬 확장이 매일 KST 08:30에 GFA 관리자 로그인 쿠키로 보고서를 읽어 Worker로 업로드합니다. 노트북·크롬이 켜져 있어야 동작.
+</div>
+
+<div class="card" style="padding:18px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+    <div style="font-weight:700;font-size:14px;color:var(--t1)">수집된 일자 (최근 30일)</div>
+    <div>
+      <button id="gfaRefreshBtn" onclick="loadGfaData()" style="background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer">🔄 새로고침</button>
+    </div>
+  </div>
+  <div id="gfaStatus" style="font-size:12px;color:var(--t2);margin-bottom:10px">로드 중…</div>
+  <div id="gfaList" style="font-size:12px"></div>
+</div>
+
+<div class="card" style="padding:18px;margin-top:14px">
+  <div style="font-weight:700;font-size:14px;color:var(--t1);margin-bottom:10px">선택일 데이터 (raw)</div>
+  <div id="gfaDetail" style="font-size:11px;font-family:ui-monospace,monospace;background:var(--sf);border:1px solid var(--bd);border-radius:6px;padding:10px;max-height:520px;overflow:auto;white-space:pre-wrap;color:var(--t1)">— 위 목록에서 날짜 클릭</div>
+</div>
+
+</div><!-- /secGfaTab tab-content -->
 
 </div><!-- /main -->
 
@@ -4924,16 +4983,322 @@ function renderHero(){
 
 /* ================================================================ TAB SWITCHING */
 function switchTab(tabId){
-  const map={status:'secStatus',trend:'secTrendTab',keyword:'secDetailTab',campaign:'secDetailTab',strategy:'secStratTab'};
+  const map={status:'secStatus',trend:'secTrendTab',keyword:'secDetailTab',campaign:'secDetailTab',strategy:'secStratTab',gfa:'secGfaTab'};
   document.querySelectorAll('.tab-content').forEach(el=>{el.classList.remove('active')});
   const targetId=map[tabId];
   if(targetId){const t=document.getElementById(targetId);if(t)t.classList.add('active')}
   document.querySelectorAll('.tab-item').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false')});
   if(event&&event.target){event.target.classList.add('active');event.target.setAttribute('aria-selected','true')}
+  if(tabId==='gfa') loadGfaData();
+}
+
+/* ================================================================ GFA */
+let _gfaItems=[];
+async function loadGfaData(){
+  const status=document.getElementById('gfaStatus');
+  const list=document.getElementById('gfaList');
+  if(!status||!list)return;
+  status.textContent='로드 중…';
+  list.innerHTML='';
+  try{
+    const r=await fetch(WORKER_URL+'/api/gfa-data?limit=30',{headers:{'Origin':location.origin}});
+    if(!r.ok){status.innerHTML=`<span style="color:#dc2626">조회 실패: HTTP ${r.status}</span>`;return}
+    const d=await r.json();
+    _gfaItems=d.items||[];
+    if(_gfaItems.length===0){
+      status.innerHTML='<span style="color:#9ca3af">아직 수집된 데이터가 없습니다. 크롬 확장에서 "지금 테스트 수집"을 실행해보세요.</span>';
+      return;
+    }
+    status.textContent=`총 ${_gfaItems.length}일 수집됨 · 최신 ${_gfaItems[_gfaItems.length-1].date}`;
+    list.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:6px">${
+      _gfaItems.slice().reverse().map(it=>{
+        const size=it.data?JSON.stringify(it.data).length:0;
+        return `<button onclick="showGfaDetail('${it.date}')" style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:ui-monospace,monospace">${it.date}<span style="color:var(--t2);margin-left:6px">${(size/1024).toFixed(1)}KB</span></button>`;
+      }).join('')
+    }</div>`;
+    // 최신 자동 표시
+    showGfaDetail(_gfaItems[_gfaItems.length-1].date);
+  }catch(e){
+    status.innerHTML=`<span style="color:#dc2626">오류: ${escHtml(e.message||String(e))}</span>`;
+  }
+}
+function showGfaDetail(date){
+  const detail=document.getElementById('gfaDetail');
+  const it=_gfaItems.find(x=>x.date===date);
+  if(!it){detail.textContent='데이터 없음';return}
+  try{
+    detail.textContent=JSON.stringify(it,null,2);
+  }catch(e){detail.textContent='렌더 실패: '+(e.message||e)}
 }
 
 /* ================================================================ RELOAD */
-function reloadAll(){renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();updateBidRecommend();fetchMonthlySpend();checkAiMinDays()}
+function reloadAll(){renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();updateBidRecommend();fetchMonthlySpend();checkAiMinDays();renderWeeklyReport()}
+
+/* ================================================================ 포쿨 광고보고서 (노션 복사용) */
+const WR_STATE={type:'파워링크',data:null};
+
+function switchWrType(type){
+  WR_STATE.type=type;
+  document.querySelectorAll('.wr-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.type===type);
+  });
+  renderWeeklyReport();
+}
+
+// 일별 데이터 → 주차 묶음 (월요일 시작)
+function wrGroupByWeek(labels, mets){
+  // labels는 "26-05-13" 형식
+  const weeks={};
+  labels.forEach((lbl,i)=>{
+    // 라벨 → Date
+    const parts=lbl.split('-');
+    const yy=parseInt(parts[0])>50?1900+parseInt(parts[0]):2000+parseInt(parts[0]);
+    const d=new Date(yy, parseInt(parts[1])-1, parseInt(parts[2]));
+    // 월요일 기준 주 시작 계산
+    const day=d.getDay()||7; // 일=0→7
+    const monday=new Date(d);
+    monday.setDate(d.getDate()-(day-1));
+    const weekKey=monday.toISOString().slice(0,10);
+    if(!weeks[weekKey])weeks[weekKey]={start:monday,days:[]};
+    weeks[weekKey].days.push({lbl,i,date:d});
+  });
+  // 주별 합산
+  const result=[];
+  Object.keys(weeks).sort().forEach(key=>{
+    const w=weeks[key];
+    const sum={impressions:0,clicks:0,adSpend:0,conversions:0,convRevenue:0,purchaseCnt:0,purchaseAmt:0,cartCnt:0,cartAmt:0,viewCnt:0};
+    w.days.forEach(({i})=>{
+      Object.keys(sum).forEach(k=>{ sum[k] += (mets[k]||[])[i] || 0; });
+    });
+    const end=new Date(w.start); end.setDate(w.start.getDate()+6);
+    const last=w.days[w.days.length-1]?.date || end;
+    result.push({weekStart:w.start, weekEnd:last, ...sum});
+  });
+  return result;
+}
+
+// 일별 데이터 → 월별 묶음
+function wrGroupByMonth(labels, mets){
+  const months={};
+  labels.forEach((lbl,i)=>{
+    const parts=lbl.split('-');
+    const yy=parseInt(parts[0])>50?1900+parseInt(parts[0]):2000+parseInt(parts[0]);
+    const monthKey=`${yy}-${parts[1]}`;
+    if(!months[monthKey])months[monthKey]={year:yy,month:parseInt(parts[1]),days:[]};
+    months[monthKey].days.push(i);
+  });
+  const result=[];
+  Object.keys(months).sort().forEach(key=>{
+    const m=months[key];
+    const sum={impressions:0,clicks:0,adSpend:0,conversions:0,convRevenue:0,purchaseCnt:0,purchaseAmt:0,cartCnt:0,cartAmt:0,viewCnt:0};
+    m.days.forEach(i=>{ Object.keys(sum).forEach(k=>{ sum[k] += (mets[k]||[])[i] || 0; }); });
+    result.push({year:m.year, month:m.month, ...sum});
+  });
+  return result;
+}
+
+// 비율 계산
+function wrCalc(row){
+  return {
+    ...row,
+    ctr: row.impressions>0 ? row.clicks/row.impressions*100 : 0,
+    cpc: row.clicks>0 ? row.adSpend/row.clicks : 0,
+    crto: row.clicks>0 ? row.purchaseCnt/row.clicks*100 : 0,
+    roas: row.adSpend>0 ? row.purchaseAmt/row.adSpend*100 : 0,
+    cpConv: row.purchaseCnt>0 ? row.adSpend/row.purchaseCnt : 0,
+    avgOrder: row.purchaseCnt>0 ? row.purchaseAmt/row.purchaseCnt : 0,
+  };
+}
+
+function wrChg(cur, prev, isReverse){
+  if(!prev || prev===0) return {pct:0, cls:'chg-eq', sym:'—', txt:'—'};
+  const diff=cur-prev;
+  const pct=Math.round((diff/Math.abs(prev))*1000)/10;
+  if(pct===0) return {pct:0, cls:'chg-eq', sym:'—', txt:'0%'};
+  const goodIsUp = !isReverse; // 일반 지표: 증가가 좋음 / CPC·CPConv·전환비용: 감소가 좋음
+  const isPositive = pct>0;
+  const isGood = goodIsUp ? isPositive : !isPositive;
+  const cls = isGood ? 'chg-up' : 'chg-dn';
+  const sym = isPositive ? '▲' : '▼';
+  return {pct, cls, sym, txt:`${sym} ${Math.abs(pct)}%`};
+}
+
+const wrFmtN=v=>Math.round(v||0).toLocaleString('ko-KR');
+const wrFmtCur=v=>Math.round(v||0).toLocaleString('ko-KR')+'원';
+const wrFmtPct=v=>(Math.round((v||0)*100)/100).toFixed(2)+'%';
+const wrFmtPct1=v=>(Math.round((v||0)*10)/10).toFixed(1)+'%';
+const wrFmtDate=d=>`${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+
+async function renderWeeklyReport(){
+  const type=WR_STATE.type;
+  const body=document.getElementById('weeklyReportBody');
+  const loading=document.getElementById('weeklyReportLoading');
+  if(!body)return;
+  loading.style.display='block';
+  body.innerHTML='';
+
+  try{
+    // 올해 1월 1일~오늘까지 한 번에 fetch (캐시 활용)
+    const today=new Date();
+    const year=today.getFullYear();
+    const from=`${year}-01-01`;
+    const to=localDateStr(today);
+
+    const url=`${WORKER_URL}/api/dashboard-fast?from=${from}&to=${to}`;
+    const res=await fetch(url);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const d=await res.json();
+    if(d.error)throw new Error(d.error);
+
+    const typeData=d.daily?.[type];
+    if(!typeData){
+      body.innerHTML=`<div class="wr-empty">⚠️ ${type} 데이터가 없어요</div>`;
+      loading.style.display='none';
+      return;
+    }
+
+    const labels=typeData.labels||[];
+    const mets=typeData.cur||{};
+    if(labels.length===0){
+      body.innerHTML=`<div class="wr-empty">선택한 유형의 일별 데이터가 비어있어요</div>`;
+      loading.style.display='none';
+      return;
+    }
+
+    // 주별/월별 집계
+    const weeks=wrGroupByWeek(labels, mets).map(wrCalc);
+    const months=wrGroupByMonth(labels, mets).map(wrCalc);
+
+    // 현재주(=마지막 주) vs 전주
+    const cur=weeks[weeks.length-1];
+    const prev=weeks[weeks.length-2];
+
+    let html='';
+
+    // 1) 주별 비교
+    if(cur && prev){
+      const curLabel=`${wrFmtDate(cur.weekStart)}~${wrFmtDate(cur.weekEnd)}`;
+      const prevLabel=`${wrFmtDate(prev.weekStart)}~${wrFmtDate(prev.weekEnd)}`;
+      const curWeekNo=Math.ceil(cur.weekStart.getDate()/7);
+      const prevWeekNo=Math.ceil(prev.weekStart.getDate()/7);
+      html+=`<div class="wr-card">
+        <h3>📊 주별 비교 (${curWeekNo}주차 vs ${prevWeekNo}주차)</h3>
+        <table class="wr-tbl">
+          <thead><tr>
+            <th>주차</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>CPC</th><th>💰 광고비</th>
+            <th>✅ 구매완료 전환수</th><th>구매완료 전환율</th><th>📈 매출</th><th>📊 광고수익률</th><th>전환당 비용</th><th>객단가</th>
+          </tr></thead>
+          <tbody>
+            <tr class="hl"><td><b>${curWeekNo}주차 (${curLabel})</b></td>
+              <td>${wrFmtN(cur.impressions)}</td><td>${wrFmtN(cur.clicks)}</td><td>${wrFmtPct(cur.ctr)}</td>
+              <td>${wrFmtCur(cur.cpc)}</td><td>${wrFmtCur(cur.adSpend)}</td>
+              <td>${wrFmtN(cur.purchaseCnt)}</td><td>${wrFmtPct(cur.crto)}</td>
+              <td>${wrFmtCur(cur.purchaseAmt)}</td><td>${wrFmtPct(cur.roas)}</td>
+              <td>${wrFmtCur(cur.cpConv)}</td><td>${wrFmtCur(cur.avgOrder)}</td></tr>
+            <tr><td>${prevWeekNo}주차 (${prevLabel})</td>
+              <td>${wrFmtN(prev.impressions)}</td><td>${wrFmtN(prev.clicks)}</td><td>${wrFmtPct(prev.ctr)}</td>
+              <td>${wrFmtCur(prev.cpc)}</td><td>${wrFmtCur(prev.adSpend)}</td>
+              <td>${wrFmtN(prev.purchaseCnt)}</td><td>${wrFmtPct(prev.crto)}</td>
+              <td>${wrFmtCur(prev.purchaseAmt)}</td><td>${wrFmtPct(prev.roas)}</td>
+              <td>${wrFmtCur(prev.cpConv)}</td><td>${wrFmtCur(prev.avgOrder)}</td></tr>
+            <tr><td><b>변화</b>
+              ${['impressions','clicks','ctr','cpc','adSpend','purchaseCnt','crto','purchaseAmt','roas','cpConv','avgOrder'].map(k=>{
+                const reverse=['cpc','cpConv'].includes(k);
+                const c=wrChg(cur[k],prev[k],reverse);
+                return `</td><td class="${c.cls}">${c.txt}`;
+              }).join('')}
+            </td></tr>
+          </tbody>
+        </table>
+      </div>`;
+    } else {
+      html+=`<div class="wr-empty">주별 비교 데이터가 부족합니다 (최소 2주 필요)</div>`;
+    }
+
+    // 2) 이번달 주차별 추이
+    const curMonthNo=today.getMonth()+1;
+    const thisMonthWeeks=weeks.filter(w=>w.weekStart.getMonth()+1===curMonthNo || w.weekEnd.getMonth()+1===curMonthNo);
+    if(thisMonthWeeks.length>0){
+      html+=`<div class="wr-card">
+        <h3>📅 ${curMonthNo}월 주차별 추이</h3>
+        <table class="wr-tbl">
+          <thead><tr><th>주차</th><th>기간</th><th>광고비</th><th>클릭수</th><th>구매완료 전환수</th><th>매출</th><th>광고수익률</th><th>전환당 비용</th></tr></thead>
+          <tbody>
+            ${thisMonthWeeks.slice().reverse().map((w,idx)=>{
+              const weekNo=thisMonthWeeks.length-idx;
+              const isLatest=idx===0;
+              return `<tr${isLatest?' class="hl"':''}><td><b>${weekNo}주차</b></td>
+                <td>${wrFmtDate(w.weekStart)}~${wrFmtDate(w.weekEnd)}</td>
+                <td>${wrFmtCur(w.adSpend)}</td><td>${wrFmtN(w.clicks)}</td>
+                <td>${wrFmtN(w.purchaseCnt)}</td><td>${wrFmtCur(w.purchaseAmt)}</td>
+                <td>${wrFmtPct(w.roas)}</td><td>${wrFmtCur(w.cpConv)}</td></tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    }
+
+    // 3) 분기 기록 (월별)
+    const yearMonths=months.filter(m=>m.year===year);
+    if(yearMonths.length>0){
+      const startMonth=yearMonths[0].month;
+      const endMonth=yearMonths[yearMonths.length-1].month;
+      const period=`${String(year).slice(2)}년 ${startMonth}월 ~ ${endMonth}월`;
+      html+=`<div class="wr-card">
+        <h3>📅 ${year>=2026?'분기':'올해'} 기록 (${period})</h3>
+        <table class="wr-tbl">
+          <thead><tr><th>월</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>CPC</th><th>광고비</th><th>구매완료 전환수</th><th>구매완료 전환율</th><th>매출</th><th>광고수익률</th><th>전환당 비용</th></tr></thead>
+          <tbody>
+            ${yearMonths.map(m=>`<tr><td>${String(m.year).slice(2)}년 ${m.month}월</td>
+              <td>${wrFmtN(m.impressions)}</td><td>${wrFmtN(m.clicks)}</td><td>${wrFmtPct(m.ctr)}</td>
+              <td>${wrFmtCur(m.cpc)}</td><td>${wrFmtCur(m.adSpend)}</td>
+              <td>${wrFmtN(m.purchaseCnt)}</td><td>${wrFmtPct(m.crto)}</td>
+              <td>${wrFmtCur(m.purchaseAmt)}</td><td>${wrFmtPct(m.roas)}</td><td>${wrFmtCur(m.cpConv)}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    }
+
+    body.innerHTML=html;
+    WR_STATE.data={weeks,months,cur,prev,thisMonthWeeks,yearMonths,type,curMonthNo};
+  } catch(e){
+    body.innerHTML=`<div class="wr-empty">❌ 데이터 로드 실패: ${e.message||e}</div>`;
+    console.warn('weeklyReport fail:', e);
+  } finally {
+    loading.style.display='none';
+  }
+}
+
+// 노션 복사 (HTML 표 형식 → 노션이 자동 인식)
+async function copyWeeklyReport(){
+  const body=document.getElementById('weeklyReportBody');
+  if(!body || !body.innerHTML.trim()){alert('보고서를 먼저 생성해주세요');return;}
+  const btn=document.getElementById('wrCopyBtn');
+  const orig=btn.textContent;
+  try{
+    // 헤더 추가
+    const typeName=WR_STATE.type;
+    const today=new Date();
+    const title=`<h2>${typeName} 주간 보고서 (${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')} 기준)</h2>`;
+    const html=`<div style="font-family:'SUIT',sans-serif">${title}${body.innerHTML}</div>`;
+    // ClipboardItem으로 HTML + 텍스트 둘 다 복사
+    if(navigator.clipboard && window.ClipboardItem){
+      const blob=new Blob([html],{type:'text/html'});
+      const textBlob=new Blob([body.textContent],{type:'text/plain'});
+      await navigator.clipboard.write([new ClipboardItem({'text/html':blob,'text/plain':textBlob})]);
+    } else {
+      // fallback
+      await navigator.clipboard.writeText(html);
+    }
+    btn.textContent='✅ 복사됨! 노션에 붙여넣기';
+    btn.style.background='linear-gradient(135deg,#16a34a,#15803d)';
+    setTimeout(()=>{btn.textContent=orig;},2000);
+  }catch(e){
+    btn.textContent='❌ 복사 실패';
+    setTimeout(()=>{btn.textContent=orig;},2000);
+    console.warn('copy fail:',e);
+  }
+}
 
 // 이번 달 누적 광고비 (localStorage 캐시로 즉시 렌더 + 백그라운드 갱신)
 const MS_CACHE_KEY='forcool_ms_v1';
@@ -5040,7 +5405,7 @@ async function init(){
   updateHeaderDate();
   try{populateReportSelectors()}catch(e){console.warn('populateReportSelectors:',e?.message||e)}
   await fetchDashboardData();
-  renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();
+  renderHero();renderAlerts();renderKpi();initTrend();renderHm();renderKw();renderCmp();renderLog();renderWeeklyReport();
   try{populateReportSelectors()}catch(e){console.warn('populateReportSelectors:',e?.message||e)}
   // 초기 렌더 후 자주 쓰는 기간 프리페치 (유휴 시)
   if('requestIdleCallback' in window)requestIdleCallback(()=>prefetchCommonRanges(),{timeout:3000});
