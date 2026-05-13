@@ -1176,15 +1176,12 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 <!-- 상단 헤더 (사이드바 우측) -->
 <header class="header">
-  <h1 style="display:flex;align-items:center;gap:14px;font-size:16px">
+  <h1 style="display:flex;align-items:center;gap:16px;font-size:24px;font-weight:900;letter-spacing:-.4px;flex-wrap:wrap">
     <span id="pageTitle">광고 대시보드 · <span style="color:#7c3aed">통합</span></span>
-  </h1>
-  <div class="header-right">
-    <button class="date-btn" id="dateBtnMain" onclick="toggleDp()" aria-label="분석 기간 선택" style="background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">
+    <button class="date-btn" id="dateBtnMain" onclick="toggleDp()" aria-label="분석 기간 선택" style="background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--t1);cursor:pointer">
       <span class="date-range-txt" id="dateRangeTxt">최근 7일(오늘 포함) : 2026.03.15. ~ 2026.03.21.</span>
     </button>
-    <button class="phobis-btn" onclick="jvOpen()" aria-label="AI 어시스턴트 포비스 열기"><span aria-hidden="true">💁‍♀️</span> 포비스</button>
-  </div>
+  </h1>
 </header>
 <style>
   /* ─── 사이드바 ─── */
