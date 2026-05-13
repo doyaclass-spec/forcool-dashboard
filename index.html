@@ -5408,7 +5408,7 @@ async function renderWeeklyReport(){
               const _now=new Date();
               const _isCur=m.year===_now.getFullYear() && m.month===_now.getMonth()+1;
               const _monthLabel=_isCur?`${String(m.year).slice(2)}년 ${m.month}월 (누적 중)`:`${String(m.year).slice(2)}년 ${m.month}월`;
-              return `<tr><td>${_monthLabel}</td>
+              return `<tr${_isCur?' class="hl"':''}><td>${_monthLabel}</td>
               <td>${wrFmtN(m.impressions)}</td><td>${wrFmtN(m.clicks)}</td><td>${wrFmtPct(m.ctr)}</td>
               <td>${wrFmtCur(m.cpc)}</td><td>${wrFmtCur(m.adSpend)}</td>
               <td>${wrFmtN(m.purchaseCnt)}</td><td>${wrFmtPct(m.crto)}</td>
