@@ -4990,6 +4990,10 @@ function switchTab(tabId){
   document.querySelectorAll('.tab-item').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false')});
   if(event&&event.target){event.target.classList.add('active');event.target.setAttribute('aria-selected','true')}
   if(tabId==='gfa') loadGfaData();
+  if(tabId==='strategy'){try{
+    const body=document.getElementById('weeklyReportBody');
+    if(!body || body.innerHTML.trim().length<50) renderWeeklyReport();
+  }catch(e){console.warn('strategy tab wr fail:',e?.message);}}
 }
 
 /* ================================================================ GFA */
