@@ -5346,7 +5346,8 @@ async function renderWeeklyReport(){
 
     // 2) 이번달 주차별 추이 (클릭 가능)
     const curMonthNo=today.getMonth()+1;
-    const thisMonthWeeks=weeks.map((w,i)=>({...w,idx:i})).filter(w=>w.weekStart.getMonth()+1===curMonthNo || w.weekEnd.getMonth()+1===curMonthNo);
+    // weekStart 기준만 사용 (4/27~5/3 같은 걸쳐있는 주는 4월에 귀속)
+    const thisMonthWeeks=weeks.map((w,i)=>({...w,idx:i})).filter(w=>w.weekStart.getMonth()+1===curMonthNo);
     if(thisMonthWeeks.length>0){
       html+=`<div class="wr-card">
         <h3>📅 ${curMonthNo}월 주차별 추이 <span style="font-size:12px;font-weight:500;color:#94a3b8">— 행을 클릭하면 위 비교가 바뀝니다</span></h3>
@@ -5354,7 +5355,8 @@ async function renderWeeklyReport(){
           <thead><tr><th>주차</th><th>기간</th><th>광고비</th><th>클릭수</th><th>구매완료 전환수</th><th>매출</th><th>광고수익률</th><th>전환당 비용</th></tr></thead>
           <tbody>
             ${thisMonthWeeks.slice().reverse().map((w,idx)=>{
-              const weekNo=thisMonthWeeks.length-idx;
+              // weekNo는 비교 카드와 동일한 공식 (해당 주의 weekStart 날짜 / 7 올림)
+              const weekNo=Math.ceil(w.weekStart.getDate()/7);
               const isSelected=w.idx===selIdx;
               return `<tr${isSelected?' class="hl"':''} onclick="selectWeek(${w.idx})" style="cursor:pointer" title="클릭하면 이 주차 vs 전주 비교로 바뀌어요"><td><b>${weekNo}주차</b></td>
                 <td>${wrFmtDate(w.weekStart)}~${wrFmtDate(w.weekEnd)}</td>
