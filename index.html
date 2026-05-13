@@ -1565,6 +1565,10 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <input type="radio" name="wrType" value="쇼핑검색" onchange="switchWrType(this.value)" style="accent-color:#0f172a;width:16px;height:16px;cursor:pointer">
         <span>쇼핑검색</span>
       </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#475569;cursor:pointer">
+        <input type="radio" name="wrType" value="GFA" onchange="switchWrType(this.value)" style="accent-color:#0f172a;width:16px;height:16px;cursor:pointer">
+        <span>GFA (성과형)</span>
+      </label>
       <button onclick="copyWeeklyReport()" id="wrCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,.25)" title="표 텍스트로 복사 (편집 가능)">📋 텍스트 복사</button>
       <button onclick="copyWeeklyReportAsImage()" id="wrImgCopyBtn" style="padding:7px 14px;background:linear-gradient(135deg,#7c3aed,#6b21a8);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(124,58,237,.25)" title="화면 그대로 이미지로 복사 (색상 그대로)">🖼 이미지 복사</button>
     </div>
@@ -5087,6 +5091,10 @@ window.FIXED_MONTHLY_DATA = {
   '쇼핑검색|2026-01': {impressions:1362102, clicks:10968, ctr:0.81, cpc:1202, adSpend:13183599, purchaseCnt:302, crto:2.75, purchaseAmt:232691310, roas:1765, cpConv:43654},
   '쇼핑검색|2026-02': {impressions:823538, clicks:8913, ctr:1.08, cpc:1209, adSpend:10778955, purchaseCnt:307, crto:3.44, purchaseAmt:234082210, roas:2172, cpConv:35111},
   '쇼핑검색|2026-03': {impressions:1316470, clicks:13515, ctr:1.03, cpc:1575, adSpend:21289026, purchaseCnt:488, crto:3.61, purchaseAmt:497935390, roas:2339, cpConv:43625},
+  // GFA 성과형 디스플레이 (1~3월 노션 검증치)
+  'GFA|2026-01': {impressions:5492375, clicks:17867, ctr:0.33, cpc:493, adSpend:8813402, purchaseCnt:517, crto:2.89, purchaseAmt:195095334, roas:2214, cpConv:17047},
+  'GFA|2026-02': {impressions:5173565, clicks:14923, ctr:0.29, cpc:513, adSpend:7656029, purchaseCnt:403, crto:2.70, purchaseAmt:194345883, roas:2538, cpConv:18998},
+  'GFA|2026-03': {impressions:5259279, clicks:18128, ctr:0.34, cpc:694, adSpend:12574760, purchaseCnt:513, crto:2.83, purchaseAmt:387654850, roas:3083, cpConv:24512},
 };
 
 function setMode(mode){
@@ -5312,8 +5320,53 @@ async function renderWeeklyReport(){
     if(d.error)throw new Error(d.error);
 
     const typeData=d.daily?.[type];
-    if(!typeData){
-      body.innerHTML=`<div class="wr-empty">⚠️ ${type} 데이터가 없어요</div>`;
+    // 자동 집계 없는 타입(GFA 등) — FIXED_MONTHLY_DATA만으로 분기 기록 카드 렌더
+    if(!typeData || !(typeData.labels||[]).length){
+      const FIXED=window.FIXED_MONTHLY_DATA||{};
+      const year=new Date().getFullYear();
+      const fixedMonths=Object.keys(FIXED)
+        .filter(k=>k.startsWith(type+'|'+year+'-'))
+        .map(k=>{
+          const ym=k.split('|')[1];
+          const [y,m]=ym.split('-').map(Number);
+          return {year:y, month:m, ...FIXED[k], _fixed:true};
+        })
+        .sort((a,b)=>a.month-b.month);
+      if(fixedMonths.length===0){
+        body.innerHTML=`<div class="wr-empty">⚠️ ${type} 데이터가 없어요 (엑셀 업로드 또는 노션 검증치 미등록)</div>`;
+        loading.style.display='none';
+        return;
+      }
+      // 분기 기록 카드만 렌더
+      const startMonth=fixedMonths[0].month;
+      const endMonth=fixedMonths[fixedMonths.length-1].month;
+      const period=`${String(year).slice(2)}년 ${startMonth}월 ~ ${endMonth}월`;
+      const html=`<div class="wr-empty" style="text-align:left;background:#fef3c7;border:1px dashed #fde68a;border-radius:10px;padding:14px 18px;margin-bottom:12px;color:#78716c;font-size:13px">
+        💡 <b>${type}</b>는 자동 집계가 없어 노션 검증 수치만 표시됩니다. 주별 비교·추이는 엑셀 업로드 기능 적용 후 활성화 예정.
+      </div>
+      <div class="wr-card">
+        <h3>📅 분기 기록 (${period})</h3>
+        <table class="wr-tbl">
+          <thead><tr><th>월</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>CPC</th><th>광고비</th><th>구매완료 전환수</th><th>구매완료 전환율</th><th>매출</th><th>광고수익률</th><th>전환당 비용</th></tr></thead>
+          <tbody>
+            ${fixedMonths.slice().reverse().map(m=>{
+              const _now=new Date();
+              const _isCur=m.year===_now.getFullYear() && m.month===_now.getMonth()+1;
+              const _monthLabel=_isCur?`${String(m.year).slice(2)}년 ${m.month}월 (누적 중)`:`${String(m.year).slice(2)}년 ${m.month}월`;
+              return `<tr${_isCur?' class="hl"':''}><td>${_monthLabel}</td>
+              <td>${wrFmtN(m.impressions)}</td><td>${wrFmtN(m.clicks)}</td><td>${wrFmtPct(m.ctr)}</td>
+              <td>${wrFmtCur(m.cpc)}</td><td>${wrFmtCur(m.adSpend)}</td>
+              <td>${wrFmtN(m.purchaseCnt)}</td><td>${wrFmtPct(m.crto)}</td>
+              <td>${wrFmtCur(m.purchaseAmt)}</td><td>${wrFmtPct(m.roas)}</td><td>${wrFmtCur(m.cpConv)}</td></tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+      body.innerHTML=html;
+      // 드롭다운 비우기 (GFA는 주차 선택 없음)
+      const sel=document.getElementById('wrWeekSelect');
+      if(sel) sel.innerHTML='<option value="">-- (주차 데이터 없음)</option>';
+      WR_STATE.data={onlyFixed:true,type,fixedMonths};
       loading.style.display='none';
       return;
     }
